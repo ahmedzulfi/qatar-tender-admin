@@ -250,25 +250,11 @@ export function AdminControlsContent() {
 
   return (
     <div className="space-y-6">
-      {/* Warning Banner */}
-      <Card className="border-red-200 bg-red-50">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-600" />
-            <div>
-              <h3 className="font-semibold text-red-900">Restricted Admin Controls</h3>
-              <p className="text-sm text-red-700">
-                These actions are irreversible and require password confirmation. All actions are logged for audit
-                purposes.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="users" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsTrigger value="users" className="flex items-center gap-2 ">
             <UserX className="h-4 w-4" />
             User Management
           </TabsTrigger>
@@ -333,9 +319,7 @@ export function AdminControlsContent() {
                           >
                             {user.status}
                           </Badge>
-                          {user.suspensionReason && (
-                            <div className="text-xs text-red-600 mt-1">Reason: {user.suspensionReason}</div>
-                          )}
+                     
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline">{user.tenderCount}</Badge>
@@ -458,7 +442,6 @@ export function AdminControlsContent() {
                       <TableHead>Category</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Bids</TableHead>
-                      <TableHead>Deadline</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -485,7 +468,6 @@ export function AdminControlsContent() {
                         <TableCell>
                           <Badge variant="outline">{tender.bidCount}</Badge>
                         </TableCell>
-                        <TableCell>{format(new Date(tender.deadline), "MMM dd, yyyy HH:mm")}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {tender.status === "active" && (
@@ -594,7 +576,6 @@ export function AdminControlsContent() {
                       <TableHead>Admin</TableHead>
                       <TableHead>Reason</TableHead>
                       <TableHead>Timestamp</TableHead>
-                      <TableHead>Severity</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -607,14 +588,7 @@ export function AdminControlsContent() {
                           <div className="truncate">{entry.reason}</div>
                         </TableCell>
                         <TableCell>{format(new Date(entry.timestamp), "MMM dd, yyyy HH:mm:ss")}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={entry.severity === "high" ? "destructive" : "secondary"}
-                            className={entry.severity === "medium" ? "bg-orange-100 text-orange-800" : ""}
-                          >
-                            {entry.severity}
-                          </Badge>
-                        </TableCell>
+                     
                       </TableRow>
                     ))}
                   </TableBody>

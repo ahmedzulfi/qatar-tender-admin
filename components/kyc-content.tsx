@@ -1,12 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -14,9 +27,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,7 +40,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 import {
   Search,
   Eye,
@@ -41,7 +54,7 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
-} from "lucide-react"
+} from "lucide-react";
 
 const mockKycRequests = [
   {
@@ -78,7 +91,12 @@ const mockKycRequests = [
     submittedDate: "2023-11-15",
     status: "pending",
     documents: [
-      { name: "qid-copy.pdf", type: "Qatar ID", size: "1.2 MB", url: "/placeholder.svg?height=400&width=600" },
+      {
+        name: "qid-copy.pdf",
+        type: "Qatar ID",
+        size: "1.2 MB",
+        url: "/placeholder.svg?height=400&width=600",
+      },
       {
         name: "bank-statement.pdf",
         type: "Bank Statement",
@@ -129,7 +147,12 @@ const mockKycRequests = [
     submittedDate: "2023-12-12",
     status: "pending",
     documents: [
-      { name: "qid-copy.pdf", type: "Qatar ID", size: "1.1 MB", url: "/placeholder.svg?height=400&width=600" },
+      {
+        name: "qid-copy.pdf",
+        type: "Qatar ID",
+        size: "1.1 MB",
+        url: "/placeholder.svg?height=400&width=600",
+      },
       {
         name: "professional-certificate.pdf",
         type: "Professional Certificate",
@@ -171,114 +194,172 @@ const mockKycRequests = [
     notes: "Technology company with comprehensive documentation.",
     priority: "high",
   },
-]
+];
+
+// Types
+
+type KycRequest = (typeof mockKycRequests)[number];
+type Document = KycRequest["documents"][number];
+
+type StatusFilter =
+  | "all"
+  | "pending"
+  | "under_review"
+  | "approved"
+  | "rejected";
+type TypeFilter = "all" | "business" | "individual";
+type PriorityFilter = "all" | "high" | "medium" | "low";
 
 export function KycContent() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [priorityFilter, setPriorityFilter] = useState("all")
-  const [selectedRequest, setSelectedRequest] = useState(null)
-  const [selectedDocument, setSelectedDocument] = useState(null)
-  const [rejectionReason, setRejectionReason] = useState("")
-  const [approvalNotes, setApprovalNotes] = useState("")
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("all");
+  const [selectedRequest, setSelectedRequest] = useState<KycRequest | null>(
+    null
+  );
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
+    null
+  );
+  const [rejectionReason, setRejectionReason] = useState<string>("");
+  const [approvalNotes, setApprovalNotes] = useState<string>("");
 
   const filteredRequests = mockKycRequests.filter((request) => {
     const matchesSearch =
       request.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.id.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || request.status === statusFilter
-    const matchesType = typeFilter === "all" || request.userType.toLowerCase() === typeFilter
-    const matchesPriority = priorityFilter === "all" || request.priority === priorityFilter
+      request.id.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return matchesSearch && matchesStatus && matchesType && matchesPriority
-  })
+    const matchesStatus =
+      statusFilter === "all" || request.status === statusFilter;
 
-  const getStatusBadge = (status) => {
+    // userType in data is "Business"/"Individual" - normalize for comparison
+    const matchesType =
+      typeFilter === "all" ||
+      request.userType.toLowerCase() === typeFilter.toLowerCase();
+
+    const matchesPriority =
+      priorityFilter === "all" || request.priority === priorityFilter;
+
+    return matchesSearch && matchesStatus && matchesType && matchesPriority;
+  });
+
+  const getStatusBadge = (status: string): React.ReactNode => {
     switch (status) {
       case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Pending</Badge>
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+            Pending
+          </Badge>
+        );
       case "under_review":
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Under Review</Badge>
+        return (
+          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+            Under Review
+          </Badge>
+        );
       case "approved":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Approved</Badge>
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            Approved
+          </Badge>
+        );
       case "rejected":
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Rejected</Badge>
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            Rejected
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>;
     }
-  }
+  };
 
-  const getPriorityBadge = (priority) => {
+  const getPriorityBadge = (priority: string): React.ReactNode => {
     switch (priority) {
       case "high":
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">High</Badge>
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            High
+          </Badge>
+        );
       case "medium":
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Medium</Badge>
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+            Medium
+          </Badge>
+        );
       case "low":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Low</Badge>
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            Low
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{priority}</Badge>
+        return <Badge variant="outline">{priority}</Badge>;
     }
-  }
+  };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "pending":
-        return <Clock className="h-4 w-4 text-yellow-500" />
-      case "under_review":
-        return <AlertTriangle className="h-4 w-4 text-blue-500" />
-      case "approved":
-        return <CheckCircle className="h-4 w-4 text-green-500" />
-      case "rejected":
-        return <XCircle className="h-4 w-4 text-red-500" />
-      default:
-        return <Clock className="h-4 w-4 text-gray-500" />
-    }
-  }
+  const handleApprove = (requestId: string) => {
+    console.log(
+      "Approving KYC request:",
+      requestId,
+      "with notes:",
+      approvalNotes
+    );
+    setApprovalNotes("");
+  };
 
-  const handleApprove = (requestId) => {
-    console.log("Approving KYC request:", requestId, "with notes:", approvalNotes)
-    setApprovalNotes("")
-  }
+  const handleReject = (requestId: string) => {
+    console.log(
+      "Rejecting KYC request:",
+      requestId,
+      "with reason:",
+      rejectionReason
+    );
+    setRejectionReason("");
+  };
 
-  const handleReject = (requestId) => {
-    console.log("Rejecting KYC request:", requestId, "with reason:", rejectionReason)
-    setRejectionReason("")
-  }
-
-  const getDaysAgo = (date) => {
-    const today = new Date()
-    const submittedDate = new Date(date)
-    const diffTime = today - submittedDate
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays
-  }
-
+  const getDaysAgo = (date: string): number => {
+    const today = new Date();
+    const submittedDate = new Date(date);
+    const diffTime = today.getTime() - submittedDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Requests</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total Requests
+            </CardTitle>
             <FileText className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{mockKycRequests.length}</div>
+            <div className="text-2xl font-bold text-gray-900">
+              {mockKycRequests.length}
+            </div>
             <p className="text-xs text-gray-500 mt-1">All KYC submissions</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Pending Review</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Pending Review
+            </CardTitle>
             <Clock className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {mockKycRequests.filter((r) => r.status === "pending" || r.status === "under_review").length}
+              {
+                mockKycRequests.filter(
+                  (r) => r.status === "pending" || r.status === "under_review"
+                ).length
+              }
             </div>
             <p className="text-xs text-gray-500 mt-1">Awaiting verification</p>
           </CardContent>
@@ -286,7 +367,9 @@ export function KycContent() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">High Priority</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              High Priority
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
@@ -299,12 +382,16 @@ export function KycContent() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Approved Today</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Approved Today
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">3</div>
-            <p className="text-xs text-gray-500 mt-1">Completed verifications</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Completed verifications
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -327,7 +414,7 @@ export function KycContent() {
               />
             </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={() => setStatusFilter}>
               <SelectTrigger className="w-full sm:w-[150px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -340,7 +427,10 @@ export function KycContent() {
               </SelectContent>
             </Select>
 
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <Select
+              value={typeFilter}
+              onValueChange={(value) => setTypeFilter(value as TypeFilter)}
+            >
               <SelectTrigger className="w-full sm:w-[150px]">
                 <SelectValue placeholder="User Type" />
               </SelectTrigger>
@@ -351,7 +441,12 @@ export function KycContent() {
               </SelectContent>
             </Select>
 
-            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+            <Select
+              value={priorityFilter}
+              onValueChange={(value) =>
+                setPriorityFilter(value as PriorityFilter)
+              }
+            >
               <SelectTrigger className="w-full sm:w-[150px]">
                 <SelectValue placeholder="Priority" />
               </SelectTrigger>
@@ -379,15 +474,16 @@ export function KycContent() {
               </TableHeader>
               <TableBody>
                 {filteredRequests.map((request) => {
-                  const daysAgo = getDaysAgo(request.submittedDate)
+                  const daysAgo = getDaysAgo(request.submittedDate);
                   return (
-                    <TableRow key={request.id} className={request.priority === "high" ? "bg-red-50" : ""}>
+                    <TableRow key={request.id} className={""}>
                       <TableCell>
                         <div className="flex items-center">
-                          {getStatusIcon(request.status)}
                           <div className="ml-2">
                             <div className="font-medium">{request.id}</div>
-                            <div className="text-sm text-gray-500">{request.userId}</div>
+                            <div className="text-sm text-gray-500">
+                              {request.userId}
+                            </div>
                           </div>
                         </div>
                       </TableCell>
@@ -399,8 +495,12 @@ export function KycContent() {
                             <User className="h-4 w-4 mr-2 text-gray-400" />
                           )}
                           <div>
-                            <div className="font-medium">{request.userName}</div>
-                            <div className="text-sm text-gray-500">{request.email}</div>
+                            <div className="font-medium">
+                              {request.userName}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {request.email}
+                            </div>
                           </div>
                         </div>
                       </TableCell>
@@ -410,66 +510,108 @@ export function KycContent() {
                       <TableCell>
                         <div className="flex items-center">
                           <FileText className="h-4 w-4 mr-1 text-gray-400" />
-                          <span className="text-sm">{request.documents.length} files</span>
+                          <span className="text-sm">
+                            {request.documents.length} files
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div>
                           <div className="text-sm">{request.submittedDate}</div>
-                          <div className="text-xs text-gray-500">{daysAgo} days ago</div>
+                          <div className="text-xs text-gray-500">
+                            {daysAgo} days ago
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm" onClick={() => setSelectedRequest(request)}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSelectedRequest(request)}
+                            >
                               <Eye className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                             <DialogHeader>
-                              <DialogTitle>KYC Request - {request.id}</DialogTitle>
-                              <DialogDescription>Review and verify user documents</DialogDescription>
+                              <DialogTitle>
+                                KYC Request - {request.id}
+                              </DialogTitle>
+                              <DialogDescription>
+                                Review and verify user documents
+                              </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-6">
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                  <Label className="text-sm font-medium">User Name</Label>
-                                  <p className="text-sm text-gray-600">{request.userName}</p>
+                                  <Label className="text-sm font-medium">
+                                    User Name
+                                  </Label>
+                                  <p className="text-sm text-gray-600">
+                                    {request.userName}
+                                  </p>
                                 </div>
                                 <div>
-                                  <Label className="text-sm font-medium">User Type</Label>
-                                  <p className="text-sm text-gray-600">{request.userType}</p>
+                                  <Label className="text-sm font-medium">
+                                    User Type
+                                  </Label>
+                                  <p className="text-sm text-gray-600">
+                                    {request.userType}
+                                  </p>
                                 </div>
                                 <div>
-                                  <Label className="text-sm font-medium">Email</Label>
-                                  <p className="text-sm text-gray-600">{request.email}</p>
+                                  <Label className="text-sm font-medium">
+                                    Email
+                                  </Label>
+                                  <p className="text-sm text-gray-600">
+                                    {request.email}
+                                  </p>
                                 </div>
                                 <div>
-                                  <Label className="text-sm font-medium">Submitted Date</Label>
-                                  <p className="text-sm text-gray-600">{request.submittedDate}</p>
+                                  <Label className="text-sm font-medium">
+                                    Submitted Date
+                                  </Label>
+                                  <p className="text-sm text-gray-600">
+                                    {request.submittedDate}
+                                  </p>
                                 </div>
                               </div>
 
                               <div>
-                                <Label className="text-sm font-medium">Notes</Label>
-                                <p className="text-sm text-gray-600 mt-1">{request.notes}</p>
+                                <Label className="text-sm font-medium">
+                                  Notes
+                                </Label>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {request.notes}
+                                </p>
                               </div>
 
                               <div>
-                                <Label className="text-sm font-medium">Documents</Label>
+                                <Label className="text-sm font-medium">
+                                  Documents
+                                </Label>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                                   {request.documents.map((doc, index) => (
                                     <Card key={index} className="p-4 shadow-0">
                                       <div className="flex items-center justify-between mb-2">
                                         <div>
-                                          <h4 className="font-medium text-sm">{doc.type}</h4>
+                                          <h4 className="font-medium text-sm">
+                                            {doc.type}
+                                          </h4>
                                           <p className="text-xs text-gray-500">
                                             {doc.name} • {doc.size}
                                           </p>
                                         </div>
                                         <div className="flex space-x-2">
-                                          <Button variant="ghost" size="sm" onClick={() => setSelectedDocument(doc)}>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() =>
+                                              setSelectedDocument(doc)
+                                            }
+                                          >
                                             <Eye className="h-4 w-4" />
                                           </Button>
                                           <Button variant="ghost" size="sm">
@@ -489,11 +631,14 @@ export function KycContent() {
                                 </div>
                               </div>
 
-                              {request.status === "pending" || request.status === "under_review" ? (
+                              {request.status === "pending" ||
+                              request.status === "under_review" ? (
                                 <div className="flex justify-end space-x-2">
                                   <Button
                                     variant="outline"
-                                    onClick={() => (window.location.href = `/admin/users/${request.userId}`)}
+                                    onClick={() =>
+                                      (window.location.href = `/admin/users/${request.userId}`)
+                                    }
                                   >
                                     <User className="h-4 w-4 mr-2" />
                                     View User Complete Profile
@@ -501,33 +646,47 @@ export function KycContent() {
 
                                   <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                      <Button variant="outline" className="text-red-600 bg-transparent">
+                                      <Button
+                                        variant="outline"
+                                        className="text-red-600 bg-transparent"
+                                      >
                                         <X className="h-4 w-4 mr-2" />
                                         Reject
                                       </Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                       <AlertDialogHeader>
-                                        <AlertDialogTitle>Reject KYC Request</AlertDialogTitle>
+                                        <AlertDialogTitle>
+                                          Reject KYC Request
+                                        </AlertDialogTitle>
                                         <AlertDialogDescription>
-                                          Please provide a reason for rejecting this KYC request.
+                                          Please provide a reason for rejecting
+                                          this KYC request.
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
                                       <div className="py-4">
-                                        <Label htmlFor="rejection-reason">Rejection Reason</Label>
+                                        <Label htmlFor="rejection-reason">
+                                          Rejection Reason
+                                        </Label>
                                         <Textarea
                                           id="rejection-reason"
                                           placeholder="Enter reason for rejection..."
                                           value={rejectionReason}
-                                          onChange={(e) => setRejectionReason(e.target.value)}
+                                          onChange={(e) =>
+                                            setRejectionReason(e.target.value)
+                                          }
                                           className="mt-2"
                                         />
                                       </div>
                                       <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogCancel>
+                                          Cancel
+                                        </AlertDialogCancel>
                                         <AlertDialogAction
                                           className="bg-red-600 hover:bg-red-700"
-                                          onClick={() => handleReject(request.id)}
+                                          onClick={() =>
+                                            handleReject(request.id)
+                                          }
                                         >
                                           Reject Request
                                         </AlertDialogAction>
@@ -544,29 +703,47 @@ export function KycContent() {
                                     </DialogTrigger>
                                     <DialogContent>
                                       <DialogHeader>
-                                        <DialogTitle>Approve KYC Request</DialogTitle>
-                                        <DialogDescription>Confirm approval of this KYC request.</DialogDescription>
+                                        <DialogTitle>
+                                          Approve KYC Request
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                          Confirm approval of this KYC request.
+                                        </DialogDescription>
                                       </DialogHeader>
                                       <div className="py-4">
-                                        <Label htmlFor="approval-notes">Approval Notes (Optional)</Label>
+                                        <Label htmlFor="approval-notes">
+                                          Approval Notes (Optional)
+                                        </Label>
                                         <Textarea
                                           id="approval-notes"
                                           placeholder="Add any notes about the approval..."
                                           value={approvalNotes}
-                                          onChange={(e) => setApprovalNotes(e.target.value)}
+                                          onChange={(e) =>
+                                            setApprovalNotes(e.target.value)
+                                          }
                                           className="mt-2"
                                         />
                                       </div>
                                       <div className="flex justify-end space-x-2">
-                                        <Button variant="outline">Cancel</Button>
-                                        <Button onClick={() => handleApprove(request.id)}>Approve Request</Button>
+                                        <Button variant="outline">
+                                          Cancel
+                                        </Button>
+                                        <Button
+                                          onClick={() =>
+                                            handleApprove(request.id)
+                                          }
+                                        >
+                                          Approve Request
+                                        </Button>
                                       </div>
                                     </DialogContent>
                                   </Dialog>
                                 </div>
                               ) : (
                                 <div className="text-center py-4">
-                                  <p className="text-sm text-gray-500">This request has been {request.status}</p>
+                                  <p className="text-sm text-gray-500">
+                                    This request has been {request.status}
+                                  </p>
                                 </div>
                               )}
                             </div>
@@ -574,7 +751,7 @@ export function KycContent() {
                         </Dialog>
                       </TableCell>
                     </TableRow>
-                  )
+                  );
                 })}
               </TableBody>
             </Table>
@@ -583,7 +760,10 @@ export function KycContent() {
       </Card>
 
       {/* Document Preview Dialog */}
-      <Dialog open={!!selectedDocument} onOpenChange={() => setSelectedDocument(null)}>
+      <Dialog
+        open={!!selectedDocument}
+        onOpenChange={() => setSelectedDocument(null)}
+      >
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Document Preview</DialogTitle>
@@ -610,5 +790,5 @@ export function KycContent() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

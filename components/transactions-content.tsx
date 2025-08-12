@@ -354,11 +354,8 @@ export function TransactionsContent() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem>View Details</DropdownMenuItem>
                           <DropdownMenuItem>Download Receipt</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>Refund Transaction</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

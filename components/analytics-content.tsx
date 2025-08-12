@@ -1,11 +1,24 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   BarChart,
   Bar,
@@ -22,8 +35,15 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
-} from "recharts"
-import { TrendingUp, Users, FileText, Gavel, DollarSign, Download } from "lucide-react"
+} from "recharts";
+import {
+  TrendingUp,
+  Users,
+  FileText,
+  Gavel,
+  DollarSign,
+  Download,
+} from "lucide-react";
 
 const monthlyData = [
   { month: "Jan", tenders: 45, bids: 180, revenue: 18000, users: 320 }, // Updated revenue to reflect 100 QAR per bid
@@ -32,7 +52,7 @@ const monthlyData = [
   { month: "Apr", tenders: 61, bids: 245, revenue: 24500, users: 480 },
   { month: "May", tenders: 55, bids: 220, revenue: 22000, users: 520 },
   { month: "Jun", tenders: 67, bids: 270, revenue: 27000, users: 580 },
-]
+];
 
 const categoryData = [
   { name: "Construction", value: 35, color: "#3b82f6" },
@@ -40,7 +60,7 @@ const categoryData = [
   { name: "Healthcare", value: 20, color: "#3b82f6" },
   { name: "Education", value: 12, color: "#3b82f6" },
   { name: "Others", value: 8, color: "#3b82f6" },
-]
+];
 
 const userGrowthData = [
   { month: "Jan", businesses: 120, individuals: 200 },
@@ -49,15 +69,45 @@ const userGrowthData = [
   { month: "Apr", businesses: 180, individuals: 300 },
   { month: "May", businesses: 195, individuals: 325 },
   { month: "Jun", businesses: 220, individuals: 360 },
-]
+];
 
 const topPerformers = [
-  { name: "Qatar Construction Co.", tenders: 15, bids: 45, success: 73, revenue: 450000 },
-  { name: "Doha Engineering Ltd.", tenders: 12, bids: 38, success: 68, revenue: 380000 },
-  { name: "Al-Jazeera Trading", tenders: 10, bids: 32, success: 62, revenue: 320000 },
-  { name: "Gulf Tech Solutions", tenders: 8, bids: 28, success: 57, revenue: 280000 },
-  { name: "Modern Healthcare Co.", tenders: 7, bids: 25, success: 52, revenue: 250000 },
-]
+  {
+    name: "Qatar Construction Co.",
+    tenders: 15,
+    bids: 45,
+    success: 73,
+    revenue: 450000,
+  },
+  {
+    name: "Doha Engineering Ltd.",
+    tenders: 12,
+    bids: 38,
+    success: 68,
+    revenue: 380000,
+  },
+  {
+    name: "Al-Jazeera Trading",
+    tenders: 10,
+    bids: 32,
+    success: 62,
+    revenue: 320000,
+  },
+  {
+    name: "Gulf Tech Solutions",
+    tenders: 8,
+    bids: 28,
+    success: 57,
+    revenue: 280000,
+  },
+  {
+    name: "Modern Healthcare Co.",
+    tenders: 7,
+    bids: 25,
+    success: 52,
+    revenue: 250000,
+  },
+];
 
 const revenueData = [
   { month: "Jan", subscription: 45000, commission: 80000, premium: 25000 },
@@ -66,7 +116,7 @@ const revenueData = [
   { month: "Apr", subscription: 55000, commission: 120000, premium: 35000 },
   { month: "May", subscription: 58000, commission: 102000, premium: 38000 },
   { month: "Jun", subscription: 62000, commission: 133000, premium: 42000 },
-]
+];
 
 const userActivityData = [
   { month: "Jan", logins: 1250, registrations: 45, activeUsers: 320 },
@@ -75,22 +125,58 @@ const userActivityData = [
   { month: "Apr", logins: 1650, registrations: 60, activeUsers: 480 },
   { month: "May", logins: 1580, registrations: 40, activeUsers: 520 },
   { month: "Jun", logins: 1820, registrations: 60, activeUsers: 580 },
-]
+];
 
 const userEngagementData = [
   { category: "Daily Active", value: 65, color: "#3b82f6" },
   { category: "Weekly Active", value: 25, color: "#3b82f6" },
   { category: "Monthly Active", value: 10, color: "#3b82f6" },
-]
+];
 
 const tenderCategoryData = [
-  { month: "Jan", construction: 20, technology: 12, healthcare: 8, education: 5 },
-  { month: "Feb", construction: 25, technology: 15, healthcare: 7, education: 5 },
-  { month: "Mar", construction: 22, technology: 13, healthcare: 8, education: 5 },
-  { month: "Apr", construction: 28, technology: 18, healthcare: 10, education: 5 },
-  { month: "May", construction: 25, technology: 16, healthcare: 9, education: 5 },
-  { month: "Jun", construction: 30, technology: 20, healthcare: 12, education: 5 },
-]
+  {
+    month: "Jan",
+    construction: 20,
+    technology: 12,
+    healthcare: 8,
+    education: 5,
+  },
+  {
+    month: "Feb",
+    construction: 25,
+    technology: 15,
+    healthcare: 7,
+    education: 5,
+  },
+  {
+    month: "Mar",
+    construction: 22,
+    technology: 13,
+    healthcare: 8,
+    education: 5,
+  },
+  {
+    month: "Apr",
+    construction: 28,
+    technology: 18,
+    healthcare: 10,
+    education: 5,
+  },
+  {
+    month: "May",
+    construction: 25,
+    technology: 16,
+    healthcare: 9,
+    education: 5,
+  },
+  {
+    month: "Jun",
+    construction: 30,
+    technology: 20,
+    healthcare: 12,
+    education: 5,
+  },
+];
 
 const tenderSuccessData = [
   { month: "Jan", published: 45, completed: 38, success: 84 },
@@ -99,7 +185,7 @@ const tenderSuccessData = [
   { month: "Apr", published: 61, completed: 55, success: 90 },
   { month: "May", published: 55, completed: 48, success: 87 },
   { month: "Jun", published: 67, completed: 60, success: 90 },
-]
+];
 
 export function AnalyticsContent() {
   return (
@@ -107,8 +193,12 @@ export function AnalyticsContent() {
       {/* Header with Export Options */}
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Platform Analytics</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Comprehensive insights and reporting</p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Platform Analytics
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Comprehensive insights and reporting
+          </p>
         </div>
         <div className="flex gap-3">
           <Select defaultValue="6months">
@@ -122,10 +212,6 @@ export function AnalyticsContent() {
               <SelectItem value="1year">Last Year</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
-          </Button>
         </div>
       </div>
 
@@ -143,7 +229,9 @@ export function AnalyticsContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Platform Revenue</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total Platform Revenue
+                </CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -156,7 +244,9 @@ export function AnalyticsContent() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Tenders</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Active Tenders
+                </CardTitle>
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -169,7 +259,9 @@ export function AnalyticsContent() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Bids</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total Bids
+                </CardTitle>
                 <Gavel className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -182,7 +274,9 @@ export function AnalyticsContent() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Platform Users</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Platform Users
+                </CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -242,8 +336,19 @@ export function AnalyticsContent() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="bids" stroke="#3b82f6" strokeWidth={2} />
-                    <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} strokeDasharray="5 5" />
+                    <Line
+                      type="monotone"
+                      dataKey="bids"
+                      stroke="#3b82f6"
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#3b82f6"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -266,7 +371,9 @@ export function AnalyticsContent() {
                       outerRadius={80}
                       fill="#3b82f6"
                       dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) =>
+                        `${name} ${percent && (percent * 100).toFixed(0)}%`
+                      }
                     >
                       {categoryData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -285,19 +392,30 @@ export function AnalyticsContent() {
               <CardContent>
                 <div className="space-y-4">
                   {topPerformers.slice(0, 5).map((company, index) => (
-                    <div key={company.name} className="flex items-center justify-between">
+                    <div
+                      key={company.name}
+                      className="flex items-center justify-between"
+                    >
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{index + 1}</span>
+                          <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                            {index + 1}
+                          </span>
                         </div>
                         <div>
                           <p className="text-sm font-medium">{company.name}</p>
-                          <p className="text-xs text-gray-500">{company.success}% success rate</p>
+                          <p className="text-xs text-gray-500">
+                            {company.success}% success rate
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium">{(company.bids * 100).toLocaleString()} QAR</p>
-                        <p className="text-xs text-gray-500">{company.bids} bids</p>
+                        <p className="text-sm font-medium">
+                          {(company.bids * 100).toLocaleString()} QAR
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {company.bids} bids
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -321,7 +439,12 @@ export function AnalyticsContent() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="logins" stroke="#3b82f6" strokeWidth={2} />
+                    <Line
+                      type="monotone"
+                      dataKey="logins"
+                      stroke="#3b82f6"
+                      strokeWidth={2}
+                    />
                     <Line
                       type="monotone"
                       dataKey="registrations"
@@ -348,7 +471,9 @@ export function AnalyticsContent() {
                       outerRadius={80}
                       fill="#3b82f6"
                       dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) =>
+                        `${name} ${percent && (percent * 100).toFixed(0)}%`
+                      }
                     >
                       {userEngagementData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -458,8 +583,19 @@ export function AnalyticsContent() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="published" stroke="#3b82f6" strokeWidth={2} />
-                    <Line type="monotone" dataKey="completed" stroke="#3b82f6" strokeWidth={2} strokeDasharray="5 5" />
+                    <Line
+                      type="monotone"
+                      dataKey="published"
+                      stroke="#3b82f6"
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="completed"
+                      stroke="#3b82f6"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -506,7 +642,12 @@ export function AnalyticsContent() {
                   <YAxis />
                   <Tooltip formatter={(value) => [`${value} QAR`, "Revenue"]} />
                   <Legend />
-                  <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} />
+                  <Line
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#3b82f6"
+                    strokeWidth={3}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -536,8 +677,12 @@ export function AnalyticsContent() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">132,000 QAR</div>
-                  <p className="text-sm text-gray-600">Total Revenue (6 months)</p>
+                  <div className="text-3xl font-bold text-blue-600">
+                    132,000 QAR
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Total Revenue (6 months)
+                  </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
@@ -573,13 +718,23 @@ export function AnalyticsContent() {
                 <TableBody>
                   {topPerformers.map((company) => (
                     <TableRow key={company.name}>
-                      <TableCell className="font-medium">{company.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {company.name}
+                      </TableCell>
                       <TableCell>{company.tenders}</TableCell>
                       <TableCell>{company.bids}</TableCell>
                       <TableCell>
-                        <Badge variant={company.success >= 60 ? "default" : "secondary"}>{company.success}%</Badge>
+                        <Badge
+                          variant={
+                            company.success >= 60 ? "default" : "secondary"
+                          }
+                        >
+                          {company.success}%
+                        </Badge>
                       </TableCell>
-                      <TableCell>{company.revenue.toLocaleString()} QAR</TableCell>
+                      <TableCell>
+                        {company.revenue.toLocaleString()} QAR
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -589,5 +744,5 @@ export function AnalyticsContent() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

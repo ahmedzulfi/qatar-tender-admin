@@ -1,9 +1,17 @@
-"use client"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Building, Calendar, DollarSign, User, Mail, Phone } from "lucide-react"
-import { useRouter } from "next/navigation"
+"use client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  ArrowLeft,
+  Building,
+  Calendar,
+  DollarSign,
+  User,
+  Mail,
+  Phone,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const mockBid = {
   id: "BID-001",
@@ -55,28 +63,40 @@ const mockBid = {
     qualityAssurance: "ISO 9001:2015 certified processes",
   },
   tenderOverview: {
-    scope: "15km highway construction with complete infrastructure",
+    scope: "15km highway construction",
     location: "Doha North District",
     startDate: "March 2024",
     completionDate: "September 2025",
-    keyFeatures: ["Smart traffic systems", "LED street lighting", "Sustainable drainage"],
+    keyFeatures: [
+      "Smart traffic systems",
+      "LED street lighting",
+      "Sustainable drainage",
+    ],
     clientRequirements: "Minimum 10 years experience, local presence required",
   },
-}
+};
 
 function BidDetailsContent() {
-  const router = useRouter()
+  const router = useRouter();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "accepted":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Accepted</Badge>
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            Accepted
+          </Badge>
+        );
       case "submitted":
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Submitted</Badge>
+        return (
+          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+            Submitted
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>;
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -94,10 +114,16 @@ function BidDetailsContent() {
         </div>
         <div className="flex items-center space-x-3">
           {getStatusBadge(mockBid.status)}
-          <Button variant="outline" onClick={() => router.push("/admin/users/USER-001")}>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/admin/users/USER-001")}
+          >
             View Bidder Profile
           </Button>
-          <Button variant="outline" onClick={() => router.push("/admin/tenders/TND-001")}>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/admin/tenders/TND-001")}
+          >
             View Tender
           </Button>
         </div>
@@ -107,41 +133,57 @@ function BidDetailsContent() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Bid Amount</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Bid Amount
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{mockBid.amount}</div>
+            <div className="text-2xl font-bold text-gray-900">
+              {mockBid.amount}
+            </div>
           </CardContent>
         </Card>
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Vendor</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Vendor
+            </CardTitle>
             <Building className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-bold text-gray-900">{mockBid.vendor}</div>
+            <div className="text-lg font-bold text-gray-900">
+              {mockBid.vendor}
+            </div>
           </CardContent>
         </Card>
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Submitted</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Submitted
+            </CardTitle>
             <Calendar className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-bold text-gray-900">{mockBid.submittedDate}</div>
+            <div className="text-lg font-bold text-gray-900">
+              {mockBid.submittedDate}
+            </div>
           </CardContent>
         </Card>
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Payment Status</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Payment Status
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-bold text-green-600">Paid (100 QAR)</div>
+            <div className="text-lg font-bold text-green-600">
+              Paid (100 QAR)
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -154,29 +196,15 @@ function BidDetailsContent() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Proposal Type</p>
-                <p className="font-medium">{mockBid.bidDetails.proposalType}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Methodology</p>
-                <p className="font-medium">{mockBid.bidDetails.methodology}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Project Duration</p>
-                <p className="font-medium">{mockBid.bidDetails.projectDuration}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Team Size</p>
-                <p className="font-medium">{mockBid.bidDetails.teamSize}</p>
+                <p className="text-sm text-gray-600">Bid Ammount</p>
+                <p className="font-medium">{mockBid.amount}</p>
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-600 mb-2">Equipment Included</p>
-              <p className="text-gray-900">{mockBid.bidDetails.equipmentIncluded}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-2">Quality Assurance</p>
-              <p className="text-gray-900">{mockBid.bidDetails.qualityAssurance}</p>
+              <p className="text-sm text-gray-600 mb-2">Description</p>
+              <p className="text-gray-900">
+                {mockBid.bidDetails.equipmentIncluded}Major road construction project covering 15km of highway infrastructure in North Doha area.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -196,24 +224,19 @@ function BidDetailsContent() {
                 <p className="font-medium">{mockBid.tenderOverview.location}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Start Date</p>
-                <p className="font-medium">{mockBid.tenderOverview.startDate}</p>
+                <p className="text-sm text-gray-600">Posted</p>
+                <p className="font-medium">
+                  {mockBid.tenderOverview.startDate}
+                </p>
               </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-2">Key Features</p>
-              <ul className="space-y-1">
-                {mockBid.tenderOverview.keyFeatures.map((feature, index) => (
-                  <li key={index} className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                    <span className="text-sm text-gray-700">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+
             <div>
               <p className="text-sm text-gray-600 mb-2">Client Requirements</p>
-              <p className="text-gray-900">{mockBid.tenderOverview.clientRequirements}</p>
+              <p className="text-gray-900">
+                Major road construction project covering 15km of highway
+                infrastructure in North Doha area.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -235,39 +258,10 @@ function BidDetailsContent() {
         </CardContent>
       </Card>
 
-      {/* Contact Information */}
-      <Card className="shadow-0">
-        <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-center space-x-3">
-              <User className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="font-medium">{mockBid.vendorDetails.contactPerson.name}</p>
-                <p className="text-sm text-gray-500">{mockBid.vendorDetails.contactPerson.title}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Mail className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="font-medium text-blue-600">{mockBid.vendorDetails.contactPerson.email}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Phone className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="font-medium">{mockBid.vendorDetails.contactPerson.phone}</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
-  )
+  );
 }
 
 export default function BidDetailsPage({ params }: { params: { id: string } }) {
-  return <BidDetailsContent />
+  return <BidDetailsContent />;
 }

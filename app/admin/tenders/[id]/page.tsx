@@ -84,7 +84,6 @@ function TenderDetailsContent() {
             Back to Tenders
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{mockTender.title}</h1>
             <p className="text-gray-600">{mockTender.id}</p>
           </div>
         </div>
@@ -99,7 +98,7 @@ function TenderDetailsContent() {
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="shadow-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-gray-600">Budget</CardTitle>
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -109,7 +108,7 @@ function TenderDetailsContent() {
         </Card>
 
         <Card className="shadow-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-gray-600">Total Bids</CardTitle>
             <Users className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -119,7 +118,7 @@ function TenderDetailsContent() {
         </Card>
 
         <Card className="shadow-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-gray-600">Submitted</CardTitle>
             <Calendar className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -129,12 +128,12 @@ function TenderDetailsContent() {
         </Card>
 
         <Card className="shadow-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-gray-600">Category</CardTitle>
             <FileText className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-bold text-blue-600">{mockTender.category}</div>
+            <div className="text-lg font-bold text-gray-900">{mockTender.category}</div>
           </CardContent>
         </Card>
       </div>
@@ -228,27 +227,7 @@ function TenderDetailsContent() {
         </CardContent>
       </Card>
 
-      {/* Contact Information */}
-      <Card className="shadow-0">
-        <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <p className="text-sm text-gray-600">Contact Person</p>
-            <p className="font-medium">{mockTender.contactPerson.name}</p>
-            <p className="text-sm text-gray-500">{mockTender.contactPerson.title}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600">Email</p>
-            <p className="font-medium text-blue-600">{mockTender.contactPerson.email}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600">Phone</p>
-            <p className="font-medium">{mockTender.contactPerson.phone}</p>
-          </div>
-        </CardContent>
-      </Card>
+    
     </div>
   )
 }

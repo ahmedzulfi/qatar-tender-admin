@@ -1,17 +1,49 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Search, Eye, Building, Gavel, Clock, CheckCircle } from "lucide-react"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Search,
+  Eye,
+  Building,
+  Gavel,
+  Clock,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 
 const mockBids = [
   {
@@ -24,7 +56,8 @@ const mockBids = [
     submittedDate: "2023-12-10",
     status: "submitted",
     documents: ["proposal.pdf", "technical-specs.pdf", "company-profile.pdf"],
-    notes: "Comprehensive proposal with 15 years experience in road construction.",
+    notes:
+      "Comprehensive proposal with 15 years experience in road construction.",
     flagged: false,
   },
   {
@@ -49,8 +82,13 @@ const mockBids = [
     amount: "$1,150,000",
     submittedDate: "2023-12-14",
     status: "accepted",
-    documents: ["medical-proposal.pdf", "certifications.pdf", "warranty-terms.pdf"],
-    notes: "ISO certified equipment with 5-year warranty and training included.",
+    documents: [
+      "medical-proposal.pdf",
+      "certifications.pdf",
+      "warranty-terms.pdf",
+    ],
+    notes:
+      "ISO certified equipment with 5-year warranty and training included.",
     flagged: false,
   },
   {
@@ -63,7 +101,8 @@ const mockBids = [
     submittedDate: "2023-12-15",
     status: "submitted",
     documents: ["basic-proposal.pdf"],
-    notes: "Unusually low bid amount. Multiple submissions from same IP address detected.",
+    notes:
+      "Unusually low bid amount. Multiple submissions from same IP address detected.",
     flagged: true,
   },
   {
@@ -92,114 +131,160 @@ const mockBids = [
     notes: "Individual contractor with 10 years experience.",
     flagged: false,
   },
-]
+];
+type Bid = {
+  id: string;
+  vendor: string;
+  tenderTitle: string;
+  tenderId: string;
+  vendorType: string;
+  status: string; // you can narrow this if you want e.g. "accepted" | "submitted" | ...
+  flagged?: boolean;
+};
 
+type Status = "accepted" | "submitted" | string;
+type VendorTypeFilter = "all" | string;
+type StatusFilter = "all" | Status;
+type TenderFilter = "all" | string;
+
+type Props = {
+  mockBids: Bid[];
+};
 export function BidsContent() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [tenderFilter, setTenderFilter] = useState("all")
-  const [vendorTypeFilter, setVendorTypeFilter] = useState("all")
-  const [selectedBid, setSelectedBid] = useState(null)
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [tenderFilter, setTenderFilter] = useState<TenderFilter>("all");
+  const [vendorTypeFilter, setVendorTypeFilter] =
+    useState<VendorTypeFilter>("all");
+  const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState<boolean>(false);
 
   const filteredBids = mockBids.filter((bid) => {
     const matchesSearch =
       bid.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
       bid.tenderTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bid.id.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || bid.status === statusFilter
-    const matchesTender = tenderFilter === "all" || bid.tenderId === tenderFilter
-    const matchesVendorType = vendorTypeFilter === "all" || bid.vendorType.toLowerCase() === vendorTypeFilter
+      bid.id.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return matchesSearch && matchesStatus && matchesTender && matchesVendorType
-  })
+    const matchesStatus = statusFilter === "all" || bid.status === statusFilter;
+    const matchesTender =
+      tenderFilter === "all" || bid.tenderId === tenderFilter;
+    const matchesVendorType =
+      vendorTypeFilter === "all" ||
+      bid.vendorType.toLowerCase() === vendorTypeFilter.toLowerCase();
 
-  const getStatusBadge = (status, flagged) => {
+    return matchesSearch && matchesStatus && matchesTender && matchesVendorType;
+  });
+
+  const getStatusBadge = (
+    status: Status,
+    flagged?: boolean
+  ): React.ReactNode => {
     switch (status) {
       case "accepted":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Accepted</Badge>
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            Accepted
+          </Badge>
+        );
       case "submitted":
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Submitted</Badge>
+        return (
+          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+            Submitted
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>;
     }
-  }
+  };
+  const uniqueTenders = [
+    ...new Set(
+      mockBids.map((bid) => ({ id: bid.tenderId, title: bid.tenderTitle }))
+    ),
+  ];
 
-  const getStatusIcon = (status, flagged) => {
+  const getStatusIcon = (
+    status: Status,
+    flagged?: boolean
+  ): React.ReactNode => {
     switch (status) {
       case "accepted":
-        return <CheckCircle className="h-4 w-4 text-green-500" />
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
       case "submitted":
-        return <Clock className="h-4 w-4 text-blue-500" />
+        return <Clock className="h-4 w-4 text-blue-500" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-500" />
+        return <Clock className="h-4 w-4 text-gray-500" />;
     }
-  }
+  };
 
-  const handleFlagBid = (bidId) => {
-    console.log("Flagging bid:", bidId)
-    // Handle flag logic
-  }
-
-  const handleRemoveBid = (bidId) => {
-    console.log("Removing bid:", bidId)
-    // Handle remove logic
-  }
-
-  const handleRejectBid = (bidId) => {
-    console.log("Rejecting bid:", bidId)
-    // Handle reject logic
-  }
-
-  const handleViewDetails = (bid) => {
-    window.location.href = `/admin/bids/${bid.id}`
-  }
-
-  const handleUploadDocuments = (bidId) => {
-    console.log("Uploading documents for bid:", bidId)
-    setUploadDialogOpen(true)
-  }
-
-  const uniqueTenders = [...new Set(mockBids.map((bid) => ({ id: bid.tenderId, title: bid.tenderTitle })))]
+  const handleViewDetails = (bid: Bid): void => {
+    window.location.href = `/admin/bids/${bid.id}`;
+  };
 
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Total Bids */}
         <Card className="shadow-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Bids</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total Bids
+            </CardTitle>
             <Gavel className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{mockBids.length}</div>
+            <div className="text-2xl font-bold text-gray-900">
+              {mockBids.length}
+            </div>
             <p className="text-xs text-gray-500 mt-1">All submissions</p>
           </CardContent>
         </Card>
 
+        {/* Pending Review */}
         <Card className="shadow-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Pending Review</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Pending Review
+            </CardTitle>
             <Clock className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
+            <div className="text-2xl font-bold text-gray-900">
               {mockBids.filter((b) => b.status === "submitted").length}
             </div>
             <p className="text-xs text-gray-500 mt-1">Awaiting review</p>
           </CardContent>
         </Card>
 
+        {/* Accepted Bids */}
         <Card className="shadow-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Accepted Bids</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Accepted Bids
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-gray-900">
               {mockBids.filter((b) => b.status === "accepted").length}
             </div>
             <p className="text-xs text-gray-500 mt-1">Successful bids</p>
+          </CardContent>
+        </Card>
+
+        {/* Rejected Bids */}
+        <Card className="shadow-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Rejected Bids
+            </CardTitle>
+            <XCircle className="h-4 w-4 text-gray-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900">
+              {mockBids.filter((b) => b.status === "rejected").length}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Unsuccessful bids</p>
           </CardContent>
         </Card>
       </div>
@@ -246,7 +331,10 @@ export function BidsContent() {
               </SelectContent>
             </Select>
 
-            <Select value={vendorTypeFilter} onValueChange={setVendorTypeFilter}>
+            <Select
+              value={vendorTypeFilter}
+              onValueChange={setVendorTypeFilter}
+            >
               <SelectTrigger className="w-full sm:w-[150px]">
                 <SelectValue placeholder="Vendor type" />
               </SelectTrigger>
@@ -274,7 +362,7 @@ export function BidsContent() {
               </TableHeader>
               <TableBody>
                 {filteredBids.map((bid) => (
-                  <TableRow key={bid.id} className={bid.flagged ? "bg-red-50" : ""}>
+                  <TableRow key={bid.id} className={""}>
                     <TableCell>
                       <div className="flex items-center">
                         {getStatusIcon(bid.status, bid.flagged)}
@@ -285,8 +373,12 @@ export function BidsContent() {
                     </TableCell>
                     <TableCell>
                       <div className="max-w-[200px]">
-                        <div className="font-medium truncate">{bid.tenderTitle}</div>
-                        <div className="text-sm text-gray-500">{bid.tenderId}</div>
+                        <div className="font-medium truncate">
+                          {bid.tenderTitle}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {bid.tenderId}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -298,8 +390,12 @@ export function BidsContent() {
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">{bid.amount}</TableCell>
-                    <TableCell className="text-sm">{bid.submittedDate}</TableCell>
-                    <TableCell>{getStatusBadge(bid.status, bid.flagged)}</TableCell>
+                    <TableCell className="text-sm">
+                      {bid.submittedDate}
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(bid.status, bid.flagged)}
+                    </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -308,7 +404,9 @@ export function BidsContent() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleViewDetails(bid)}>
+                          <DropdownMenuItem
+                            onClick={() => handleViewDetails(bid)}
+                          >
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
@@ -328,26 +426,42 @@ export function BidsContent() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Upload Documents</DialogTitle>
-            <DialogDescription>Upload additional documents for this bid</DialogDescription>
+            <DialogDescription>
+              Upload additional documents for this bid
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <Label htmlFor="document-upload">Select Documents</Label>
-              <Input id="document-upload" type="file" multiple className="mt-2" />
+              <Input
+                id="document-upload"
+                type="file"
+                multiple
+                className="mt-2"
+              />
             </div>
             <div>
               <Label htmlFor="document-notes">Notes (Optional)</Label>
-              <Textarea id="document-notes" placeholder="Add any notes about these documents..." className="mt-2" />
+              <Textarea
+                id="document-notes"
+                placeholder="Add any notes about these documents..."
+                className="mt-2"
+              />
             </div>
           </div>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setUploadDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={() => setUploadDialogOpen(false)}>Upload Documents</Button>
+            <Button onClick={() => setUploadDialogOpen(false)}>
+              Upload Documents
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   LayoutDashboard,
   CreditCard,
@@ -19,9 +19,9 @@ import {
   Search,
   User,
   LogOut,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,11 +29,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { usePathname, useRouter } from "next/navigation"
-import { useSearchParams } from "next/navigation"
-import { Suspense } from "react"
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { usePathname, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import Link from "next/link";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -46,47 +47,26 @@ const navigation = [
   { name: "Categories", href: "/admin/categories", icon: Tags },
   { name: "Settings", href: "/admin/settings", icon: Settings },
   { name: "Admin Controls", href: "/admin/admin-controls", icon: Shield },
-]
+];
 
 function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ")
+  return classes.filter(Boolean).join(" ");
 }
 
-function AdminLayoutContent({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const pathname = usePathname()
-  const router = useRouter()
-  const searchParams = useSearchParams()
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const getCurrentPageName = () => {
     const currentNav = navigation.find((nav) => {
-      if (nav.href === "/admin" && pathname === "/admin") return true
-      if (nav.href !== "/admin" && pathname.startsWith(nav.href)) return true
-      return false
-    })
-    return currentNav?.name || "Dashboard"
-  }
-
-  const getPageDescription = () => {
-    const pageName = getCurrentPageName()
-    const descriptions = {
-      Dashboard: "Overview of your Qatar Tender Platform",
-      Tenders: "Manage and review all tender submissions",
-      Bids: "Monitor and manage all bid submissions",
-      Users: "Manage platform users and their accounts",
-      KYC: "Review and verify user KYC documents",
-      Transactions: "Manage payments and financial transactions",
-      Analytics: "Detailed platform analytics and reporting",
-      Categories: "Organize tender categories and tags",
-      Settings: "Configure platform settings",
-      "Admin Controls": "Advanced administrative functions",
-    }
-    return descriptions[pageName as keyof typeof descriptions] || ""
-  }
+      if (nav.href === "/admin" && pathname === "/admin") return true;
+      if (nav.href !== "/admin" && pathname.startsWith(nav.href)) return true;
+      return false;
+    });
+    return currentNav?.name || "Dashboard";
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -94,12 +74,16 @@ function AdminLayoutContent({
       <div
         className={classNames(
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
-          "fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out lg:hidden"
         )}
       >
         <div className="flex h-16 items-center justify-between px-6 border-b">
           <h1 className="text-xl font-bold text-gray-900">Qatar Tender</h1>
-          <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(false)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarOpen(false)}
+          >
             <X className="h-5 w-5" />
           </Button>
         </div>
@@ -109,24 +93,25 @@ function AdminLayoutContent({
               <li key={item.name}>
                 <button
                   onClick={() => {
-                    router.push(item.href)
-                    setSidebarOpen(false)
+                    router.push(item.href);
+                    setSidebarOpen(false);
                   }}
                   className={classNames(
                     (item.href === "/admin" && pathname === "/admin") ||
                       (item.href !== "/admin" && pathname.startsWith(item.href))
                       ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
                       : "text-gray-700 hover:bg-gray-50",
-                    "group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    "group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
                   )}
                 >
                   <item.icon
                     className={classNames(
                       (item.href === "/admin" && pathname === "/admin") ||
-                        (item.href !== "/admin" && pathname.startsWith(item.href))
+                        (item.href !== "/admin" &&
+                          pathname.startsWith(item.href))
                         ? "text-blue-700"
                         : "text-gray-400",
-                      "mr-3 h-5 w-5 flex-shrink-0",
+                      "mr-3 h-5 w-5 flex-shrink-0"
                     )}
                   />
                   {item.name}
@@ -151,19 +136,21 @@ function AdminLayoutContent({
                     onClick={() => router.push(item.href)}
                     className={classNames(
                       (item.href === "/admin" && pathname === "/admin") ||
-                        (item.href !== "/admin" && pathname.startsWith(item.href))
+                        (item.href !== "/admin" &&
+                          pathname.startsWith(item.href))
                         ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
                         : "text-gray-700 hover:bg-gray-50",
-                      "group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      "group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
                     )}
                   >
                     <item.icon
                       className={classNames(
                         (item.href === "/admin" && pathname === "/admin") ||
-                          (item.href !== "/admin" && pathname.startsWith(item.href))
+                          (item.href !== "/admin" &&
+                            pathname.startsWith(item.href))
                           ? "text-blue-700"
                           : "text-gray-400",
-                        "mr-3 h-5 w-5 flex-shrink-0",
+                        "mr-3 h-5 w-5 flex-shrink-0"
                       )}
                     />
                     {item.name}
@@ -180,11 +167,18 @@ function AdminLayoutContent({
         <header className="bg-white border-b border-gray-200">
           <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
             <div className="flex items-center">
-              <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden"
+                onClick={() => setSidebarOpen(true)}
+              >
                 <Menu className="h-5 w-5" />
               </Button>
               <div className="ml-4 lg:ml-0">
-                <h2 className="text-xl font-semibold text-gray-900">{getCurrentPageName()}</h2>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {getCurrentPageName()}
+                </h2>
               </div>
             </div>
 
@@ -196,9 +190,15 @@ function AdminLayoutContent({
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
+                  >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Admin" />
+                      <AvatarImage
+                        src="/placeholder.svg?height=32&width=32"
+                        alt="Admin"
+                      />
                       <AvatarFallback>AD</AvatarFallback>
                     </Avatar>
                   </Button>
@@ -206,24 +206,30 @@ function AdminLayoutContent({
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">Admin User</p>
-                      <p className="text-xs leading-none text-muted-foreground">admin@qatartender.com</p>
+                      <p className="text-sm font-medium leading-none">
+                        Admin User
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        admin@qatartender.com
+                      </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
+
+                  <Link href={"/admin/settings"}>
+                    {" "}
+                    <DropdownMenuItem>
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </DropdownMenuItem>{" "}
+                  </Link>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
+                  <Link href={"/login"}>
+                    <DropdownMenuItem>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </Link>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -232,30 +238,28 @@ function AdminLayoutContent({
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto">
-          <div className="p-4 sm:p-6 lg:p-8">
-            <div className="mb-8">
-              <p className="text-gray-600 mt-1">{getPageDescription()}</p>
-            </div>
-            {children}
-          </div>
+          <div className="p-4 sm:p-6 lg:p-8">{children}</div>
         </main>
       </div>
 
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
     </div>
-  )
+  );
 }
 
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <Suspense fallback={null}>
       <AdminLayoutContent>{children}</AdminLayoutContent>
     </Suspense>
-  )
+  );
 }

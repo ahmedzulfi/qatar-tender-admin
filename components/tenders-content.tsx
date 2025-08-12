@@ -1,14 +1,40 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Search, Eye, Building, DollarSign, Users, FileText, MoreVertical } from "lucide-react"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Search,
+  Eye,
+  Building,
+  DollarSign,
+  Users,
+  FileText,
+  MoreVertical,
+} from "lucide-react";
 
 const mockTenders = [
   {
@@ -20,7 +46,8 @@ const mockTenders = [
     status: "active",
     bidsCount: 12,
     submittedDate: "2023-12-01",
-    description: "Major road construction project covering 15km of highway infrastructure in North Doha area.",
+    description:
+      "Major road construction project covering 15km of highway infrastructure in North Doha area.",
   },
   {
     id: "TND-002",
@@ -31,7 +58,8 @@ const mockTenders = [
     status: "active",
     bidsCount: 8,
     submittedDate: "2023-12-03",
-    description: "Procurement of computers, servers, and networking equipment for government offices.",
+    description:
+      "Procurement of computers, servers, and networking equipment for government offices.",
   },
   {
     id: "TND-003",
@@ -42,7 +70,8 @@ const mockTenders = [
     status: "active",
     bidsCount: 15,
     submittedDate: "2023-12-05",
-    description: "Medical equipment procurement for new hospital facilities across Qatar.",
+    description:
+      "Medical equipment procurement for new hospital facilities across Qatar.",
   },
   {
     id: "TND-004",
@@ -50,10 +79,11 @@ const mockTenders = [
     organization: "Government Services",
     category: "Supplies",
     budget: "$300,000",
-    status: "rejected",
+    status: "awarded",
     bidsCount: 6,
     submittedDate: "2023-12-07",
-    description: "Annual contract for office supplies and stationery for government departments.",
+    description:
+      "Annual contract for office supplies and stationery for government departments.",
   },
   {
     id: "TND-005",
@@ -66,62 +96,77 @@ const mockTenders = [
     submittedDate: "2023-12-10",
     description: "Security services for government buildings and facilities.",
   },
-]
+];
 
 export function TendersContent() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [categoryFilter, setCategoryFilter] = useState("all")
-  const [selectedTender, setSelectedTender] = useState(null)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [selectedTender, setSelectedTender] = useState(null);
 
   const filteredTenders = mockTenders.filter((tender) => {
     const matchesSearch =
       tender.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tender.organization.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || tender.status === statusFilter
-    const matchesCategory = categoryFilter === "all" || tender.category === categoryFilter
+      tender.organization.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || tender.status === statusFilter;
+    const matchesCategory =
+      categoryFilter === "all" || tender.category === categoryFilter;
 
-    return matchesSearch && matchesStatus && matchesCategory
-  })
+    return matchesSearch && matchesStatus && matchesCategory;
+  });
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: "active" | "rejected" | string) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Active</Badge>
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            Active
+          </Badge>
+        );
       case "rejected":
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Rejected</Badge>
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            Rejected
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>;
     }
+  };
+  interface Tender {
+    id: string | number;
+    title?: string;
+    description?: string;
   }
 
-  const handleReject = (tenderId) => {
-    // Handle reject logic
-    console.log("Rejecting tender:", tenderId)
-  }
-
-  const handleViewDetails = (tender) => {
-    window.location.href = `/admin/tenders/${tender.id}`
-  }
-
+  const handleViewDetails = (tender: Tender) => {
+    window.location.href = `/admin/tenders/${tender.id}`;
+  };
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Tenders</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total Tenders
+            </CardTitle>
             <FileText className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{mockTenders.length}</div>
+            <div className="text-2xl font-bold text-gray-900">
+              {mockTenders.length}
+            </div>
             <p className="text-xs text-gray-500 mt-1">Active submissions</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Active Tenders</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Active Tenders
+            </CardTitle>
             <FileText className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
@@ -134,7 +179,9 @@ export function TendersContent() {
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Bids</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total Bids
+            </CardTitle>
             <Users className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
@@ -147,7 +194,9 @@ export function TendersContent() {
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Value</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total Value
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
@@ -181,7 +230,8 @@ export function TendersContent() {
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="awarded">Awarded</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
               </SelectContent>
             </Select>
 
@@ -232,7 +282,9 @@ export function TendersContent() {
                     <TableCell>
                       <Badge variant="outline">{tender.category}</Badge>
                     </TableCell>
-                    <TableCell className="font-medium">{tender.budget}</TableCell>
+                    <TableCell className="font-medium">
+                      {tender.budget}
+                    </TableCell>
                     <TableCell>
                       <Badge variant="secondary">{tender.bidsCount}</Badge>
                     </TableCell>
@@ -245,7 +297,9 @@ export function TendersContent() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleViewDetails(tender)}>
+                          <DropdownMenuItem
+                            onClick={() => handleViewDetails(tender)}
+                          >
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
@@ -260,5 +314,5 @@ export function TendersContent() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

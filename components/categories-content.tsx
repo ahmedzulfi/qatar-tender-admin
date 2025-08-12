@@ -1,12 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Plus, Search, Edit, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useState } from "react";
+import { Plus, Search, Edit, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +27,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,28 +37,34 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 interface Category {
-  id: number
-  name: string
-  description: string
-  parentId?: number
-  tenderCount: number
-  createdAt: string
+  id: number;
+  name: string;
+  description: string;
+  parentId?: number;
+  tenderCount: number;
+  createdAt: string;
 }
 
 interface TenderTag {
-  id: number
-  name: string
-  description: string
-  color: string
-  usageCount: number
-  createdAt: string
+  id: number;
+  name: string;
+  description: string;
+  color: string;
+  usageCount: number;
+  createdAt: string;
 }
 
 // Mock data
@@ -85,7 +104,7 @@ const initialCategories: Category[] = [
     tenderCount: 15,
     createdAt: "2024-02-15",
   },
-]
+];
 
 const initialTags: TenderTag[] = [
   {
@@ -128,41 +147,47 @@ const initialTags: TenderTag[] = [
     usageCount: 34,
     createdAt: "2024-01-20",
   },
-]
+];
 
 export function CategoriesContent() {
-  const [categories, setCategories] = useState<Category[]>(initialCategories)
-  const [tags, setTags] = useState<TenderTag[]>(initialTags)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [editingItem, setEditingItem] = useState<Category | TenderTag | null>(null)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [itemToDelete, setItemToDelete] = useState<{ id: number; type: "category" | "tag"; name: string } | null>(null)
-  const [activeTab, setActiveTab] = useState("categories")
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [tags, setTags] = useState<TenderTag[]>(initialTags);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Category | TenderTag | null>(
+    null
+  );
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{
+    id: number;
+    type: "category" | "tag";
+    name: string;
+  } | null>(null);
+  const [activeTab, setActiveTab] = useState("categories");
 
   // Filter categories
   const filteredCategories = categories.filter((category) => {
     const matchesSearch =
       category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.description.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesSearch
-  })
+      category.description.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
+  });
 
   // Filter tags
   const filteredTags = tags.filter((tag) => {
     const matchesSearch =
       tag.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tag.description.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesSearch
-  })
+      tag.description.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
+  });
 
   const handleAddItem = (formData: FormData) => {
-    const name = formData.get("name") as string
-    const description = formData.get("description") as string
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
 
     if (activeTab === "categories") {
-      const parentId = formData.get("parentId") as string
+      const parentId = formData.get("parentId") as string;
       const newCategory: Category = {
         id: Math.max(...categories.map((c) => c.id)) + 1,
         name,
@@ -170,10 +195,10 @@ export function CategoriesContent() {
         parentId: parentId ? Number.parseInt(parentId) : undefined,
         tenderCount: 0,
         createdAt: new Date().toISOString().split("T")[0],
-      }
-      setCategories([...categories, newCategory])
+      };
+      setCategories([...categories, newCategory]);
     } else {
-      const color = formData.get("color") as string
+      const color = formData.get("color") as string;
       const newTag: TenderTag = {
         id: Math.max(...tags.map((t) => t.id)) + 1,
         name,
@@ -181,22 +206,22 @@ export function CategoriesContent() {
         color,
         usageCount: 0,
         createdAt: new Date().toISOString().split("T")[0],
-      }
-      setTags([...tags, newTag])
+      };
+      setTags([...tags, newTag]);
     }
 
-    setIsAddDialogOpen(false)
-  }
+    setIsAddDialogOpen(false);
+  };
 
   const handleEditItem = (formData: FormData) => {
-    if (!editingItem) return
+    if (!editingItem) return;
 
-    const name = formData.get("name") as string
-    const description = formData.get("description") as string
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
 
     if ("tenderCount" in editingItem) {
       // It's a category
-      const parentId = formData.get("parentId") as string
+      const parentId = formData.get("parentId") as string;
       setCategories(
         categories.map((cat) =>
           cat.id === editingItem.id
@@ -206,12 +231,12 @@ export function CategoriesContent() {
                 description,
                 parentId: parentId ? Number.parseInt(parentId) : undefined,
               }
-            : cat,
-        ),
-      )
+            : cat
+        )
+      );
     } else {
       // It's a tag
-      const color = formData.get("color") as string
+      const color = formData.get("color") as string;
       setTags(
         tags.map((tag) =>
           tag.id === editingItem.id
@@ -221,37 +246,41 @@ export function CategoriesContent() {
                 description,
                 color,
               }
-            : tag,
-        ),
-      )
+            : tag
+        )
+      );
     }
 
-    setIsEditDialogOpen(false)
-    setEditingItem(null)
-  }
+    setIsEditDialogOpen(false);
+    setEditingItem(null);
+  };
 
   const handleDeleteItem = () => {
-    if (!itemToDelete) return
+    if (!itemToDelete) return;
 
     if (itemToDelete.type === "category") {
-      setCategories(categories.filter((cat) => cat.id !== itemToDelete.id))
+      setCategories(categories.filter((cat) => cat.id !== itemToDelete.id));
     } else {
-      setTags(tags.filter((tag) => tag.id !== itemToDelete.id))
+      setTags(tags.filter((tag) => tag.id !== itemToDelete.id));
     }
 
-    setDeleteDialogOpen(false)
-    setItemToDelete(null)
-  }
+    setDeleteDialogOpen(false);
+    setItemToDelete(null);
+  };
 
   const openEditDialog = (item: Category | TenderTag) => {
-    setEditingItem(item)
-    setIsEditDialogOpen(true)
-  }
+    setEditingItem(item);
+    setIsEditDialogOpen(true);
+  };
 
-  const openDeleteDialog = (id: number, type: "category" | "tag", name: string) => {
-    setItemToDelete({ id, type, name })
-    setDeleteDialogOpen(true)
-  }
+  const openDeleteDialog = (
+    id: number,
+    type: "category" | "tag",
+    name: string
+  ) => {
+    setItemToDelete({ id, type, name });
+    setDeleteDialogOpen(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -259,7 +288,9 @@ export function CategoriesContent() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Categories</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total Categories
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{categories.length}</div>
@@ -268,7 +299,9 @@ export function CategoriesContent() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Tags</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total Tags
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{tags.length}</div>
@@ -277,20 +310,30 @@ export function CategoriesContent() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Categories with Tenders</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Categories with Tenders
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{categories.filter((c) => c.tenderCount > 0).length}</div>
+            <div className="text-2xl font-bold">
+              {categories.filter((c) => c.tenderCount > 0).length}
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Most Used Tag</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Most Used Tag
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {tags.reduce((prev, current) => (prev.usageCount > current.usageCount ? prev : current)).name}
+              {
+                tags.reduce((prev, current) =>
+                  prev.usageCount > current.usageCount ? prev : current
+                ).name
+              }
             </div>
           </CardContent>
         </Card>
@@ -300,142 +343,84 @@ export function CategoriesContent() {
       <Card>
         <CardHeader>
           <CardTitle>Categories & Tags Management</CardTitle>
-          <CardDescription>Organize your tender categories and tags for better classification</CardDescription>
+          <CardDescription>
+            Organize your tender categories and tags for better classification
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="categories">Categories</TabsTrigger>
-              <TabsTrigger value="tags">Tags</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="categories" className="space-y-4">
-              {/* Categories Controls */}
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-1">
-                  <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="Search categories..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-                <Button onClick={() => setIsAddDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Category
-                </Button>
+          {/* Categories Controls */}
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between pb-3">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-1">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search categories..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
               </div>
+            </div>
+            <Button onClick={() => setIsAddDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Category
+            </Button>
+          </div>
 
-              {/* Categories Table */}
-              <div className="border rounded-lg">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Tender Count</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredCategories.map((category) => (
-                      <TableRow key={category.id}>
-                        <TableCell className="font-medium">{category.name}</TableCell>
-                        <TableCell className="text-gray-600">{category.description}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{category.tenderCount}</Badge>
-                        </TableCell>
-                        <TableCell>{category.createdAt}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button variant="ghost" size="sm" onClick={() => openEditDialog(category)}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openDeleteDialog(category.id, "category", category.name)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="tags" className="space-y-4">
-              {/* Tags Controls */}
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-1">
-                  <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="Search tags..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-                <Button onClick={() => setIsAddDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Tag
-                </Button>
-              </div>
-
-              {/* Tags Table */}
-              <div className="border rounded-lg">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Color</TableHead>
-                      <TableHead>Usage Count</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredTags.map((tag) => (
-                      <TableRow key={tag.id}>
-                        <TableCell className="font-medium">{tag.name}</TableCell>
-                        <TableCell className="text-gray-600">{tag.description}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div className={`w-4 h-4 rounded-full bg-${tag.color}-500`} />
-                            <span className="capitalize">{tag.color}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{tag.usageCount}</Badge>
-                        </TableCell>
-                        <TableCell>{tag.createdAt}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button variant="ghost" size="sm" onClick={() => openEditDialog(tag)}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(tag.id, "tag", tag.name)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-          </Tabs>
+          {/* Categories Table */}
+          <div className="border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Tender Count</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredCategories.map((category) => (
+                  <TableRow key={category.id}>
+                    <TableCell className="font-medium">
+                      {category.name}
+                    </TableCell>
+                    <TableCell className="text-gray-600">
+                      {category.description}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{category.tenderCount}</Badge>
+                    </TableCell>
+                    <TableCell>{category.createdAt}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEditDialog(category)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            openDeleteDialog(
+                              category.id,
+                              "category",
+                              category.name
+                            )
+                          }
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
@@ -443,62 +428,39 @@ export function CategoriesContent() {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add New {activeTab === "categories" ? "Category" : "Tag"}</DialogTitle>
+            <DialogTitle>
+              Add New {activeTab === "categories" ? "Category" : "Tag"}
+            </DialogTitle>
             <DialogDescription>
-              Create a new {activeTab === "categories" ? "category" : "tag"} for organizing tenders.
+              Create a new {activeTab === "categories" ? "category" : "tag"} for
+              organizing tenders.
             </DialogDescription>
           </DialogHeader>
           <form action={handleAddItem}>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" name="name" placeholder="Enter name" required />
+                <Input
+                  id="name"
+                  name="name"
+                  className="mt-3"
+                  placeholder="Enter name"
+                  required
+                />
               </div>
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" name="description" placeholder="Enter description" />
-              </div>
-              {activeTab === "categories" && (
-                <div>
-                  <Label htmlFor="parentId">Parent Category (Optional)</Label>
-                  <Select name="parentId">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select parent category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id.toString()}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              {activeTab === "tags" && (
-                <div>
-                  <Label htmlFor="color">Color</Label>
-                  <Select name="color" required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select color" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="red">Red</SelectItem>
-                      <SelectItem value="blue">Blue</SelectItem>
-                      <SelectItem value="green">Green</SelectItem>
-                      <SelectItem value="yellow">Yellow</SelectItem>
-                      <SelectItem value="purple">Purple</SelectItem>
-                      <SelectItem value="orange">Orange</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+            
             </div>
             <DialogFooter className="mt-6">
-              <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsAddDialogOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button type="submit">Add {activeTab === "categories" ? "Category" : "Tag"}</Button>
+              <Button type="submit">
+                Add {activeTab === "categories" ? "Category" : "Tag"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -508,14 +470,25 @@ export function CategoriesContent() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit {editingItem && "tenderCount" in editingItem ? "Category" : "Tag"}</DialogTitle>
-            <DialogDescription>Update the details of this item.</DialogDescription>
+            <DialogTitle>
+              Edit{" "}
+              {editingItem && "tenderCount" in editingItem ? "Category" : "Tag"}
+            </DialogTitle>
+            <DialogDescription>
+              Update the details of this item.
+            </DialogDescription>
           </DialogHeader>
           <form action={handleEditItem}>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="edit-name">Name</Label>
-                <Input id="edit-name" name="name" defaultValue={editingItem?.name} placeholder="Enter name" required />
+                <Input
+                  id="edit-name"
+                  name="name"
+                  defaultValue={editingItem?.name}
+                  placeholder="Enter name"
+                  required
+                />
               </div>
               <div>
                 <Label htmlFor="edit-description">Description</Label>
@@ -528,8 +501,13 @@ export function CategoriesContent() {
               </div>
               {editingItem && "tenderCount" in editingItem && (
                 <div>
-                  <Label htmlFor="edit-parentId">Parent Category (Optional)</Label>
-                  <Select name="parentId" defaultValue={editingItem.parentId?.toString()}>
+                  <Label htmlFor="edit-parentId">
+                    Parent Category (Optional)
+                  </Label>
+                  <Select
+                    name="parentId"
+                    defaultValue={editingItem.parentId?.toString()}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select parent category" />
                     </SelectTrigger>
@@ -537,7 +515,10 @@ export function CategoriesContent() {
                       {categories
                         .filter((cat) => cat.id !== editingItem.id)
                         .map((category) => (
-                          <SelectItem key={category.id} value={category.id.toString()}>
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
                             {category.name}
                           </SelectItem>
                         ))}
@@ -548,7 +529,11 @@ export function CategoriesContent() {
               {editingItem && "color" in editingItem && (
                 <div>
                   <Label htmlFor="edit-color">Color</Label>
-                  <Select name="color" defaultValue={editingItem.color} required>
+                  <Select
+                    name="color"
+                    defaultValue={editingItem.color}
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select color" />
                     </SelectTrigger>
@@ -565,7 +550,11 @@ export function CategoriesContent() {
               )}
             </div>
             <DialogFooter className="mt-6">
-              <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit">Update</Button>
@@ -580,18 +569,21 @@ export function CategoriesContent() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the {itemToDelete?.type} "{itemToDelete?.name}". This action cannot be
-              undone.
+              This will permanently delete the {itemToDelete?.type} "
+              {itemToDelete?.name}". This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteItem} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleDeleteItem}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
