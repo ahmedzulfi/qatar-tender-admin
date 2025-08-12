@@ -12,6 +12,7 @@ import {
   Phone,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { use } from "react";
 
 const mockBid = {
   id: "BID-001",
@@ -76,7 +77,7 @@ const mockBid = {
   },
 };
 
-function BidDetailsContent() {
+function BidDetailsContent({ bidId }: { bidId: string }) {
   const router = useRouter();
 
   const getStatusBadge = (status: string) => {
@@ -196,14 +197,16 @@ function BidDetailsContent() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Bid Ammount</p>
+                <p className="text-sm text-gray-600">Bid Amount</p>
                 <p className="font-medium">{mockBid.amount}</p>
               </div>
             </div>
             <div>
               <p className="text-sm text-gray-600 mb-2">Description</p>
               <p className="text-gray-900">
-                {mockBid.bidDetails.equipmentIncluded}Major road construction project covering 15km of highway infrastructure in North Doha area.
+                {mockBid.bidDetails.equipmentIncluded} Major road construction
+                project covering 15km of highway infrastructure in North Doha
+                area.
               </p>
             </div>
           </CardContent>
@@ -257,11 +260,17 @@ function BidDetailsContent() {
           </div>
         </CardContent>
       </Card>
-
     </div>
   );
 }
 
-export default function BidDetailsPage({ params }: { params: { id: string } }) {
-  return <BidDetailsContent />;
+export default function BidDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  // Use the `use` hook to unwrap the Promise
+  const resolvedParams = use(params);
+
+  return <BidDetailsContent bidId={resolvedParams.id} />;
 }
