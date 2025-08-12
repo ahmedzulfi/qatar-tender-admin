@@ -264,13 +264,6 @@ function BidDetailsContent({ bidId }: { bidId: string }) {
   );
 }
 
-export default function BidDetailsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  // Use the `use` hook to unwrap the Promise
-  const resolvedParams = use(params);
-
-  return <BidDetailsContent bidId={resolvedParams.id} />;
+export default function BidDetailsPage({ params }: { params: { id: string } }) {
+  return <BidDetailsContent bidId={params.id} />;
 }
