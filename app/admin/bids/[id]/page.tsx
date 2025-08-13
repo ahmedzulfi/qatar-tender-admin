@@ -77,7 +77,7 @@ const mockBid = {
   },
 };
 
-function BidDetailsContent({ bidId }: { bidId: string }) {
+function BidDetailsContent() {
   const router = useRouter();
 
   const getStatusBadge = (status: string) => {
@@ -264,6 +264,6 @@ function BidDetailsContent({ bidId }: { bidId: string }) {
   );
 }
 
-export default function BidDetailsPage({ params }: { params: { id: string } }) {
-  return <BidDetailsContent bidId={params.id} />;
+export default function BidDetailsPage() {
+  return <BidDetailsContent />;
 }
