@@ -27,12 +27,12 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function UserProfile({ params }: { params: { id: string } }) {
+export default function UserProfile() {
   const [activeTab, setActiveTab] = useState("service-providing");
   const router = useRouter();
 
   const mockUser = {
-    id: params.id,
+    id: 234,
     name: "Al-Rashid Construction LLC",
     email: "info@alrashid-construction.qa",
     phone: "+974 4444 5555",
