@@ -232,6 +232,6 @@ function TenderDetailsContent() {
   )
 }
 
-export default function TenderDetailsPage({ params }: { params: { id: string } }) {
+export default function TenderDetailsPage() {
   return <TenderDetailsContent />
 }
