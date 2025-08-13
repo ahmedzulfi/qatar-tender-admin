@@ -1,85 +1,96 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Shield, Mail, Lock, Smartphone } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Eye, EyeOff, Shield, Mail, Lock, Smartphone } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [step, setStep] = useState<"login" | "2fa" | "forgot">("login")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState<"login" | "2fa" | "forgot">("login");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     twoFactorCode: "",
     resetEmail: "",
-  })
-  const router = useRouter()
+  });
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     // Simulate API call
     setTimeout(() => {
-      if (formData.email === "admin@qatartender.com" && formData.password === "admin123") {
-        setStep("2fa")
+      if (
+        formData.email === "admin@qatartender.com" &&
+        formData.password === "admin123"
+      ) {
+        setStep("2fa");
       } else {
-        setError("Invalid email or password")
+        setError("Invalid email or password");
       }
-      setIsLoading(false)
-    }, 1000)
-  }
+      setIsLoading(false);
+    }, 1000);
+  };
 
   const handleTwoFactor = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     // Simulate 2FA verification
     setTimeout(() => {
       if (formData.twoFactorCode === "123456") {
-        router.push("/")
+        router.push("/admin");
       } else {
-        setError("Invalid 2FA code")
+        setError("Invalid 2FA code");
       }
-      setIsLoading(false)
-    }, 1000)
-  }
+      setIsLoading(false);
+    }, 1000);
+  };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     // Simulate password reset
     setTimeout(() => {
-      setError("")
-      alert("Password reset link sent to your email")
-      setStep("login")
-      setIsLoading(false)
-    }, 1000)
-  }
+      setError("");
+      alert("Password reset link sent to your email");
+      setStep("login");
+      setIsLoading(false);
+    }, 1000);
+  };
 
   const updateFormData = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   if (step === "forgot") {
     return (
       <Card className="w-full">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
-          <CardDescription>Enter your email address and we'll send you a reset link</CardDescription>
+          <CardDescription>
+            Enter your email address and we'll send you a reset link
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleForgotPassword} className="space-y-4">
@@ -109,13 +120,18 @@ export function LoginForm() {
               {isLoading ? "Sending..." : "Send Reset Link"}
             </Button>
 
-            <Button type="button" variant="ghost" className="w-full" onClick={() => setStep("login")}>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => setStep("login")}
+            >
               Back to Login
             </Button>
           </form>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (step === "2fa") {
@@ -125,8 +141,12 @@ export function LoginForm() {
           <div className="flex items-center justify-center w-12 h-12 mx-auto bg-blue-100 dark:bg-blue-900 rounded-full mb-4">
             <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
           </div>
-          <CardTitle className="text-2xl font-bold text-center">Two-Factor Authentication</CardTitle>
-          <CardDescription className="text-center">Enter the 6-digit code from your authenticator app</CardDescription>
+          <CardTitle className="text-2xl font-bold text-center">
+            Two-Factor Authentication
+          </CardTitle>
+          <CardDescription className="text-center">
+            Enter the 6-digit code from your authenticator app
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleTwoFactor} className="space-y-4">
@@ -145,7 +165,9 @@ export function LoginForm() {
                   type="text"
                   placeholder="123456"
                   value={formData.twoFactorCode}
-                  onChange={(e) => updateFormData("twoFactorCode", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("twoFactorCode", e.target.value)
+                  }
                   className="pl-10 text-center text-lg tracking-widest"
                   maxLength={6}
                   required
@@ -157,20 +179,27 @@ export function LoginForm() {
               {isLoading ? "Verifying..." : "Verify & Sign In"}
             </Button>
 
-            <Button type="button" variant="ghost" className="w-full" onClick={() => setStep("login")}>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => setStep("login")}
+            >
               Back to Login
             </Button>
           </form>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
     <Card className="w-full">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
-        <CardDescription>Enter your credentials to access the admin dashboard</CardDescription>
+        <CardDescription>
+          Enter your credentials to access the admin dashboard
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleLogin} className="space-y-4">
@@ -226,7 +255,12 @@ export function LoginForm() {
           </div>
 
           <div className="flex items-center justify-between">
-            <Button type="button" variant="link" className="px-0 font-normal" onClick={() => setStep("forgot")}>
+            <Button
+              type="button"
+              variant="link"
+              className="px-0 font-normal"
+              onClick={() => setStep("forgot")}
+            >
               Forgot password?
             </Button>
           </div>
@@ -243,5 +277,5 @@ export function LoginForm() {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }
