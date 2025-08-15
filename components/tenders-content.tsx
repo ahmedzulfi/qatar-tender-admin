@@ -48,6 +48,7 @@ const mockTenders = [
     submittedDate: "2023-12-01",
     description:
       "Major road construction project covering 15km of highway infrastructure in North Doha area.",
+    type: "business",
   },
   {
     id: "TND-002",
@@ -60,6 +61,7 @@ const mockTenders = [
     submittedDate: "2023-12-03",
     description:
       "Procurement of computers, servers, and networking equipment for government offices.",
+    type: "business",
   },
   {
     id: "TND-003",
@@ -72,6 +74,7 @@ const mockTenders = [
     submittedDate: "2023-12-05",
     description:
       "Medical equipment procurement for new hospital facilities across Qatar.",
+    type: "business",
   },
   {
     id: "TND-004",
@@ -84,6 +87,7 @@ const mockTenders = [
     submittedDate: "2023-12-07",
     description:
       "Annual contract for office supplies and stationery for government departments.",
+    type: "business",
   },
   {
     id: "TND-005",
@@ -95,6 +99,7 @@ const mockTenders = [
     bidsCount: 4,
     submittedDate: "2023-12-10",
     description: "Security services for government buildings and facilities.",
+    type: "individual",
   },
 ];
 
@@ -102,6 +107,7 @@ export function TendersContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all"); // New filter for type
   const [selectedTender, setSelectedTender] = useState(null);
 
   const filteredTenders = mockTenders.filter((tender) => {
@@ -112,8 +118,10 @@ export function TendersContent() {
       statusFilter === "all" || tender.status === statusFilter;
     const matchesCategory =
       categoryFilter === "all" || tender.category === categoryFilter;
+    const matchesType =
+      typeFilter === "all" || tender.type === typeFilter;
 
-    return matchesSearch && matchesStatus && matchesCategory;
+    return matchesSearch && matchesStatus && matchesCategory && matchesType;
   });
 
   const getStatusBadge = (status: "active" | "rejected" | string) => {
@@ -246,6 +254,18 @@ export function TendersContent() {
                 <SelectItem value="Healthcare">Healthcare</SelectItem>
                 <SelectItem value="Services">Services</SelectItem>
                 <SelectItem value="Supplies">Supplies</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* New Type Filter */}
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="individual">Individual</SelectItem>
+                <SelectItem value="business">Business</SelectItem>
               </SelectContent>
             </Select>
           </div>

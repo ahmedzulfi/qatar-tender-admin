@@ -1,12 +1,19 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,11 +33,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Search, Shield, UserX, FileX, StopCircle, AlertTriangle, Lock, Eye, History, Ban, Trash2 } from "lucide-react"
-import { format } from "date-fns"
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Search,
+  Shield,
+  UserX,
+  FileX,
+  StopCircle,
+  AlertTriangle,
+  Lock,
+  Eye,
+  History,
+  Ban,
+  Trash2,
+  Settings,
+} from "lucide-react";
+import { format } from "date-fns";
+import { SettingsContent } from "./settings-content";
 
 // Mock data for users that can be suspended
 const usersData = [
@@ -67,7 +88,7 @@ const usersData = [
     tenderCount: 15,
     suspensionReason: null,
   },
-]
+];
 
 // Mock data for tenders that can be removed
 const tendersData = [
@@ -104,7 +125,7 @@ const tendersData = [
     category: "Healthcare",
     estimatedValue: 1200000,
   },
-]
+];
 
 // Mock audit log data
 const auditLogData = [
@@ -135,125 +156,141 @@ const auditLogData = [
     reason: "Emergency closure due to specification changes",
     severity: "medium",
   },
-]
+];
 
 export function AdminControlsContent() {
-  const [activeTab, setActiveTab] = useState("users")
-  const [users, setUsers] = useState(usersData)
-  const [tenders, setTenders] = useState(tendersData)
-  const [auditLog, setAuditLog] = useState(auditLogData)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState("users");
+  const [users, setUsers] = useState(usersData);
+  const [tenders, setTenders] = useState(tendersData);
+  const [auditLog, setAuditLog] = useState(auditLogData);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{
-    type: string
-    target: any
-    reason: string
-  } | null>(null)
-  const [password, setPassword] = useState("")
-  const [actionReason, setActionReason] = useState("")
+    type: string;
+    target: any;
+    reason: string;
+  } | null>(null);
+  const [password, setPassword] = useState("");
+  const [actionReason, setActionReason] = useState("");
 
   // Security check - in real app, this would check user permissions
-  const isSuperAdmin = true // Mock super admin status
+  const isSuperAdmin = true; // Mock super admin status
 
   const handlePasswordVerification = () => {
     // In real app, this would verify the password against the current user's password
     if (password === "admin123") {
       // Mock password verification
-      executeAction()
-      setIsPasswordDialogOpen(false)
-      setPassword("")
-      setPendingAction(null)
-      setActionReason("")
+      executeAction();
+      setIsPasswordDialogOpen(false);
+      setPassword("");
+      setPendingAction(null);
+      setActionReason("");
     } else {
-      alert("Incorrect password. Action cancelled.")
+      alert("Incorrect password. Action cancelled.");
     }
-  }
+  };
 
   const executeAction = () => {
-    if (!pendingAction) return
+    if (!pendingAction) return;
 
-    const timestamp = new Date().toISOString()
+    const timestamp = new Date().toISOString();
     const newAuditEntry = {
       id: auditLog.length + 1,
       action: pendingAction.type,
-      target: pendingAction.target.name || pendingAction.target.title || pendingAction.target.tenderCode,
+      target:
+        pendingAction.target.name ||
+        pendingAction.target.title ||
+        pendingAction.target.tenderCode,
       admin: "Super Admin",
       timestamp,
       reason: pendingAction.reason,
       severity: "high" as const,
-    }
+    };
 
     switch (pendingAction.type) {
       case "User Suspended":
         setUsers(
           users.map((user) =>
             user.id === pendingAction.target.id
-              ? { ...user, status: "suspended", suspensionReason: pendingAction.reason }
-              : user,
-          ),
-        )
-        break
+              ? {
+                  ...user,
+                  status: "suspended",
+                  suspensionReason: pendingAction.reason,
+                }
+              : user
+          )
+        );
+        break;
       case "User Reactivated":
         setUsers(
           users.map((user) =>
-            user.id === pendingAction.target.id ? { ...user, status: "active", suspensionReason: null } : user,
-          ),
-        )
-        break
+            user.id === pendingAction.target.id
+              ? { ...user, status: "active", suspensionReason: null }
+              : user
+          )
+        );
+        break;
       case "Tender Removed":
-        setTenders(tenders.filter((tender) => tender.id !== pendingAction.target.id))
-        break
+        setTenders(
+          tenders.filter((tender) => tender.id !== pendingAction.target.id)
+        );
+        break;
       case "Bidding Closed":
         setTenders(
-          tenders.map((tender) => (tender.id === pendingAction.target.id ? { ...tender, status: "closed" } : tender)),
-        )
-        break
+          tenders.map((tender) =>
+            tender.id === pendingAction.target.id
+              ? { ...tender, status: "closed" }
+              : tender
+          )
+        );
+        break;
     }
 
-    setAuditLog([newAuditEntry, ...auditLog])
-    alert(`${pendingAction.type} completed successfully.`)
-  }
+    setAuditLog([newAuditEntry, ...auditLog]);
+    alert(`${pendingAction.type} completed successfully.`);
+  };
 
   const initiateAction = (type: string, target: any, reason: string) => {
-    setPendingAction({ type, target, reason })
-    setActionReason(reason)
-    setIsPasswordDialogOpen(true)
-  }
+    setPendingAction({ type, target, reason });
+    setActionReason(reason);
+    setIsPasswordDialogOpen(true);
+  };
 
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.company.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      user.company.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const filteredTenders = tenders.filter(
     (tender) =>
       tender.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       tender.tenderCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tender.category.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      tender.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (!isSuperAdmin) {
     return (
       <Card>
         <CardContent className="p-12 text-center">
           <Shield className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Access Restricted</h3>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            Access Restricted
+          </h3>
           <p className="text-gray-600">
-            You don't have permission to access admin controls. Contact your system administrator.
+            You don't have permission to access admin controls. Contact your
+            system administrator.
           </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
-    
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-4">
+        <TabsList className="grid w-full grid-cols-4 mb-4">
           <TabsTrigger value="users" className="flex items-center gap-2 ">
             <UserX className="h-4 w-4" />
             User Management
@@ -265,6 +302,10 @@ export function AdminControlsContent() {
           <TabsTrigger value="audit" className="flex items-center gap-2">
             <History className="h-4 w-4" />
             Audit Log
+          </TabsTrigger>{" "}
+          <TabsTrigger value="settings" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Settings
           </TabsTrigger>
         </TabsList>
 
@@ -308,23 +349,37 @@ export function AdminControlsContent() {
                         <TableCell>
                           <div>
                             <div className="font-medium">{user.name}</div>
-                            <div className="text-sm text-gray-500">{user.email}</div>
+                            <div className="text-sm text-gray-500">
+                              {user.email}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>{user.company}</TableCell>
                         <TableCell>
                           <Badge
-                            variant={user.status === "active" ? "default" : "destructive"}
-                            className={user.status === "suspended" ? "bg-red-100 text-red-800" : ""}
+                            variant={
+                              user.status === "active"
+                                ? "default"
+                                : "destructive"
+                            }
+                            className={
+                              user.status === "suspended"
+                                ? "bg-red-100 text-red-800"
+                                : ""
+                            }
                           >
                             {user.status}
                           </Badge>
-                     
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline">{user.tenderCount}</Badge>
                         </TableCell>
-                        <TableCell>{format(new Date(user.lastActivity), "MMM dd, yyyy HH:mm")}</TableCell>
+                        <TableCell>
+                          {format(
+                            new Date(user.lastActivity),
+                            "MMM dd, yyyy HH:mm"
+                          )}
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {user.status === "active" ? (
@@ -339,21 +394,32 @@ export function AdminControlsContent() {
                                   <DialogHeader>
                                     <DialogTitle>Suspend User</DialogTitle>
                                     <DialogDescription>
-                                      This will immediately suspend {user.name} and prevent them from accessing the
+                                      This will immediately suspend {user.name}{" "}
+                                      and prevent them from accessing the
                                       platform.
                                     </DialogDescription>
                                   </DialogHeader>
                                   <form
                                     onSubmit={(e) => {
-                                      e.preventDefault()
-                                      const formData = new FormData(e.currentTarget)
-                                      const reason = formData.get("reason") as string
-                                      initiateAction("User Suspended", user, reason)
+                                      e.preventDefault();
+                                      const formData = new FormData(
+                                        e.currentTarget
+                                      );
+                                      const reason = formData.get(
+                                        "reason"
+                                      ) as string;
+                                      initiateAction(
+                                        "User Suspended",
+                                        user,
+                                        reason
+                                      );
                                     }}
                                   >
                                     <div className="space-y-4">
                                       <div>
-                                        <Label htmlFor="reason">Suspension Reason</Label>
+                                        <Label htmlFor="reason">
+                                          Suspension Reason
+                                        </Label>
                                         <Textarea
                                           id="reason"
                                           name="reason"
@@ -363,7 +429,10 @@ export function AdminControlsContent() {
                                       </div>
                                     </div>
                                     <DialogFooter className="mt-6">
-                                      <Button type="submit" variant="destructive">
+                                      <Button
+                                        type="submit"
+                                        variant="destructive"
+                                      >
                                         Proceed to Suspend
                                       </Button>
                                     </DialogFooter>
@@ -380,16 +449,25 @@ export function AdminControlsContent() {
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle>Reactivate User</AlertDialogTitle>
+                                    <AlertDialogTitle>
+                                      Reactivate User
+                                    </AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      This will reactivate {user.name} and restore their platform access.
+                                      This will reactivate {user.name} and
+                                      restore their platform access.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogCancel>
+                                      Cancel
+                                    </AlertDialogCancel>
                                     <AlertDialogAction
                                       onClick={() =>
-                                        initiateAction("User Reactivated", user, "Account reactivated by admin")
+                                        initiateAction(
+                                          "User Reactivated",
+                                          user,
+                                          "Account reactivated by admin"
+                                        )
                                       }
                                     >
                                       Reactivate
@@ -451,7 +529,9 @@ export function AdminControlsContent() {
                         <TableCell>
                           <div>
                             <div className="font-medium">{tender.title}</div>
-                            <div className="text-sm text-gray-500">{tender.tenderCode}</div>
+                            <div className="text-sm text-gray-500">
+                              {tender.tenderCode}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -459,8 +539,16 @@ export function AdminControlsContent() {
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant={tender.status === "active" ? "default" : "secondary"}
-                            className={tender.status === "closed" ? "bg-gray-100 text-gray-800" : ""}
+                            variant={
+                              tender.status === "active"
+                                ? "default"
+                                : "secondary"
+                            }
+                            className={
+                              tender.status === "closed"
+                                ? "bg-gray-100 text-gray-800"
+                                : ""
+                            }
                           >
                             {tender.status}
                           </Badge>
@@ -481,22 +569,35 @@ export function AdminControlsContent() {
                                   </DialogTrigger>
                                   <DialogContent>
                                     <DialogHeader>
-                                      <DialogTitle>Force Close Bidding</DialogTitle>
+                                      <DialogTitle>
+                                        Force Close Bidding
+                                      </DialogTitle>
                                       <DialogDescription>
-                                        This will immediately close bidding for "{tender.title}" and prevent new bids.
+                                        This will immediately close bidding for
+                                        "{tender.title}" and prevent new bids.
                                       </DialogDescription>
                                     </DialogHeader>
                                     <form
                                       onSubmit={(e) => {
-                                        e.preventDefault()
-                                        const formData = new FormData(e.currentTarget)
-                                        const reason = formData.get("reason") as string
-                                        initiateAction("Bidding Closed", tender, reason)
+                                        e.preventDefault();
+                                        const formData = new FormData(
+                                          e.currentTarget
+                                        );
+                                        const reason = formData.get(
+                                          "reason"
+                                        ) as string;
+                                        initiateAction(
+                                          "Bidding Closed",
+                                          tender,
+                                          reason
+                                        );
                                       }}
                                     >
                                       <div className="space-y-4">
                                         <div>
-                                          <Label htmlFor="close-reason">Closure Reason</Label>
+                                          <Label htmlFor="close-reason">
+                                            Closure Reason
+                                          </Label>
                                           <Textarea
                                             id="close-reason"
                                             name="reason"
@@ -506,7 +607,10 @@ export function AdminControlsContent() {
                                         </div>
                                       </div>
                                       <DialogFooter className="mt-6">
-                                        <Button type="submit" variant="destructive">
+                                        <Button
+                                          type="submit"
+                                          variant="destructive"
+                                        >
                                           Close Bidding
                                         </Button>
                                       </DialogFooter>
@@ -522,17 +626,27 @@ export function AdminControlsContent() {
                                   </AlertDialogTrigger>
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle>Remove Tender</AlertDialogTitle>
+                                      <AlertDialogTitle>
+                                        Remove Tender
+                                      </AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        This will permanently remove "{tender.title}" from the platform. This action
-                                        cannot be undone and will affect {tender.bidCount} existing bids.
+                                        This will permanently remove "
+                                        {tender.title}" from the platform. This
+                                        action cannot be undone and will affect{" "}
+                                        {tender.bidCount} existing bids.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogCancel>
+                                        Cancel
+                                      </AlertDialogCancel>
                                       <AlertDialogAction
                                         onClick={() =>
-                                          initiateAction("Tender Removed", tender, "Tender removed by admin")
+                                          initiateAction(
+                                            "Tender Removed",
+                                            tender,
+                                            "Tender removed by admin"
+                                          )
                                         }
                                         className="bg-red-600 hover:bg-red-700"
                                       >
@@ -581,14 +695,20 @@ export function AdminControlsContent() {
                   <TableBody>
                     {auditLog.map((entry) => (
                       <TableRow key={entry.id}>
-                        <TableCell className="font-medium">{entry.action}</TableCell>
+                        <TableCell className="font-medium">
+                          {entry.action}
+                        </TableCell>
                         <TableCell>{entry.target}</TableCell>
                         <TableCell>{entry.admin}</TableCell>
                         <TableCell className="max-w-xs">
                           <div className="truncate">{entry.reason}</div>
                         </TableCell>
-                        <TableCell>{format(new Date(entry.timestamp), "MMM dd, yyyy HH:mm:ss")}</TableCell>
-                     
+                        <TableCell>
+                          {format(
+                            new Date(entry.timestamp),
+                            "MMM dd, yyyy HH:mm:ss"
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -597,32 +717,46 @@ export function AdminControlsContent() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="settings" className="space-y-6">
+          <SettingsContent />
+        </TabsContent>
       </Tabs>
 
       {/* Password Confirmation Dialog */}
-      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+      <Dialog
+        open={isPasswordDialogOpen}
+        onOpenChange={setIsPasswordDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Lock className="h-5 w-5 text-red-600" />
               Security Verification Required
             </DialogTitle>
-            <DialogDescription>Please enter your admin password to confirm this sensitive action.</DialogDescription>
+            <DialogDescription>
+              Please enter your admin password to confirm this sensitive action.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {pendingAction && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="h-4 w-4 text-red-600" />
-                  <span className="font-medium text-red-900">Action to be performed:</span>
+                  <span className="font-medium text-red-900">
+                    Action to be performed:
+                  </span>
                 </div>
                 <div className="text-sm text-red-800">
                   <strong>{pendingAction.type}</strong> on{" "}
                   <strong>
-                    {pendingAction.target.name || pendingAction.target.title || pendingAction.target.tenderCode}
+                    {pendingAction.target.name ||
+                      pendingAction.target.title ||
+                      pendingAction.target.tenderCode}
                   </strong>
                 </div>
-                <div className="text-sm text-red-700 mt-1">Reason: {pendingAction.reason}</div>
+                <div className="text-sm text-red-700 mt-1">
+                  Reason: {pendingAction.reason}
+                </div>
               </div>
             )}
             <div>
@@ -641,19 +775,23 @@ export function AdminControlsContent() {
             <Button
               variant="outline"
               onClick={() => {
-                setIsPasswordDialogOpen(false)
-                setPassword("")
-                setPendingAction(null)
+                setIsPasswordDialogOpen(false);
+                setPassword("");
+                setPendingAction(null);
               }}
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handlePasswordVerification} disabled={!password}>
+            <Button
+              variant="destructive"
+              onClick={handlePasswordVerification}
+              disabled={!password}
+            >
               Confirm Action
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

@@ -177,6 +177,11 @@ const tenderCategoryData = [
     education: 5,
   },
 ];
+const verificationData = [
+  { name: "Verified", value: 250, color: "#22c55e" }, // Green
+  { name: "Pending", value: 100, color: "#facc15" }, // Yellow
+  { name: "Unverified", value: 150, color: "#ef4444" }, // Red
+];
 
 const tenderSuccessData = [
   { month: "Jan", published: 45, completed: 38, success: 84 },
@@ -459,13 +464,13 @@ export function AnalyticsContent() {
 
             <Card>
               <CardHeader>
-                <CardTitle>User Engagement</CardTitle>
+                <CardTitle>Verified vs Non-Verified Users</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={userEngagementData}
+                      data={verificationData}
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
@@ -475,7 +480,7 @@ export function AnalyticsContent() {
                         `${name} ${percent && (percent * 100).toFixed(0)}%`
                       }
                     >
-                      {userEngagementData.map((entry, index) => (
+                      {verificationData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>

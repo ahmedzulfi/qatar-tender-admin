@@ -1,8 +1,7 @@
 "use client";
 
 import type React from "react";
-
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import {
   LayoutDashboard,
   CreditCard,
@@ -17,7 +16,6 @@ import {
   Menu,
   X,
   Search,
-  User,
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,12 +29,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { usePathname, useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-const navigation = [
+// Types
+type NavItem = {
+  name: string;
+  href: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+};
+
+type SearchResult = {
+  type: "user" | "business" | "tender";
+  id: number;
+  title: string;
+  subtitle: string;
+};
+
+// Navigation Items
+const navigation: NavItem[] = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Tenders", href: "/admin/tenders", icon: FileText },
   { name: "Bids", href: "/admin/bids", icon: Gavel },
@@ -45,8 +56,42 @@ const navigation = [
   { name: "Transactions", href: "/admin/transactions", icon: CreditCard },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { name: "Categories", href: "/admin/categories", icon: Tags },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
   { name: "Admin Controls", href: "/admin/admin-controls", icon: Shield },
+];
+
+// Mock search data
+const mockResults: SearchResult[] = [
+  { type: "user", id: 1, title: "John Doe", subtitle: "john@example.com" },
+  {
+    type: "business",
+    id: 2,
+    title: "Qatar Constructions",
+    subtitle: "Construction Industry",
+  },
+  {
+    type: "tender",
+    id: 3,
+    title: "Road Expansion Project",
+    subtitle: "Due: Sep 30, 2025",
+  },
+  {
+    type: "user",
+    id: 4,
+    title: "Fatima Khan",
+    subtitle: "fatima@qatartender.com",
+  },
+  {
+    type: "business",
+    id: 5,
+    title: "Desert Tech Solutions",
+    subtitle: "IT Services",
+  },
+  {
+    type: "tender",
+    id: 6,
+    title: "School Renovation Tender",
+    subtitle: "Due: Oct 10, 2025",
+  },
 ];
 
 function classNames(...classes: string[]) {
@@ -57,7 +102,10 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
+  useSearchParams(); // keeping it in case it's needed later
+
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
 
   const getCurrentPageName = () => {
     const currentNav = navigation.find((nav) => {
@@ -66,6 +114,24 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       return false;
     });
     return currentNav?.name || "Dashboard";
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    if (value.trim().length < 1) {
+      setResults([]);
+      return;
+    }
+
+    const filtered = mockResults.filter(
+      (item) =>
+        item.title.toLowerCase().includes(value.toLowerCase()) ||
+        item.subtitle.toLowerCase().includes(value.toLowerCase())
+    );
+
+    setResults(filtered);
   };
 
   return (
@@ -164,8 +230,9 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <div className="flex flex-1 flex-col lg:pl-64">
-        <header className="bg-white border-b border-gray-200">
+        <header className="bg-white border-b border-gray-200 relative">
           <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+            {/* Left Section */}
             <div className="flex items-center">
               <Button
                 variant="ghost"
@@ -182,12 +249,36 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
+            {/* Right Section */}
+            <div className="flex items-center space-x-4 relative">
+              {/* Search Bar */}
               <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <Input placeholder="Search..." className="pl-10 w-64" />
+                <Input
+                  placeholder="Search..."
+                  className="pl-10 w-64"
+                  value={query}
+                  onChange={handleSearch}
+                />
+
+                {/* Search Results Dropdown */}
+                {results.length > 0 && (
+                  <div className="absolute mt-2 w-64 bg-white shadow-lg rounded-md border z-50">
+                    {results.map((item) => (
+                      <Link
+                        key={`${item.type}-${item.id}`}
+                        href={`/${item.type}/${item.id}`}
+                        className="block px-4 py-2 hover:bg-gray-100"
+                      >
+                        <p className="text-sm font-medium">{item.title}</p>
+                        <p className="text-xs text-gray-500">{item.subtitle}</p>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
 
+              {/* Avatar & Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -215,13 +306,11 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-
                   <Link href={"/admin/settings"}>
-                    {" "}
                     <DropdownMenuItem>
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
-                    </DropdownMenuItem>{" "}
+                    </DropdownMenuItem>
                   </Link>
                   <DropdownMenuSeparator />
                   <Link href={"/login"}>

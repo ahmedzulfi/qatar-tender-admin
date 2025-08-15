@@ -331,19 +331,7 @@ export function BidsContent() {
               </SelectContent>
             </Select>
 
-            <Select
-              value={vendorTypeFilter}
-              onValueChange={setVendorTypeFilter}
-            >
-              <SelectTrigger className="w-full sm:w-[150px]">
-                <SelectValue placeholder="Vendor type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="business">Business</SelectItem>
-                <SelectItem value="individual">Individual</SelectItem>
-              </SelectContent>
-            </Select>
+      
           </div>
 
           {/* Bids Table */}

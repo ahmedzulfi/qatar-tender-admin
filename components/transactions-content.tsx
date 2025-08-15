@@ -27,7 +27,7 @@ const transactionsData = [
     id: "TXN-001",
     user: "Ahmed Al-Rashid",
     userEmail: "ahmed@example.com",
-    amount: 15000,
+    amount: 100,
     status: "success",
     date: "2024-01-15",
     method: "Bank Transfer",
@@ -37,7 +37,7 @@ const transactionsData = [
     id: "TXN-002",
     user: "Qatar Construction Co.",
     userEmail: "info@qatarconstruction.com",
-    amount: 25000,
+    amount: 100,
     status: "pending",
     date: "2024-01-14",
     method: "Credit Card",
@@ -47,7 +47,7 @@ const transactionsData = [
     id: "TXN-003",
     user: "Doha Engineering Ltd.",
     userEmail: "contact@dohaeng.com",
-    amount: 8500,
+    amount: 100,
     status: "failed",
     date: "2024-01-13",
     method: "Bank Transfer",
@@ -57,7 +57,7 @@ const transactionsData = [
     id: "TXN-004",
     user: "Al-Wakra Industries",
     userEmail: "admin@alwakra.com",
-    amount: 32000,
+    amount: 100,
     status: "success",
     date: "2024-01-12",
     method: "Wire Transfer",
@@ -67,7 +67,7 @@ const transactionsData = [
     id: "TXN-005",
     user: "Gulf Tech Solutions",
     userEmail: "info@gulftech.com",
-    amount: 12750,
+    amount: 100,
     status: "pending",
     date: "2024-01-11",
     method: "Credit Card",
@@ -77,7 +77,7 @@ const transactionsData = [
     id: "TXN-006",
     user: "Lusail Development",
     userEmail: "projects@lusail.com",
-    amount: 45000,
+    amount: 100,
     status: "success",
     date: "2024-01-10",
     method: "Bank Transfer",
@@ -87,7 +87,7 @@ const transactionsData = [
     id: "TXN-007",
     user: "Qatar Medical Supplies",
     userEmail: "orders@qmedical.com",
-    amount: 18900,
+    amount: 100,
     status: "failed",
     date: "2024-01-09",
     method: "Credit Card",
@@ -97,7 +97,7 @@ const transactionsData = [
     id: "TXN-008",
     user: "Hamad Port Services",
     userEmail: "logistics@hamadport.com",
-    amount: 28500,
+    amount: 100,
     status: "success",
     date: "2024-01-08",
     method: "Wire Transfer",
@@ -190,7 +190,7 @@ export function TransactionsContent() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Transactions</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">Total Bids</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{transactionsData.length}</div>
@@ -231,7 +231,7 @@ export function TransactionsContent() {
       {/* Filters and Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Transactions & Payments</CardTitle>
+          <CardTitle>Payments From Bids</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
