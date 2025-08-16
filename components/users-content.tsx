@@ -120,7 +120,6 @@ const mockBusinessUsers: User[] = [
     role: "vendor",
   },
 ];
-const { t } = useTranslation();
 const mockIndividualUsers: User[] = [
   {
     id: "IND-001",
@@ -187,6 +186,7 @@ export const UsersContent: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [kycFilter, setKycFilter] = useState<string>("all");
+  const { t } = useTranslation();
 
   const currentUsers =
     activeTab === "businesses" ? mockBusinessUsers : mockIndividualUsers;

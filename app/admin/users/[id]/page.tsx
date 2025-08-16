@@ -27,9 +27,9 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-import { useTranslation } from '../../../../lib/hooks/useTranslation';
+import { useTranslation } from "../../../../lib/hooks/useTranslation";
 export default function UserProfile() {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const [activeTab, setActiveTab] = useState("service-providing");
   const router = useRouter();
@@ -317,7 +317,8 @@ export default function UserProfile() {
         <div className="flex items-center space-x-4">
           <Button variant="outline" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            {t('back_to_users')}</Button>
+            {t("back_to_users")}
+          </Button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
               {mockUser.name}
@@ -377,27 +378,31 @@ export default function UserProfile() {
         onValueChange={setActiveTab}
       >
         <TabsList>
-          <TabsTrigger value="service-providing">{t('service_providing')}</TabsTrigger>
-          <TabsTrigger value="project-posting">{t('project_posting')}</TabsTrigger>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="service-providing">
+            {t("service_providing")}
+          </TabsTrigger>
+          <TabsTrigger value="project-posting">
+            {t("project_posting")}
+          </TabsTrigger>
+          <TabsTrigger value="profile">{t("profile")}</TabsTrigger>
+          <TabsTrigger value="documents">{t("documents")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="service-providing" className="space-y-6">
           <Card className="shadow-0">
             <CardHeader>
-              <CardTitle>{t('bids_made')}</CardTitle>
+              <CardTitle>{t("bids_made")}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t('project_title')}</TableHead>
-                    <TableHead>{t('bid_amount')}</TableHead>
-                    <TableHead>{t('date_submitted')}</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{t("project_title")}</TableHead>
+                    <TableHead>{t("bid_amount")}</TableHead>
+                    <TableHead>{t("date_submitted")}</TableHead>
+                    <TableHead>{t("status")}</TableHead>
+                    <TableHead>{t("client")}</TableHead>
+                    <TableHead>{t("actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -458,7 +463,8 @@ export default function UserProfile() {
                       <TableCell>
                         <Link href={"/admin/bids/BID-006"}>
                           <Button variant="outline" size="sm">
-                            {t('view_details')}</Button>
+                            {t("view_details")}
+                          </Button>
                         </Link>
                       </TableCell>
                     </TableRow>
@@ -469,7 +475,7 @@ export default function UserProfile() {
           </Card>
           <Card className="shadow-0">
             <CardHeader>
-              <CardTitle>{t('completed_projects_reviews')}</CardTitle>
+              <CardTitle>{t("completed_projects_reviews")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -528,16 +534,16 @@ export default function UserProfile() {
         <TabsContent value="project-posting" className="space-y-6">
           <Card className="shadow-0">
             <CardHeader>
-              <CardTitle>{t('posted_tenders')}</CardTitle>
+              <CardTitle>{t("posted_tenders")}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t('project_title')}</TableHead>
-                    <TableHead>{t('date_posted')}</TableHead>
+                    <TableHead>{t("project_title")}</TableHead>
+                    <TableHead>{t("date_posted")}</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>{t('bids_received')}</TableHead>
+                    <TableHead>{t("bids_received")}</TableHead>
                     <TableHead>Budget</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -559,7 +565,8 @@ export default function UserProfile() {
                       <TableCell>
                         <Link href={"/admin/tenders/TND-001"}>
                           <Button variant="outline" size="sm">
-                            {t('view_details')}</Button>
+                            {t("view_details")}
+                          </Button>
                         </Link>
                       </TableCell>
                     </TableRow>
@@ -571,7 +578,7 @@ export default function UserProfile() {
 
           <Card className="shadow-0">
             <CardHeader>
-              <CardTitle>{t('client_reviews_ratings')}</CardTitle>
+              <CardTitle>{t("client_reviews_ratings")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -667,13 +674,13 @@ export default function UserProfile() {
             {/* Basic Information */}
             <Card className="shadow-0">
               <CardHeader>
-                <CardTitle>{t('basic_information')}</CardTitle>
+                <CardTitle>{t("basic_information")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <User className="h-5 w-5 text-gray-400" />
                   <div>
-                    <p className="text-sm text-gray-600">{t('company_name')}</p>
+                    <p className="text-sm text-gray-600">{t("company_name")}</p>
                     <p className="font-medium">
                       {mockUser.businessDetails.companyName}
                     </p>
@@ -711,7 +718,7 @@ export default function UserProfile() {
                 <div className="flex items-center space-x-3">
                   <Calendar className="h-5 w-5 text-gray-400" />
                   <div>
-                    <p className="text-sm text-gray-600">{t('join_date')}</p>
+                    <p className="text-sm text-gray-600">{t("join_date")}</p>
                     <p className="font-medium">{mockUser.joinDate}</p>
                   </div>
                 </div>
@@ -721,36 +728,44 @@ export default function UserProfile() {
             {/* Business Details */}
             <Card className="shadow-0">
               <CardHeader>
-                <CardTitle>{t('business_details')}</CardTitle>
+                <CardTitle>{t("business_details")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">{t('company_name')}</p>
+                    <p className="text-sm text-gray-600">{t("company_name")}</p>
                     <p className="font-medium">
                       {mockUser.businessDetails.companyName}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">{t('contact_person_name')}</p>
+                    <p className="text-sm text-gray-600">
+                      {t("contact_person_name")}
+                    </p>
                     <p className="font-medium">
                       {mockUser.businessDetails.contactPersonName}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">{t('personal_email')}</p>
+                    <p className="text-sm text-gray-600">
+                      {t("personal_email")}
+                    </p>
                     <p className="font-medium">
                       {mockUser.businessDetails.personalEmail}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">{t('company_email')}</p>
+                    <p className="text-sm text-gray-600">
+                      {t("company_email")}
+                    </p>
                     <p className="font-medium">
                       {mockUser.businessDetails.companyEmail}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">{t('company_phone')}</p>
+                    <p className="text-sm text-gray-600">
+                      {t("company_phone")}
+                    </p>
                     <p className="font-medium">
                       {mockUser.businessDetails.companyPhone}
                     </p>
@@ -758,7 +773,9 @@ export default function UserProfile() {
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-600">{t('company_description')}</p>
+                  <p className="text-sm text-gray-600">
+                    {t("company_description")}
+                  </p>
                   <p className="font-medium">
                     {mockUser.businessDetails.companyDescription}
                   </p>
@@ -773,14 +790,14 @@ export default function UserProfile() {
         <TabsContent value="documents">
           <Card className="shadow-0">
             <CardHeader>
-              <CardTitle>{t('kyc_documents')}</CardTitle>
+              <CardTitle>{t("kyc_documents")}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t('document_name')}</TableHead>
-                    <TableHead>{t('upload_date')}</TableHead>
+                    <TableHead>{t("document_name")}</TableHead>
+                    <TableHead>{t("upload_date")}</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>

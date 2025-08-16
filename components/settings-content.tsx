@@ -244,7 +244,7 @@ export function SettingsContent() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
+                  <Label htmlFor="role">{t("role")}</Label>
                   <Select
                     value={formData.role}
                     onValueChange={(value) => handleInputChange("role", value)}
@@ -256,12 +256,12 @@ export function SettingsContent() {
                       <SelectItem value="super-admin">
                         {t("super_admin")}
                       </SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="admin">{t("admin")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password *</Label>
+                  <Label htmlFor="password">{t("password")} *</Label>
                   <Input
                     id="password"
                     type="password"
@@ -278,7 +278,7 @@ export function SettingsContent() {
                   variant="outline"
                   onClick={() => setIsAddUserDialogOpen(false)}
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button onClick={handleAddUser}>{t("add_user")}</Button>
               </div>
@@ -294,16 +294,16 @@ export function SettingsContent() {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              {t("are_you_sure_you_want_to_delete")}
-              <strong>{userToDelete?.name}</strong>? This action cannot be
-              undone.
+              {t("are_you_sure_you_want_to_delete")}{" "}
+              <strong>{userToDelete?.name}</strong>?{" "}
+              {t("this_action_cannot_be_undone")}
             </p>
             <div className="flex justify-end space-x-2 pt-4">
               <Button
                 variant="outline"
                 onClick={() => setIsDeleteDialogOpen(false)}
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button variant="destructive" onClick={confirmDeleteUser}>
                 {t("delete_user")}
@@ -345,7 +345,7 @@ export function SettingsContent() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-role">Role</Label>
+                <Label htmlFor="edit-role">{t("role")}</Label>
                 <Select
                   value={formData.role}
                   onValueChange={(value) => handleInputChange("role", value)}
@@ -357,7 +357,7 @@ export function SettingsContent() {
                     <SelectItem value="super-admin">
                       {t("super_admin")}
                     </SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="admin">{t("admin")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -379,7 +379,7 @@ export function SettingsContent() {
                 variant="outline"
                 onClick={() => setIsEditUserDialogOpen(false)}
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button onClick={handleUpdateUser}>{t("update_user")}</Button>
             </div>
@@ -392,11 +392,11 @@ export function SettingsContent() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t("user")}</TableHead>
+                <TableHead>{t("role")}</TableHead>
+                <TableHead>{t("status")}</TableHead>
                 <TableHead>{t("last_login")}</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

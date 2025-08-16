@@ -53,7 +53,7 @@ import {
 import { format } from "date-fns";
 import { SettingsContent } from "./settings-content";
 
-import { useTranslation } from '../lib/hooks/useTranslation';
+import { useTranslation } from "../lib/hooks/useTranslation";
 // Mock data for users that can be suspended
 const usersData = [
   {
@@ -176,9 +176,8 @@ export function AdminControlsContent() {
 
   // Security check - in real app, this would check user permissions
   const isSuperAdmin = true; // Mock super admin status
-      const { t } = useTranslation();
+  const { t } = useTranslation();
   const handlePasswordVerification = () => {
-
     // In real app, this would verify the password against the current user's password
     if (password === "admin123") {
       // Mock password verification
@@ -278,7 +277,8 @@ export function AdminControlsContent() {
         <CardContent className="p-12 text-center">
           <Shield className="h-16 w-16 mx-auto text-gray-400 mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            {t('access_restricted')}</h3>
+            {t("access_restricted")}
+          </h3>
           <p className="text-gray-600">
             You don't have permission to access admin controls. Contact your
             system administrator.
@@ -294,16 +294,19 @@ export function AdminControlsContent() {
         <TabsList className="grid w-full grid-cols-4 mb-4">
           <TabsTrigger value="users" className="flex items-center gap-2 ">
             <UserX className="h-4 w-4" />
-            {t('user_management')}</TabsTrigger>
+            {t("user_management")}
+          </TabsTrigger>
           <TabsTrigger value="tenders" className="flex items-center gap-2">
             <FileX className="h-4 w-4" />
-            {t('tender_controls')}</TabsTrigger>
+            {t("tender_controls")}
+          </TabsTrigger>
           <TabsTrigger value="audit" className="flex items-center gap-2">
             <History className="h-4 w-4" />
-            {t('audit_log')}</TabsTrigger>
+            {t("audit_log")}
+          </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
-            Settings
+            {t("settings")}
           </TabsTrigger>
         </TabsList>
 
@@ -313,14 +316,15 @@ export function AdminControlsContent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <UserX className="h-5 w-5" />
-                {t('user_suspension_controls')}</CardTitle>
+                {t("user_suspension_controls")}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="mb-6">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
-                    placeholder={t('search_users')}
+                    placeholder={t("search_users")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -332,12 +336,12 @@ export function AdminControlsContent() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Company</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Tenders</TableHead>
-                      <TableHead>{t('last_activity')}</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>{t("user")}</TableHead>
+                      <TableHead>{t("company")}</TableHead>
+                      <TableHead>{t("status")}</TableHead>
+                      <TableHead>{t("tenders")}</TableHead>
+                      <TableHead>{t("last_activity")}</TableHead>
+                      <TableHead>{t("actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -389,7 +393,9 @@ export function AdminControlsContent() {
                                 </DialogTrigger>
                                 <DialogContent>
                                   <DialogHeader>
-                                    <DialogTitle>{t('suspend_user')}</DialogTitle>
+                                    <DialogTitle>
+                                      {t("suspend_user")}
+                                    </DialogTitle>
                                     <DialogDescription>
                                       This will immediately suspend {user.name}
                                       and prevent them from accessing the
@@ -415,11 +421,14 @@ export function AdminControlsContent() {
                                     <div className="space-y-4">
                                       <div>
                                         <Label htmlFor="reason">
-                                          {t('suspension_reason')}</Label>
+                                          {t("suspension_reason")}
+                                        </Label>
                                         <Textarea
                                           id="reason"
                                           name="reason"
-                                          placeholder={t('provide_a_detailed_reason_for_suspension')}
+                                          placeholder={t(
+                                            "provide_a_detailed_reason_for_suspension"
+                                          )}
                                           required
                                         />
                                       </div>
@@ -429,7 +438,8 @@ export function AdminControlsContent() {
                                         type="submit"
                                         variant="destructive"
                                       >
-                                        {t('proceed_to_suspend')}</Button>
+                                        {t("proceed_to_suspend")}
+                                      </Button>
                                     </DialogFooter>
                                   </form>
                                 </DialogContent>
@@ -445,7 +455,8 @@ export function AdminControlsContent() {
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>
-                                      {t('reactivate_user')}</AlertDialogTitle>
+                                      {t("reactivate_user")}
+                                    </AlertDialogTitle>
                                     <AlertDialogDescription>
                                       This will reactivate {user.name} and
                                       restore their platform access.
@@ -490,14 +501,15 @@ export function AdminControlsContent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileX className="h-5 w-5" />
-                {t('tender_management_controls')}</CardTitle>
+                {t("tender_management_controls")}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="mb-6">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
-                    placeholder={t('search_tenders')}
+                    placeholder={t("search_tenders")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -509,11 +521,11 @@ export function AdminControlsContent() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Tender</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Bids</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>{t("tender")}</TableHead>
+                      <TableHead>{t("category")}</TableHead>
+                      <TableHead>{t("status")}</TableHead>
+                      <TableHead>{t("bids")}</TableHead>
+                      <TableHead>{t("actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -557,12 +569,14 @@ export function AdminControlsContent() {
                                   <DialogTrigger asChild>
                                     <Button variant="outline" size="sm">
                                       <StopCircle className="h-4 w-4 mr-2" />
-                                      {t('close_bidding')}</Button>
+                                      {t("close_bidding")}
+                                    </Button>
                                   </DialogTrigger>
                                   <DialogContent>
                                     <DialogHeader>
                                       <DialogTitle>
-                                        {t('force_close_bidding')}</DialogTitle>
+                                        {t("force_close_bidding")}
+                                      </DialogTitle>
                                       <DialogDescription>
                                         This will immediately close bidding for
                                         "{tender.title}" and prevent new bids.
@@ -587,11 +601,14 @@ export function AdminControlsContent() {
                                       <div className="space-y-4">
                                         <div>
                                           <Label htmlFor="close-reason">
-                                            {t('closure_reason')}</Label>
+                                            {t("closure_reason")}
+                                          </Label>
                                           <Textarea
                                             id="close-reason"
                                             name="reason"
-                                            placeholder={t('provide_a_reason_for_closing_bidding_early')}
+                                            placeholder={t(
+                                              "provide_a_reason_for_closing_bidding_early"
+                                            )}
                                             required
                                           />
                                         </div>
@@ -601,7 +618,8 @@ export function AdminControlsContent() {
                                           type="submit"
                                           variant="destructive"
                                         >
-                                          {t('close_bidding')}</Button>
+                                          {t("close_bidding")}
+                                        </Button>
                                       </DialogFooter>
                                     </form>
                                   </DialogContent>
@@ -616,7 +634,8 @@ export function AdminControlsContent() {
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
                                       <AlertDialogTitle>
-                                        {t('remove_tender')}</AlertDialogTitle>
+                                        {t("remove_tender")}
+                                      </AlertDialogTitle>
                                       <AlertDialogDescription>
                                         This will permanently remove "
                                         {tender.title}" from the platform. This
@@ -638,7 +657,8 @@ export function AdminControlsContent() {
                                         }
                                         className="bg-red-600 hover:bg-red-700"
                                       >
-                                        {t('remove_tender')}</AlertDialogAction>
+                                        {t("remove_tender")}
+                                      </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
                                 </AlertDialog>
@@ -664,18 +684,19 @@ export function AdminControlsContent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <History className="h-5 w-5" />
-                {t('admin_action_audit_log')}</CardTitle>
+                {t("admin_action_audit_log")}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="border rounded-lg">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Action</TableHead>
-                      <TableHead>Target</TableHead>
-                      <TableHead>Admin</TableHead>
-                      <TableHead>Reason</TableHead>
-                      <TableHead>Timestamp</TableHead>
+                      <TableHead>{t("action")}</TableHead>
+                      <TableHead>{t("target")}</TableHead>
+                      <TableHead>{t("admin")}</TableHead>
+                      <TableHead>{t("reason")}</TableHead>
+                      <TableHead>{t("timestamp")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -717,7 +738,8 @@ export function AdminControlsContent() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Lock className="h-5 w-5 text-red-600" />
-              {t('security_verification_required')}</DialogTitle>
+              {t("security_verification_required")}
+            </DialogTitle>
             <DialogDescription>
               Please enter your admin password to confirm this sensitive action.
             </DialogDescription>
@@ -745,13 +767,13 @@ export function AdminControlsContent() {
               </div>
             )}
             <div>
-              <Label htmlFor="admin-password">{t('admin_password')}</Label>
+              <Label htmlFor="admin-password">{t("admin_password")}</Label>
               <Input
                 id="admin-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={t('enter_your_password')}
+                placeholder={t("enter_your_password")}
                 className="mt-1"
               />
             </div>
@@ -772,7 +794,8 @@ export function AdminControlsContent() {
               onClick={handlePasswordVerification}
               disabled={!password}
             >
-              {t('confirm_action')}</Button>
+              {t("confirm_action")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

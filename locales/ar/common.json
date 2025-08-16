@@ -951,5 +951,20 @@
   "failed": "فشل",
   "high": "عالي",
   "medium": "متوسط",
-  "low": "منخفض"
+  "low": "منخفض",
+  "overview": "نظرة عامة",
+  "performance": "الأداء",
+  "revenue_from_bid_payments": "الإيرادات من مدفوعات العطاءات (100 ريال قطري لكل عطاء)",
+  "download": "تنزيل",
+  "client": "العميل",
+  "role": "الدور",
+  "admin": "مشرف",
+  "password": "كلمة المرور",
+  "cancel": "إلغاء",
+  "this_action_cannot_be_undone": "لا يمكن التراجع عن هذا الإجراء.",
+  "profile": "الملف الشخصي",
+  "action": "الإجراء",
+  "target": "الهدف",
+  "reason": "السبب",
+  "timestamp": "الوقت"
 }

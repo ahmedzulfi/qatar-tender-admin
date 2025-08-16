@@ -69,8 +69,8 @@ const mockTender = {
     },
   ],
 };
-const { t } = useTranslation();
 function TenderDetailsContent() {
+  const { t } = useTranslation();
   const router = useRouter();
 
   const getStatusBadge = (status: string) => {
@@ -121,7 +121,7 @@ function TenderDetailsContent() {
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Budget
+              {t("budget")}
             </CardTitle>
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -149,7 +149,7 @@ function TenderDetailsContent() {
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Submitted
+              {t("submitted")}
             </CardTitle>
             <Calendar className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -163,7 +163,7 @@ function TenderDetailsContent() {
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Category
+              {t("category")}
             </CardTitle>
             <FileText className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -216,7 +216,7 @@ function TenderDetailsContent() {
         {/* Documents */}
         <Card className="shadow-0">
           <CardHeader>
-            <CardTitle>Documents</CardTitle>
+            <CardTitle>{t("documents")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -230,7 +230,7 @@ function TenderDetailsContent() {
                     <span className="text-sm font-medium">{doc}</span>
                   </div>
                   <Button variant="outline" size="sm">
-                    Download
+                    {t("download")}
                   </Button>
                 </div>
               ))}

@@ -239,7 +239,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 flex-col lg:pl-64">
         <header className="bg-white border-b border-gray-200 relative">
           <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-            <LanguageToggle />
             {/* Left Section */}
             <div className="flex items-center">
               <Button
@@ -258,7 +257,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Right Section */}
-            <div className="flex items-center space-x-4 relative">
+            <div className="flex items-center space-x-4 relative gap-6">
               {/* Search Bar */}
               <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -285,7 +284,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                   </div>
                 )}
               </div>
-
+              <LanguageToggle />
               {/* Avatar & Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

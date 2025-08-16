@@ -951,5 +951,20 @@
   "failed": "Failed",
   "high": "High",
   "medium": "Medium",
-  "low": "Low"
+  "low": "Low",
+  "overview": "Overview",
+  "performance": "Performance",
+  "revenue_from_bid_payments": "Revenue from Bid Payments (100 QAR per bid)",
+  "download": "Download",
+  "client": "Client",
+  "role": "Role",
+  "admin": "Admin",
+  "password": "Password",
+  "cancel": "Cancel",
+  "this_action_cannot_be_undone": "This action cannot be undone.",
+  "profile": "Profile",
+  "action": "Action",
+  "target": "Target",
+  "reason": "Reason",
+  "timestamp": "Timestamp"
 }

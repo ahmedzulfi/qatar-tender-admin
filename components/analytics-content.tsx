@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useTranslation } from '../lib/hooks/useTranslation';
+import { useTranslation } from "../lib/hooks/useTranslation";
 import {
   Table,
   TableBody,
@@ -194,7 +194,7 @@ const tenderSuccessData = [
 ];
 
 export function AnalyticsContent() {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-8">
@@ -202,9 +202,11 @@ export function AnalyticsContent() {
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {t('platform_analytics')}</h3>
+            {t("platform_analytics")}
+          </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {t('comprehensive_insights_and_reporting')}</p>
+            {t("comprehensive_insights_and_reporting")}
+          </p>
         </div>
         <div className="flex gap-3">
           <Select defaultValue="6months">
@@ -212,10 +214,10 @@ export function AnalyticsContent() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1month">{t('last_month')}</SelectItem>
-              <SelectItem value="3months">{t('last_3_months')}</SelectItem>
-              <SelectItem value="6months">{t('last_6_months')}</SelectItem>
-              <SelectItem value="1year">{t('last_year')}</SelectItem>
+              <SelectItem value="1month">{t("last_month")}</SelectItem>
+              <SelectItem value="3months">{t("last_3_months")}</SelectItem>
+              <SelectItem value="6months">{t("last_6_months")}</SelectItem>
+              <SelectItem value="1year">{t("last_year")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -223,11 +225,11 @@ export function AnalyticsContent() {
 
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="tenders">Tenders</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="overview">{t("overview")}</TabsTrigger>
+          <TabsTrigger value="users">{t("users")}</TabsTrigger>
+          <TabsTrigger value="tenders">{t("tenders")}</TabsTrigger>
+          <TabsTrigger value="revenue">{t("revenue")}</TabsTrigger>
+          <TabsTrigger value="performance">{t("performance")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -236,7 +238,8 @@ export function AnalyticsContent() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  {t('total_platform_revenue')}</CardTitle>
+                  {t("total_platform_revenue")}
+                </CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -250,7 +253,8 @@ export function AnalyticsContent() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  {t('active_tenders')}</CardTitle>
+                  {t("active_tenders")}
+                </CardTitle>
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -264,7 +268,8 @@ export function AnalyticsContent() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  {t('total_bids')}</CardTitle>
+                  {t("total_bids")}
+                </CardTitle>
                 <Gavel className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -278,7 +283,8 @@ export function AnalyticsContent() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  {t('platform_users')}</CardTitle>
+                  {t("platform_users")}
+                </CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -295,7 +301,7 @@ export function AnalyticsContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>{t('platform_growth_overview')}</CardTitle>
+                <CardTitle>{t("platform_growth_overview")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -328,7 +334,7 @@ export function AnalyticsContent() {
 
             <Card>
               <CardHeader>
-                <CardTitle>{t('revenue_vs_bids_correlation')}</CardTitle>
+                <CardTitle>{t("revenue_vs_bids_correlation")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -361,7 +367,7 @@ export function AnalyticsContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>{t('tender_categories_distribution')}</CardTitle>
+                <CardTitle>{t("tender_categories_distribution")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
@@ -389,7 +395,7 @@ export function AnalyticsContent() {
 
             <Card>
               <CardHeader>
-                <CardTitle>{t('top_performing_companies')}</CardTitle>
+                <CardTitle>{t("top_performing_companies")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -431,7 +437,7 @@ export function AnalyticsContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>{t('user_activity_trends')}</CardTitle>
+                <CardTitle>{t("user_activity_trends")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -461,7 +467,7 @@ export function AnalyticsContent() {
 
             <Card>
               <CardHeader>
-                <CardTitle>{t('verified_vs_nonverified_users')}</CardTitle>
+                <CardTitle>{t("verified_vs_nonverified_users")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -490,7 +496,7 @@ export function AnalyticsContent() {
 
           <Card>
             <CardHeader>
-              <CardTitle>{t('user_growth_analysis')}</CardTitle>
+              <CardTitle>{t("user_growth_analysis")}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -526,7 +532,7 @@ export function AnalyticsContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>{t('tender_categories_by_month')}</CardTitle>
+                <CardTitle>{t("tender_categories_by_month")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -575,7 +581,7 @@ export function AnalyticsContent() {
 
             <Card>
               <CardHeader>
-                <CardTitle>{t('tender_success_rate')}</CardTitle>
+                <CardTitle>{t("tender_success_rate")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -606,13 +612,13 @@ export function AnalyticsContent() {
 
           <Card>
             <CardHeader>
-              <CardTitle>{t('tender_performance_metrics')}</CardTitle>
+              <CardTitle>{t("tender_performance_metrics")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600">328</div>
-                  <p className="text-sm text-gray-600">{t('total_tenders')}</p>
+                  <p className="text-sm text-gray-600">{t("total_tenders")}</p>
                 </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <div className="text-2xl font-bold text-green-600">286</div>
@@ -624,7 +630,7 @@ export function AnalyticsContent() {
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
                   <div className="text-2xl font-bold text-purple-600">87%</div>
-                  <p className="text-sm text-gray-600">{t('success_rate')}</p>
+                  <p className="text-sm text-gray-600">{t("success_rate")}</p>
                 </div>
               </div>
             </CardContent>
@@ -634,7 +640,7 @@ export function AnalyticsContent() {
         <TabsContent value="revenue" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Revenue from Bid Payments (100 QAR per bid)</CardTitle>
+              <CardTitle>{t("revenue_from_bid_payments")}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -658,7 +664,7 @@ export function AnalyticsContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>{t('monthly_bid_volume')}</CardTitle>
+                <CardTitle>{t("monthly_bid_volume")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
@@ -675,7 +681,7 @@ export function AnalyticsContent() {
 
             <Card>
               <CardHeader>
-                <CardTitle>{t('revenue_summary')}</CardTitle>
+                <CardTitle>{t("revenue_summary")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center">
@@ -689,11 +695,11 @@ export function AnalyticsContent() {
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="text-xl font-bold">1,320</div>
-                    <p className="text-xs text-gray-600">{t('total_bids')}</p>
+                    <p className="text-xs text-gray-600">{t("total_bids")}</p>
                   </div>
                   <div>
                     <div className="text-xl font-bold">100 QAR</div>
-                    <p className="text-xs text-gray-600">{t('per_bid')}</p>
+                    <p className="text-xs text-gray-600">{t("per_bid")}</p>
                   </div>
                 </div>
               </CardContent>
@@ -704,17 +710,17 @@ export function AnalyticsContent() {
         <TabsContent value="performance" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>{t('top_performing_companies')}</CardTitle>
+              <CardTitle>{t("top_performing_companies")}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Company</TableHead>
-                    <TableHead>{t('tenders_won')}</TableHead>
-                    <TableHead>{t('total_bids')}</TableHead>
-                    <TableHead>{t('success_rate')}</TableHead>
-                    <TableHead>{t('revenue_generated')}</TableHead>
+                    <TableHead>{t("tenders_won")}</TableHead>
+                    <TableHead>{t("total_bids")}</TableHead>
+                    <TableHead>{t("success_rate")}</TableHead>
+                    <TableHead>{t("revenue_generated")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
