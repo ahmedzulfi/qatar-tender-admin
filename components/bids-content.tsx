@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "../lib/hooks/useTranslation";
 import {
   Search,
   Eye,
@@ -151,6 +152,8 @@ type Props = {
   mockBids: Bid[];
 };
 export function BidsContent() {
+  const { t } = useTranslation();
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [tenderFilter, setTenderFilter] = useState<TenderFilter>("all");
@@ -228,7 +231,7 @@ export function BidsContent() {
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Total Bids
+              {t("total_bids")}
             </CardTitle>
             <Gavel className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -236,7 +239,7 @@ export function BidsContent() {
             <div className="text-2xl font-bold text-gray-900">
               {mockBids.length}
             </div>
-            <p className="text-xs text-gray-500 mt-1">All submissions</p>
+            <p className="text-xs text-gray-500 mt-1">{t("all_submissions")}</p>
           </CardContent>
         </Card>
 
@@ -244,7 +247,7 @@ export function BidsContent() {
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Pending Review
+              {t("pending_review")}
             </CardTitle>
             <Clock className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -252,7 +255,7 @@ export function BidsContent() {
             <div className="text-2xl font-bold text-gray-900">
               {mockBids.filter((b) => b.status === "submitted").length}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Awaiting review</p>
+            <p className="text-xs text-gray-500 mt-1">{t("awaiting_review")}</p>
           </CardContent>
         </Card>
 
@@ -260,7 +263,7 @@ export function BidsContent() {
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Accepted Bids
+              {t("accepted_bids")}
             </CardTitle>
             <CheckCircle className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -268,7 +271,7 @@ export function BidsContent() {
             <div className="text-2xl font-bold text-gray-900">
               {mockBids.filter((b) => b.status === "accepted").length}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Successful bids</p>
+            <p className="text-xs text-gray-500 mt-1">{t("successful_bids")}</p>
           </CardContent>
         </Card>
 
@@ -276,7 +279,7 @@ export function BidsContent() {
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Rejected Bids
+              {t("rejected_bids")}
             </CardTitle>
             <XCircle className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -284,7 +287,9 @@ export function BidsContent() {
             <div className="text-2xl font-bold text-gray-900">
               {mockBids.filter((b) => b.status === "rejected").length}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Unsuccessful bids</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {t("unsuccessful_bids")}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -292,14 +297,14 @@ export function BidsContent() {
       {/* Filters and Search */}
       <Card className="shadow-0">
         <CardHeader>
-          <CardTitle>Bid Management</CardTitle>
+          <CardTitle>{t("bid_management")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search bids, vendors, tenders..."
+                placeholder={t("search_bids_vendors_tenders")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -308,21 +313,23 @@ export function BidsContent() {
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Filter by status" />
+                <SelectValue placeholder={t("filter_by_status")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="submitted">Submitted</SelectItem>
-                <SelectItem value="accepted">Accepted</SelectItem>
+                <SelectItem value="all">{t("all_status")}</SelectItem>
+                <SelectItem value="submitted">
+                  {t("status_submitted")}
+                </SelectItem>
+                <SelectItem value="accepted">{t("status_accepted")}</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={tenderFilter} onValueChange={setTenderFilter}>
               <SelectTrigger className="w-full sm:w-[200px]">
-                <SelectValue placeholder="Filter by tender" />
+                <SelectValue placeholder={t("filter_by_tender")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Tenders</SelectItem>
+                <SelectItem value="all">{t("all_tenders")}</SelectItem>
                 {uniqueTenders.map((tender) => (
                   <SelectItem key={tender.id} value={tender.id}>
                     {tender.title.substring(0, 30)}...
@@ -330,8 +337,6 @@ export function BidsContent() {
                 ))}
               </SelectContent>
             </Select>
-
-      
           </div>
 
           {/* Bids Table */}
@@ -339,13 +344,13 @@ export function BidsContent() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Bid Details</TableHead>
-                  <TableHead>Tender</TableHead>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Submitted</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t("bid_details")}</TableHead>
+                  <TableHead>{t("tender")}</TableHead>
+                  <TableHead>{t("vendor")}</TableHead>
+                  <TableHead>{t("amount")}</TableHead>
+                  <TableHead>{t("submitted")}</TableHead>
+                  <TableHead>{t("status")}</TableHead>
+                  <TableHead>{t("actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -396,7 +401,7 @@ export function BidsContent() {
                             onClick={() => handleViewDetails(bid)}
                           >
                             <Eye className="h-4 w-4 mr-2" />
-                            View Details
+                            {t("view_details")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -413,14 +418,14 @@ export function BidsContent() {
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Upload Documents</DialogTitle>
+            <DialogTitle>{t("upload_documents")}</DialogTitle>
             <DialogDescription>
-              Upload additional documents for this bid
+              {t("upload_additional_documents_for_this_bid")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="document-upload">Select Documents</Label>
+              <Label htmlFor="document-upload">{t("select_documents")}</Label>
               <Input
                 id="document-upload"
                 type="file"
@@ -432,7 +437,7 @@ export function BidsContent() {
               <Label htmlFor="document-notes">Notes (Optional)</Label>
               <Textarea
                 id="document-notes"
-                placeholder="Add any notes about these documents..."
+                placeholder={t("add_any_notes_about_these_documents")}
                 className="mt-2"
               />
             </div>
@@ -445,7 +450,7 @@ export function BidsContent() {
               Cancel
             </Button>
             <Button onClick={() => setUploadDialogOpen(false)}>
-              Upload Documents
+              {t("upload_documents")}
             </Button>
           </div>
         </DialogContent>

@@ -9,6 +9,7 @@ import {
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 
+import { useTranslation } from "../lib/hooks/useTranslation";
 const monthlyData = [
   { month: "Jan", tenders: 245, bids: 892, revenue: 2450000, users: 1250 },
   { month: "Feb", tenders: 312, bids: 1024, revenue: 3120000, users: 1380 },
@@ -53,46 +54,49 @@ const chartConfig = {
     color: "#1e40af",
   },
 };
+
+
+interface Tender {
+  jobType: string;
+}
+export function DashboardCharts() {
+  const { t } = useTranslation();
 const platformInsights = [
   {
     id: 1,
-    title: "Peak Bidding Activity",
-    description: "Construction tenders receive 40% more bids on average",
+    title: t("peak_bidding_activity"),
+    description: t("construction_tenders_receive_40%_more_bids_on_average"),
     metric: "40%",
     trend: "up",
   },
   {
     id: 2,
-    title: "User Engagement",
-    description: "Average session duration increased by 15 minutes",
+    title: t("user_engagement"),
+    description: t("average_session_duration_increased_by_15_minutes"),
     metric: "+15min",
     trend: "up",
   },
   {
     id: 3,
-    title: "Revenue Growth",
-    description: "Monthly revenue from bid payments trending upward",
+    title: t("revenue_growth"),
+    description: t("monthly_revenue_from_bid_payments_trending_upward"),
     metric: "+18.7%",
     trend: "up",
   },
   {
     id: 4,
-    title: "KYC Processing",
-    description: "Average KYC approval time reduced to 2.3 days",
+    title: t("kyc_processing"),
+    description: t("average_kyc_approval_time_reduced_to_2.3_days"),
     metric: "2.3 days",
     trend: "down",
   },
 ];
-interface Tender {
-  jobType: string;
-}
-export function DashboardCharts() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-0">
           <CardHeader>
-            <CardTitle>Platform Growth Trends</CardTitle>
+            <CardTitle>{t("platform_growth_trends")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig}>
@@ -141,10 +145,10 @@ export function DashboardCharts() {
               </LineChart>
             </ChartContainer>
           </CardContent>
-        </Card>{" "}
+        </Card>
         <Card className="shadow-0">
           <CardHeader>
-            <CardTitle>Revenue Growth</CardTitle>
+            <CardTitle>{t("revenue_growth")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig}>
@@ -193,7 +197,7 @@ export function DashboardCharts() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-0">
           <CardHeader>
-            <CardTitle>User Growth</CardTitle>
+            <CardTitle>{t("user_growth")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig}>
@@ -226,12 +230,12 @@ export function DashboardCharts() {
               </LineChart>
             </ChartContainer>
           </CardContent>
-        </Card>{" "}
+        </Card>
         <Card className="shadow-0 h-full flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center text-lg">
               <TrendingUp className="h-5 w-5 mr-2" />
-              Platform Insights & Trends
+              {t("platform_insights_trends")}
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 h-full">

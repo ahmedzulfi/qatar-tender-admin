@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "../lib/hooks/useTranslation";
 import {
   Table,
   TableBody,
@@ -118,8 +119,7 @@ export function TendersContent() {
       statusFilter === "all" || tender.status === statusFilter;
     const matchesCategory =
       categoryFilter === "all" || tender.category === categoryFilter;
-    const matchesType =
-      typeFilter === "all" || tender.type === typeFilter;
+    const matchesType = typeFilter === "all" || tender.type === typeFilter;
 
     return matchesSearch && matchesStatus && matchesCategory && matchesType;
   });
@@ -147,6 +147,7 @@ export function TendersContent() {
     title?: string;
     description?: string;
   }
+  const { t } = useTranslation();
 
   const handleViewDetails = (tender: Tender) => {
     window.location.href = `/admin/tenders/${tender.id}`;
@@ -158,7 +159,7 @@ export function TendersContent() {
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Total Tenders
+              {t("total_tenders")}
             </CardTitle>
             <FileText className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -166,14 +167,16 @@ export function TendersContent() {
             <div className="text-2xl font-bold text-gray-900">
               {mockTenders.length}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Active submissions</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {t("active_submissions")}
+            </p>
           </CardContent>
         </Card>
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Active Tenders
+              {t("active_tenders")}
             </CardTitle>
             <FileText className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -181,14 +184,14 @@ export function TendersContent() {
             <div className="text-2xl font-bold text-green-600">
               {mockTenders.filter((t) => t.status === "active").length}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Currently open</p>
+            <p className="text-xs text-gray-500 mt-1">{t("currently_open")}</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Total Bids
+              {t("total_bids")}
             </CardTitle>
             <Users className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -196,20 +199,22 @@ export function TendersContent() {
             <div className="text-2xl font-bold text-gray-900">
               {mockTenders.reduce((sum, tender) => sum + tender.bidsCount, 0)}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Across all tenders</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {t("across_all_tenders")}
+            </p>
           </CardContent>
         </Card>
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Total Value
+              {t("total_value")}
             </CardTitle>
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">$5.8M</div>
-            <p className="text-xs text-gray-500 mt-1">Combined budget</p>
+            <p className="text-xs text-gray-500 mt-1">{t("combined_budget")}</p>
           </CardContent>
         </Card>
       </div>
@@ -217,14 +222,14 @@ export function TendersContent() {
       {/* Filters and Search */}
       <Card className="shadow-0">
         <CardHeader>
-          <CardTitle>Tender Management</CardTitle>
+          <CardTitle>{t("tender_management")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search tenders..."
+                placeholder={t("search_tenders")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -233,26 +238,28 @@ export function TendersContent() {
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Filter by status" />
+                <SelectValue placeholder={t("filter_by_status")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="awarded">Awarded</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="all">{t("all_status")}</SelectItem>
+                <SelectItem value="active">{t("status_active")}</SelectItem>
+                <SelectItem value="awarded">{t("status_awarded")}</SelectItem>
+                <SelectItem value="completed">
+                  {t("status_completed")}
+                </SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Filter by category" />
+                <SelectValue placeholder={t("filter_by_category")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="all">{t("all_categories")}</SelectItem>
                 <SelectItem value="Construction">Construction</SelectItem>
                 <SelectItem value="Technology">Technology</SelectItem>
                 <SelectItem value="Healthcare">Healthcare</SelectItem>
-                <SelectItem value="Services">Services</SelectItem>
+                <SelectItem value="Services">{t("it_services")}</SelectItem>
                 <SelectItem value="Supplies">Supplies</SelectItem>
               </SelectContent>
             </Select>
@@ -260,12 +267,12 @@ export function TendersContent() {
             {/* New Type Filter */}
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Filter by type" />
+                <SelectValue placeholder={t("filter_by_type")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="individual">Individual</SelectItem>
-                <SelectItem value="business">Business</SelectItem>
+                <SelectItem value="all">{t("all_types")}</SelectItem>
+                <SelectItem value="individual">{t("individual")}</SelectItem>
+                <SelectItem value="business">{t("business")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -275,13 +282,14 @@ export function TendersContent() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tender Details</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Budget</TableHead>
-                  <TableHead>Bids</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t("tender_details")}</TableHead>
+                  <TableHead>{t("name")}</TableHead>
+
+                  <TableHead>{t("category")}</TableHead>
+                  <TableHead>{t("budget")}</TableHead>
+                  <TableHead>{t("bids")}</TableHead>
+                  <TableHead>{t("status")}</TableHead>
+                  <TableHead>{t("actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -321,7 +329,7 @@ export function TendersContent() {
                             onClick={() => handleViewDetails(tender)}
                           >
                             <Eye className="h-4 w-4 mr-2" />
-                            View Details
+                            {t("view_details")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

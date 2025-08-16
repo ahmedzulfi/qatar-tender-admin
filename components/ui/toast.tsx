@@ -7,6 +7,7 @@ import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+import { useTranslation } from '..\..\lib\hooks\useTranslation';
 const ToastProvider = ToastPrimitives.Provider
 
 const ToastViewport = React.forwardRef<
@@ -114,7 +115,7 @@ ToastDescription.displayName = ToastPrimitives.Description.displayName
 
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
 
-type ToastActionElement = React.ReactElement<typeof ToastAction>
+{t('type_toastactionelement_reactreactelement')}<typeof ToastAction>
 
 export {
   type ToastProps,

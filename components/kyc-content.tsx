@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "../lib/hooks/useTranslation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -255,7 +256,7 @@ export function KycContent() {
       case "under_review":
         return (
           <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
-            Under Review
+            {t("under_review")}
           </Badge>
         );
       case "approved":
@@ -299,6 +300,7 @@ export function KycContent() {
         return <Badge variant="outline">{priority}</Badge>;
     }
   };
+  const { t } = useTranslation();
 
   const handleApprove = (requestId: string) => {
     console.log(
@@ -334,7 +336,7 @@ export function KycContent() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Total Requests
+              {t("total_requests")}
             </CardTitle>
             <FileText className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -342,14 +344,16 @@ export function KycContent() {
             <div className="text-2xl font-bold text-gray-900">
               {mockKycRequests.length}
             </div>
-            <p className="text-xs text-gray-500 mt-1">All KYC submissions</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {t("all_kyc_submissions")}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Pending Review
+              {t("pending_review")}
             </CardTitle>
             <Clock className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -361,14 +365,16 @@ export function KycContent() {
                 ).length
               }
             </div>
-            <p className="text-xs text-gray-500 mt-1">Awaiting verification</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {t("awaiting_verification")}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              High Priority
+              {t("high_priority")}
             </CardTitle>
             <AlertTriangle className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -376,21 +382,21 @@ export function KycContent() {
             <div className="text-2xl font-bold text-red-600">
               {mockKycRequests.filter((r) => r.priority === "high").length}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Urgent reviews</p>
+            <p className="text-xs text-gray-500 mt-1">{t("urgent_reviews")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Approved Today
+              {t("approved_today")}
             </CardTitle>
             <CheckCircle className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">3</div>
             <p className="text-xs text-gray-500 mt-1">
-              Completed verifications
+              {t("completed_verifications")}
             </p>
           </CardContent>
         </Card>
@@ -399,7 +405,7 @@ export function KycContent() {
       {/* KYC Requests Management */}
       <Card>
         <CardHeader>
-          <CardTitle>KYC Verification Requests</CardTitle>
+          <CardTitle>{t("kyc_verification_requests")}</CardTitle>
         </CardHeader>
         <CardContent>
           {/* Filters and Search */}
@@ -407,7 +413,7 @@ export function KycContent() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search KYC requests..."
+                placeholder={t("search_kyc_requests")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -419,11 +425,13 @@ export function KycContent() {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="under_review">Under Review</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="all">{t("all_status")}</SelectItem>
+                <SelectItem value="pending">{t("pending")}</SelectItem>
+                <SelectItem value="under_review">
+                  {t("under_review")}
+                </SelectItem>
+                <SelectItem value="approved">{t("approved")}</SelectItem>
+                <SelectItem value="rejected">{t("rejected")}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -432,12 +440,12 @@ export function KycContent() {
               onValueChange={(value) => setTypeFilter(value as TypeFilter)}
             >
               <SelectTrigger className="w-full sm:w-[150px]">
-                <SelectValue placeholder="User Type" />
+                <SelectValue placeholder={t("user_type")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="business">Business</SelectItem>
-                <SelectItem value="individual">Individual</SelectItem>
+                <SelectItem value="all">{t("all_types")}</SelectItem>
+                <SelectItem value="business">{t("business")}</SelectItem>
+                <SelectItem value="individual">{t("individual")}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -451,10 +459,10 @@ export function KycContent() {
                 <SelectValue placeholder="Priority" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Priority</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
+                <SelectItem value="all">{t("all_priority")}</SelectItem>
+                <SelectItem value="high">{t("high")}</SelectItem>
+                <SelectItem value="medium">{t("medium")}</SelectItem>
+                <SelectItem value="low">{t("low")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -464,12 +472,12 @@ export function KycContent() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Request Details</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Documents</TableHead>
-                  <TableHead>Submitted</TableHead>
-                  <TableHead>View</TableHead>
+                  <TableHead>{t("request_details")}</TableHead>
+                  <TableHead>{t("user")}</TableHead>
+                  <TableHead>{t("type")}</TableHead>
+                  <TableHead>{t("documents")}</TableHead>
+                  <TableHead>{t("submitted")}</TableHead>
+                  <TableHead>{t("view")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -540,14 +548,14 @@ export function KycContent() {
                                 KYC Request - {request.id}
                               </DialogTitle>
                               <DialogDescription>
-                                Review and verify user documents
+                                {t("review_and_verify_user_documents")}
                               </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-6">
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                   <Label className="text-sm font-medium">
-                                    User Name
+                                    {t("user_name")}
                                   </Label>
                                   <p className="text-sm text-gray-600">
                                     {request.userName}
@@ -555,7 +563,7 @@ export function KycContent() {
                                 </div>
                                 <div>
                                   <Label className="text-sm font-medium">
-                                    User Type
+                                    {t("user_type")}
                                   </Label>
                                   <p className="text-sm text-gray-600">
                                     {request.userType}
@@ -571,7 +579,7 @@ export function KycContent() {
                                 </div>
                                 <div>
                                   <Label className="text-sm font-medium">
-                                    Submitted Date
+                                    {t("submitted_date")}
                                   </Label>
                                   <p className="text-sm text-gray-600">
                                     {request.submittedDate}
@@ -641,7 +649,7 @@ export function KycContent() {
                                     }
                                   >
                                     <User className="h-4 w-4 mr-2" />
-                                    View User Complete Profile
+                                    {t("view_user_complete_profile")}
                                   </Button>
 
                                   <AlertDialog>
@@ -657,7 +665,7 @@ export function KycContent() {
                                     <AlertDialogContent>
                                       <AlertDialogHeader>
                                         <AlertDialogTitle>
-                                          Reject KYC Request
+                                          {t("reject_kyc_request")}
                                         </AlertDialogTitle>
                                         <AlertDialogDescription>
                                           Please provide a reason for rejecting
@@ -666,11 +674,13 @@ export function KycContent() {
                                       </AlertDialogHeader>
                                       <div className="py-4">
                                         <Label htmlFor="rejection-reason">
-                                          Rejection Reason
+                                          {t("rejection_reason")}
                                         </Label>
                                         <Textarea
                                           id="rejection-reason"
-                                          placeholder="Enter reason for rejection..."
+                                          placeholder={t(
+                                            "enter_reason_for_rejection"
+                                          )}
                                           value={rejectionReason}
                                           onChange={(e) =>
                                             setRejectionReason(e.target.value)
@@ -688,7 +698,7 @@ export function KycContent() {
                                             handleReject(request.id)
                                           }
                                         >
-                                          Reject Request
+                                          {t("reject_request")}
                                         </AlertDialogAction>
                                       </AlertDialogFooter>
                                     </AlertDialogContent>
@@ -704,7 +714,7 @@ export function KycContent() {
                                     <DialogContent>
                                       <DialogHeader>
                                         <DialogTitle>
-                                          Approve KYC Request
+                                          {t("approve_kyc_request")}
                                         </DialogTitle>
                                         <DialogDescription>
                                           Confirm approval of this KYC request.
@@ -716,7 +726,9 @@ export function KycContent() {
                                         </Label>
                                         <Textarea
                                           id="approval-notes"
-                                          placeholder="Add any notes about the approval..."
+                                          placeholder={t(
+                                            "add_any_notes_about_the_approval"
+                                          )}
                                           value={approvalNotes}
                                           onChange={(e) =>
                                             setApprovalNotes(e.target.value)
@@ -733,7 +745,7 @@ export function KycContent() {
                                             handleApprove(request.id)
                                           }
                                         >
-                                          Approve Request
+                                          {t("approve_request")}
                                         </Button>
                                       </div>
                                     </DialogContent>
@@ -766,7 +778,7 @@ export function KycContent() {
       >
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Document Preview</DialogTitle>
+            <DialogTitle>{t("document_preview")}</DialogTitle>
             <DialogDescription>
               {selectedDocument?.type} - {selectedDocument?.name}
             </DialogDescription>

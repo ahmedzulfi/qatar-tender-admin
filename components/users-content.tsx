@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "../lib/hooks/useTranslation";
 import {
   Search,
   Eye,
@@ -119,7 +120,7 @@ const mockBusinessUsers: User[] = [
     role: "vendor",
   },
 ];
-
+const { t } = useTranslation();
 const mockIndividualUsers: User[] = [
   {
     id: "IND-001",
@@ -303,7 +304,7 @@ export const UsersContent: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Total Users
+              {t("total_users")}
             </CardTitle>
             <User className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -311,14 +312,16 @@ export const UsersContent: React.FC = () => {
             <div className="text-2xl font-bold text-gray-900">
               {mockBusinessUsers.length + mockIndividualUsers.length}
             </div>
-            <p className="text-xs text-gray-500 mt-1">All registered users</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {t("all_registered_users")}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Active Users
+              {t("active_users")}
             </CardTitle>
             <CheckCircle className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -330,14 +333,16 @@ export const UsersContent: React.FC = () => {
                 ).length
               }
             </div>
-            <p className="text-xs text-gray-500 mt-1">Currently active</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {t("currently_active")}
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Pending KYC
+              {t("pending_kyc")}
             </CardTitle>
             <Clock className="h-4 w-4 text-gray-400" />
           </CardHeader>
@@ -349,7 +354,9 @@ export const UsersContent: React.FC = () => {
                 ).length
               }
             </div>
-            <p className="text-xs text-gray-500 mt-1">Awaiting verification</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {t("awaiting_verification")}
+            </p>
           </CardContent>
         </Card>
 
@@ -364,7 +371,9 @@ export const UsersContent: React.FC = () => {
             <div className="text-2xl font-bold text-gray-900">
               {mockBusinessUsers.length}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Registered companies</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {t("registered_companies")}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -372,7 +381,7 @@ export const UsersContent: React.FC = () => {
       {/* User Management Tabs */}
       <Card>
         <CardHeader>
-          <CardTitle>User Management</CardTitle>
+          <CardTitle>{t("user_management")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs
@@ -399,7 +408,7 @@ export const UsersContent: React.FC = () => {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
-                    placeholder="Search businesses..."
+                    placeholder={t("search_businesses")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -411,22 +420,22 @@ export const UsersContent: React.FC = () => {
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="suspended">Suspended</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="all">{t("all_status")}</SelectItem>
+                    <SelectItem value="active">{t("active")}</SelectItem>
+                    <SelectItem value="suspended">{t("suspended")}</SelectItem>
+                    <SelectItem value="pending">{t("pending")}</SelectItem>
                   </SelectContent>
                 </Select>
 
                 <Select value={kycFilter} onValueChange={setKycFilter}>
                   <SelectTrigger className="w-full sm:w-[150px]">
-                    <SelectValue placeholder="KYC Status" />
+                    <SelectValue placeholder={t("kyc_status")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All KYC</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
+                    <SelectItem value="all">{t("all_kyc")}</SelectItem>
+                    <SelectItem value="approved">{t("approved")}</SelectItem>
+                    <SelectItem value="pending">{t("pending")}</SelectItem>
+                    <SelectItem value="rejected">{t("rejected")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -436,12 +445,12 @@ export const UsersContent: React.FC = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Business Details</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Registration</TableHead>
-                      <TableHead>Activity</TableHead>
-                      <TableHead>KYC</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>{t("business_details")}</TableHead>
+                      <TableHead>{t("contact")}</TableHead>
+                      <TableHead>{t("registration")}</TableHead>
+                      <TableHead>{t("activity")}</TableHead>
+                      <TableHead>{t("kyc")}</TableHead>
+                      <TableHead>{t("actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -491,7 +500,7 @@ export const UsersContent: React.FC = () => {
                             }
                           >
                             <Eye className="h-4 w-4 mr-2" />
-                            View User
+                            {t("view_user")}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -507,7 +516,7 @@ export const UsersContent: React.FC = () => {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
-                    placeholder="Search individuals..."
+                    placeholder={t("search_individuals")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -519,7 +528,7 @@ export const UsersContent: React.FC = () => {
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="all">{t("all_status")}</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="suspended">Suspended</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
@@ -528,10 +537,10 @@ export const UsersContent: React.FC = () => {
 
                 <Select value={kycFilter} onValueChange={setKycFilter}>
                   <SelectTrigger className="w-full sm:w-[150px]">
-                    <SelectValue placeholder="KYC Status" />
+                    <SelectValue placeholder={t("kyc_status")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All KYC</SelectItem>
+                    <SelectItem value="all">{t("all_kyc")}</SelectItem>
                     <SelectItem value="approved">Approved</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="rejected">Rejected</SelectItem>
@@ -543,7 +552,7 @@ export const UsersContent: React.FC = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Individual Details</TableHead>
+                      <TableHead>{t("individual_details")}</TableHead>
                       <TableHead>Contact</TableHead>
                       <TableHead>Registration</TableHead>
                       <TableHead>Activity</TableHead>
@@ -598,7 +607,7 @@ export const UsersContent: React.FC = () => {
                             }
                           >
                             <Eye className="h-4 w-4 mr-2" />
-                            View User
+                            {t("view_user")}
                           </Button>
                         </TableCell>
                       </TableRow>

@@ -40,6 +40,7 @@ import { AdminControlsContent } from "@/components/admin-controls-content"
 import { KycContent } from "@/components/kyc-content"
 import { AnalyticsContent } from "@/components/analytics-content"
 
+import { useTranslation } from '../lib/hooks/useTranslation';
 const navigation = [
   { name: "Dashboard", href: "#", icon: LayoutDashboard, current: true },
   { name: "Tenders", href: "#", icon: FileText, current: false },
@@ -60,8 +61,9 @@ function classNames(...classes: string[]) {
 export function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState("Dashboard")
-
+      const { t } = useTranslation();
   const renderPageContent = () => {
+
     switch (currentPage) {
       case "Dashboard":
         return <DashboardContent />
@@ -98,7 +100,7 @@ export function AdminDashboard() {
         )}
       >
         <div className="flex h-16 items-center justify-between px-6 border-b">
-          <h1 className="text-xl font-bold text-gray-900">Qatar Tender</h1>
+          <h1 className="text-xl font-bold text-gray-900">{t('qatar_tender')}</h1>
           <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(false)}>
             <X className="h-5 w-5" />
           </Button>
@@ -137,7 +139,7 @@ export function AdminDashboard() {
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
         <div className="flex flex-col flex-grow bg-white border-r border-gray-200 overflow-y-auto">
           <div className="flex h-16 items-center px-6 border-b">
-            <h1 className="text-xl font-bold text-gray-900">Qatar Tender</h1>
+            <h1 className="text-xl font-bold text-gray-900">{t('qatar_tender')}</h1>
           </div>
           <nav className="mt-6 flex-1 px-3">
             <ul className="space-y-1">
@@ -183,7 +185,7 @@ export function AdminDashboard() {
             <div className="flex items-center space-x-4">
               <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <Input placeholder="Search..." className="pl-10 w-64" />
+                <Input placeholder={t('search')} className="pl-10 w-64" />
               </div>
 
               <DropdownMenu>
@@ -198,8 +200,8 @@ export function AdminDashboard() {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">Admin User</p>
-                      <p className="text-xs leading-none text-muted-foreground">admin@qatartender.com</p>
+                      <p className="text-sm font-medium leading-none">{t('admin_user')}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{t('adminqatartendercom')}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -214,7 +216,7 @@ export function AdminDashboard() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>{t('log_out')}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

@@ -1,12 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +27,25 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
-import { Search, ChevronLeft, ChevronRight, MoreHorizontal, CalendarIcon, ArrowUpDown } from "lucide-react"
-import { format } from "date-fns"
+} from "@/components/ui/dropdown-menu";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  CalendarIcon,
+  ArrowUpDown,
+} from "lucide-react";
+import { format } from "date-fns";
 
+import { useTranslation } from "../lib/hooks/useTranslation";
 // Mock transaction data
 const transactionsData = [
   {
@@ -103,20 +128,20 @@ const transactionsData = [
     method: "Wire Transfer",
     tender: "Port Infrastructure",
   },
-]
+];
 
-type SortField = "id" | "user" | "amount" | "status" | "date"
-type SortDirection = "asc" | "desc"
+type SortField = "id" | "user" | "amount" | "status" | "date";
+type SortDirection = "asc" | "desc";
 
 export function TransactionsContent() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [dateFrom, setDateFrom] = useState<Date>()
-  const [dateTo, setDateTo] = useState<Date>()
-  const [currentPage, setCurrentPage] = useState(1)
-  const [sortField, setSortField] = useState<SortField>("date")
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
-  const itemsPerPage = 10
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState<Date>();
+  const [dateTo, setDateTo] = useState<Date>();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortField, setSortField] = useState<SortField>("date");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const itemsPerPage = 10;
 
   // Filter and sort transactions
   const filteredTransactions = transactionsData
@@ -124,63 +149,84 @@ export function TransactionsContent() {
       const matchesSearch =
         transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         transaction.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        transaction.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        transaction.tender.toLowerCase().includes(searchTerm.toLowerCase())
+        transaction.userEmail
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        transaction.tender.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus = statusFilter === "all" || transaction.status === statusFilter
+      const matchesStatus =
+        statusFilter === "all" || transaction.status === statusFilter;
 
-      const transactionDate = new Date(transaction.date)
-      const matchesDateRange = (!dateFrom || transactionDate >= dateFrom) && (!dateTo || transactionDate <= dateTo)
+      const transactionDate = new Date(transaction.date);
+      const matchesDateRange =
+        (!dateFrom || transactionDate >= dateFrom) &&
+        (!dateTo || transactionDate <= dateTo);
 
-      return matchesSearch && matchesStatus && matchesDateRange
+      return matchesSearch && matchesStatus && matchesDateRange;
     })
     .sort((a, b) => {
-      let aValue: any = a[sortField]
-      let bValue: any = b[sortField]
+      let aValue: any = a[sortField];
+      let bValue: any = b[sortField];
 
       if (sortField === "amount") {
-        aValue = Number(aValue)
-        bValue = Number(bValue)
+        aValue = Number(aValue);
+        bValue = Number(bValue);
       } else if (sortField === "date") {
-        aValue = new Date(aValue)
-        bValue = new Date(bValue)
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
       } else {
-        aValue = String(aValue).toLowerCase()
-        bValue = String(bValue).toLowerCase()
+        aValue = String(aValue).toLowerCase();
+        bValue = String(bValue).toLowerCase();
       }
 
       if (sortDirection === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
       }
-    })
+    });
 
-  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + itemsPerPage)
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedTransactions = filteredTransactions.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+  const { t } = useTranslation();
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      setSortField(field)
-      setSortDirection("asc")
+      setSortField(field);
+      setSortDirection("asc");
     }
-  }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "success":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Success</Badge>
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            Success
+          </Badge>
+        );
       case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Pending</Badge>
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+            Pending
+          </Badge>
+        );
       case "failed":
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Failed</Badge>
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            Failed
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>;
     }
-  }
+  };
 
   // Removed exportToCSV function
 
@@ -190,7 +236,9 @@ export function TransactionsContent() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Bids</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              {t("total_bids")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{transactionsData.length}</div>
@@ -198,17 +246,24 @@ export function TransactionsContent() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              {t("total_revenue")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${transactionsData.reduce((sum, t) => sum + t.amount, 0).toLocaleString()}
+              $
+              {transactionsData
+                .reduce((sum, t) => sum + t.amount, 0)
+                .toLocaleString()}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Successful</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              {t("successful")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
@@ -216,9 +271,12 @@ export function TransactionsContent() {
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Pending</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              {t("pending")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
@@ -231,7 +289,7 @@ export function TransactionsContent() {
       {/* Filters and Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Payments From Bids</CardTitle>
+          <CardTitle>{t("payments_from_bids")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -239,7 +297,7 @@ export function TransactionsContent() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search transactions, users, or tenders..."
+                placeholder={t("search_transactions_users_or_tenders")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -249,13 +307,13 @@ export function TransactionsContent() {
             {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Filter by status" />
+                <SelectValue placeholder={t("filter_by_status")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="success">Success</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
+                <SelectItem value="all">{t("all_status")}</SelectItem>
+                <SelectItem value="success">{t("success")}</SelectItem>
+                <SelectItem value="pending">{t("pending")}</SelectItem>
+                <SelectItem value="failed">{t("failed")}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -265,14 +323,22 @@ export function TransactionsContent() {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className={cn("justify-start text-left font-normal", !dateFrom && "text-muted-foreground")}
+                    className={cn(
+                      "justify-start text-left font-normal",
+                      !dateFrom && "text-muted-foreground"
+                    )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFrom ? format(dateFrom, "PPP") : "From date"}
+                    {dateFrom ? format(dateFrom, "PPP") : t("from_date")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={dateFrom} onSelect={setDateFrom} initialFocus />
+                  <Calendar
+                    mode="single"
+                    selected={dateFrom}
+                    onSelect={setDateFrom}
+                    initialFocus
+                  />
                 </PopoverContent>
               </Popover>
 
@@ -280,14 +346,22 @@ export function TransactionsContent() {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className={cn("justify-start text-left font-normal", !dateTo && "text-muted-foreground")}
+                    className={cn(
+                      "justify-start text-left font-normal",
+                      !dateTo && "text-muted-foreground"
+                    )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateTo ? format(dateTo, "PPP") : "To date"}
+                    {dateTo ? format(dateTo, "PPP") : t("to_date")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={dateTo} onSelect={setDateTo} initialFocus />
+                  <Calendar
+                    mode="single"
+                    selected={dateTo}
+                    onSelect={setDateTo}
+                    initialFocus
+                  />
                 </PopoverContent>
               </Popover>
             </div>
@@ -301,51 +375,79 @@ export function TransactionsContent() {
               <TableHeader>
                 <TableRow>
                   <TableHead>
-                    <Button variant="ghost" onClick={() => handleSort("id")} className="h-auto p-0 font-semibold">
-                      Transaction ID
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("id")}
+                      className="h-auto p-0 font-semibold"
+                    >
+                      {t("transaction_id")}
                       <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </TableHead>
                   <TableHead>
-                    <Button variant="ghost" onClick={() => handleSort("user")} className="h-auto p-0 font-semibold">
-                      User
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("user")}
+                      className="h-auto p-0 font-semibold"
+                    >
+                      {t("user")}
                       <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </TableHead>
                   <TableHead>
-                    <Button variant="ghost" onClick={() => handleSort("amount")} className="h-auto p-0 font-semibold">
-                      Amount
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("amount")}
+                      className="h-auto p-0 font-semibold"
+                    >
+                      {t("amount")}
                       <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </TableHead>
                   <TableHead>
-                    <Button variant="ghost" onClick={() => handleSort("status")} className="h-auto p-0 font-semibold">
-                      Status
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("status")}
+                      className="h-auto p-0 font-semibold"
+                    >
+                      {t("status")}
                       <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </TableHead>
                   <TableHead>
-                    <Button variant="ghost" onClick={() => handleSort("date")} className="h-auto p-0 font-semibold">
-                      Date
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("date")}
+                      className="h-auto p-0 font-semibold"
+                    >
+                      {t("date")}
                       <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t("actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedTransactions.map((transaction) => (
                   <TableRow key={transaction.id}>
-                    <TableCell className="font-medium">{transaction.id}</TableCell>
+                    <TableCell className="font-medium">
+                      {transaction.id}
+                    </TableCell>
                     <TableCell>
                       <div>
                         <div className="font-medium">{transaction.user}</div>
-                        <div className="text-sm text-gray-500">{transaction.userEmail}</div>
+                        <div className="text-sm text-gray-500">
+                          {transaction.userEmail}
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">${transaction.amount.toLocaleString()}</TableCell>
+                    <TableCell className="font-medium">
+                      ${transaction.amount.toLocaleString()}
+                    </TableCell>
                     <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                    <TableCell>{format(new Date(transaction.date), "MMM dd, yyyy")}</TableCell>
+                    <TableCell>
+                      {format(new Date(transaction.date), "MMM dd, yyyy")}
+                    </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -354,8 +456,12 @@ export function TransactionsContent() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Download Receipt</DropdownMenuItem>
+                          <DropdownMenuItem>
+                            {t("view_details")}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            {t("download_receipt")}
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -368,7 +474,9 @@ export function TransactionsContent() {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-gray-500">
-              Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredTransactions.length)} of{" "}
+              Showing {startIndex + 1} to{" "}
+              {Math.min(startIndex + itemsPerPage, filteredTransactions.length)}{" "}
+              of
               {filteredTransactions.length} transactions
             </div>
             <div className="flex items-center space-x-2">
@@ -382,17 +490,19 @@ export function TransactionsContent() {
                 Previous
               </Button>
               <div className="flex items-center space-x-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCurrentPage(page)}
-                    className="w-8 h-8 p-0"
-                  >
-                    {page}
-                  </Button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(page)}
+                      className="w-8 h-8 p-0"
+                    >
+                      {page}
+                    </Button>
+                  )
+                )}
               </div>
               <Button
                 variant="outline"
@@ -408,5 +518,5 @@ export function TransactionsContent() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

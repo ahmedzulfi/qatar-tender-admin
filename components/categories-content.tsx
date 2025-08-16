@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
+import { useTranslation } from '../lib/hooks/useTranslation';
 interface Category {
   id: number;
   name: string;
@@ -181,8 +182,10 @@ export function CategoriesContent() {
       tag.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
+      const { t } = useTranslation();
 
   const handleAddItem = (formData: FormData) => {
+
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
 
@@ -289,8 +292,7 @@ export function CategoriesContent() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Total Categories
-            </CardTitle>
+              {t('total_categories')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{categories.length}</div>
@@ -300,8 +302,7 @@ export function CategoriesContent() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Total Tags
-            </CardTitle>
+              {t('total_tags')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{tags.length}</div>
@@ -311,8 +312,7 @@ export function CategoriesContent() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Categories with Tenders
-            </CardTitle>
+              {t('categories_with_tenders')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -324,8 +324,7 @@ export function CategoriesContent() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Most Used Tag
-            </CardTitle>
+              {t('most_used_tag')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -342,10 +341,9 @@ export function CategoriesContent() {
       {/* Main Content */}
       <Card>
         <CardHeader>
-          <CardTitle>Categories & Tags Management</CardTitle>
+          <CardTitle>{t('categories_tags_management')}</CardTitle>
           <CardDescription>
-            Organize your tender categories and tags for better classification
-          </CardDescription>
+            {t('organize_your_tender_categories_and_tags_for_bette')}</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Categories Controls */}
@@ -354,7 +352,7 @@ export function CategoriesContent() {
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search categories..."
+                  placeholder={t('search_categories')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -363,8 +361,7 @@ export function CategoriesContent() {
             </div>
             <Button onClick={() => setIsAddDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Category
-            </Button>
+              {t('add_category')}</Button>
           </div>
 
           {/* Categories Table */}
@@ -374,7 +371,7 @@ export function CategoriesContent() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Description</TableHead>
-                  <TableHead>Tender Count</TableHead>
+                  <TableHead>{t('tender_count')}</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -444,7 +441,7 @@ export function CategoriesContent() {
                   id="name"
                   name="name"
                   className="mt-3"
-                  placeholder="Enter name"
+                  placeholder={t('enter_name')}
                   required
                 />
               </div>
@@ -471,7 +468,7 @@ export function CategoriesContent() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              Edit{" "}
+              Edit
               {editingItem && "tenderCount" in editingItem ? "Category" : "Tag"}
             </DialogTitle>
             <DialogDescription>
@@ -486,7 +483,7 @@ export function CategoriesContent() {
                   id="edit-name"
                   name="name"
                   defaultValue={editingItem?.name}
-                  placeholder="Enter name"
+                  placeholder={t('enter_name')}
                   required
                 />
               </div>
@@ -496,7 +493,7 @@ export function CategoriesContent() {
                   id="edit-description"
                   name="description"
                   defaultValue={editingItem?.description}
-                  placeholder="Enter description"
+                  placeholder={t('enter_description')}
                 />
               </div>
               {editingItem && "tenderCount" in editingItem && (
@@ -509,7 +506,7 @@ export function CategoriesContent() {
                     defaultValue={editingItem.parentId?.toString()}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select parent category" />
+                      <SelectValue placeholder={t('select_parent_category')} />
                     </SelectTrigger>
                     <SelectContent>
                       {categories
@@ -535,7 +532,7 @@ export function CategoriesContent() {
                     required
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select color" />
+                      <SelectValue placeholder={t('select_color')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="red">Red</SelectItem>

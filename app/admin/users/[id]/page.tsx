@@ -27,7 +27,10 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+import { useTranslation } from '../../../../lib/hooks/useTranslation';
 export default function UserProfile() {
+    const { t } = useTranslation();
+
   const [activeTab, setActiveTab] = useState("service-providing");
   const router = useRouter();
 
@@ -314,8 +317,7 @@ export default function UserProfile() {
         <div className="flex items-center space-x-4">
           <Button variant="outline" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Users
-          </Button>
+            {t('back_to_users')}</Button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
               {mockUser.name}
@@ -375,8 +377,8 @@ export default function UserProfile() {
         onValueChange={setActiveTab}
       >
         <TabsList>
-          <TabsTrigger value="service-providing">Service Providing</TabsTrigger>
-          <TabsTrigger value="project-posting">Project Posting</TabsTrigger>
+          <TabsTrigger value="service-providing">{t('service_providing')}</TabsTrigger>
+          <TabsTrigger value="project-posting">{t('project_posting')}</TabsTrigger>
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
@@ -384,15 +386,15 @@ export default function UserProfile() {
         <TabsContent value="service-providing" className="space-y-6">
           <Card className="shadow-0">
             <CardHeader>
-              <CardTitle>Bids Made</CardTitle>
+              <CardTitle>{t('bids_made')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Project Title</TableHead>
-                    <TableHead>Bid Amount</TableHead>
-                    <TableHead>Date Submitted</TableHead>
+                    <TableHead>{t('project_title')}</TableHead>
+                    <TableHead>{t('bid_amount')}</TableHead>
+                    <TableHead>{t('date_submitted')}</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Client</TableHead>
                     <TableHead>Actions</TableHead>
@@ -456,8 +458,7 @@ export default function UserProfile() {
                       <TableCell>
                         <Link href={"/admin/bids/BID-006"}>
                           <Button variant="outline" size="sm">
-                            View Details
-                          </Button>
+                            {t('view_details')}</Button>
                         </Link>
                       </TableCell>
                     </TableRow>
@@ -465,10 +466,10 @@ export default function UserProfile() {
                 </TableBody>
               </Table>
             </CardContent>
-          </Card>{" "}
+          </Card>
           <Card className="shadow-0">
             <CardHeader>
-              <CardTitle>Completed Projects & Reviews</CardTitle>
+              <CardTitle>{t('completed_projects_reviews')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -527,16 +528,16 @@ export default function UserProfile() {
         <TabsContent value="project-posting" className="space-y-6">
           <Card className="shadow-0">
             <CardHeader>
-              <CardTitle>Posted Tenders</CardTitle>
+              <CardTitle>{t('posted_tenders')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Project Title</TableHead>
-                    <TableHead>Date Posted</TableHead>
+                    <TableHead>{t('project_title')}</TableHead>
+                    <TableHead>{t('date_posted')}</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Bids Received</TableHead>
+                    <TableHead>{t('bids_received')}</TableHead>
                     <TableHead>Budget</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -558,8 +559,7 @@ export default function UserProfile() {
                       <TableCell>
                         <Link href={"/admin/tenders/TND-001"}>
                           <Button variant="outline" size="sm">
-                            View Details
-                          </Button>
+                            {t('view_details')}</Button>
                         </Link>
                       </TableCell>
                     </TableRow>
@@ -571,7 +571,7 @@ export default function UserProfile() {
 
           <Card className="shadow-0">
             <CardHeader>
-              <CardTitle>Client Reviews & Ratings</CardTitle>
+              <CardTitle>{t('client_reviews_ratings')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -667,13 +667,13 @@ export default function UserProfile() {
             {/* Basic Information */}
             <Card className="shadow-0">
               <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
+                <CardTitle>{t('basic_information')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <User className="h-5 w-5 text-gray-400" />
                   <div>
-                    <p className="text-sm text-gray-600">Company Name</p>
+                    <p className="text-sm text-gray-600">{t('company_name')}</p>
                     <p className="font-medium">
                       {mockUser.businessDetails.companyName}
                     </p>
@@ -711,7 +711,7 @@ export default function UserProfile() {
                 <div className="flex items-center space-x-3">
                   <Calendar className="h-5 w-5 text-gray-400" />
                   <div>
-                    <p className="text-sm text-gray-600">Join Date</p>
+                    <p className="text-sm text-gray-600">{t('join_date')}</p>
                     <p className="font-medium">{mockUser.joinDate}</p>
                   </div>
                 </div>
@@ -721,36 +721,36 @@ export default function UserProfile() {
             {/* Business Details */}
             <Card className="shadow-0">
               <CardHeader>
-                <CardTitle>Business Details</CardTitle>
+                <CardTitle>{t('business_details')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">Company Name</p>
+                    <p className="text-sm text-gray-600">{t('company_name')}</p>
                     <p className="font-medium">
                       {mockUser.businessDetails.companyName}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Contact Person Name</p>
+                    <p className="text-sm text-gray-600">{t('contact_person_name')}</p>
                     <p className="font-medium">
                       {mockUser.businessDetails.contactPersonName}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Personal Email</p>
+                    <p className="text-sm text-gray-600">{t('personal_email')}</p>
                     <p className="font-medium">
                       {mockUser.businessDetails.personalEmail}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Company Email</p>
+                    <p className="text-sm text-gray-600">{t('company_email')}</p>
                     <p className="font-medium">
                       {mockUser.businessDetails.companyEmail}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Company Phone</p>
+                    <p className="text-sm text-gray-600">{t('company_phone')}</p>
                     <p className="font-medium">
                       {mockUser.businessDetails.companyPhone}
                     </p>
@@ -758,7 +758,7 @@ export default function UserProfile() {
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-600">Company Description</p>
+                  <p className="text-sm text-gray-600">{t('company_description')}</p>
                   <p className="font-medium">
                     {mockUser.businessDetails.companyDescription}
                   </p>
@@ -773,14 +773,14 @@ export default function UserProfile() {
         <TabsContent value="documents">
           <Card className="shadow-0">
             <CardHeader>
-              <CardTitle>KYC Documents</CardTitle>
+              <CardTitle>{t('kyc_documents')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Document Name</TableHead>
-                    <TableHead>Upload Date</TableHead>
+                    <TableHead>{t('document_name')}</TableHead>
+                    <TableHead>{t('upload_date')}</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>

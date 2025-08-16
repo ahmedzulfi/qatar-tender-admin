@@ -14,6 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import { use } from "react";
 
+import { useTranslation } from '../../../../lib/hooks/useTranslation';
 const mockBid = {
   id: "BID-001",
   tenderTitle: "Road Construction Project - Doha North",
@@ -79,7 +80,7 @@ const mockBid = {
 
 function BidDetailsContent() {
   const router = useRouter();
-
+    const { t } = useTranslation();
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "accepted":
@@ -106,10 +107,9 @@ function BidDetailsContent() {
         <div className="flex items-center space-x-4">
           <Button variant="outline" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Bids
-          </Button>
+            {t('back_to_bids')}</Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Bid Details</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('bid_details')}</h1>
             <p className="text-gray-600">{mockBid.id}</p>
           </div>
         </div>
@@ -119,14 +119,12 @@ function BidDetailsContent() {
             variant="outline"
             onClick={() => router.push("/admin/users/USER-001")}
           >
-            View Bidder Profile
-          </Button>
+            {t('view_bidder_profile')}</Button>
           <Button
             variant="outline"
             onClick={() => router.push("/admin/tenders/TND-001")}
           >
-            View Tender
-          </Button>
+            {t('view_tender')}</Button>
         </div>
       </div>
 
@@ -135,8 +133,7 @@ function BidDetailsContent() {
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Bid Amount
-            </CardTitle>
+              {t('bid_amount')}</CardTitle>
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
@@ -177,8 +174,7 @@ function BidDetailsContent() {
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Payment Status
-            </CardTitle>
+              {t('payment_status')}</CardTitle>
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
@@ -192,12 +188,12 @@ function BidDetailsContent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-0">
           <CardHeader>
-            <CardTitle>Your Bid Details</CardTitle>
+            <CardTitle>{t('your_bid_details')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Bid Amount</p>
+                <p className="text-sm text-gray-600">{t('bid_amount')}</p>
                 <p className="font-medium">{mockBid.amount}</p>
               </div>
             </div>
@@ -214,11 +210,11 @@ function BidDetailsContent() {
 
         <Card className="shadow-0">
           <CardHeader>
-            <CardTitle>Tender Overview</CardTitle>
+            <CardTitle>{t('tender_overview')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <p className="text-sm text-gray-600 mb-2">Project Scope</p>
+              <p className="text-sm text-gray-600 mb-2">{t('project_scope')}</p>
               <p className="text-gray-900">{mockBid.tenderOverview.scope}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -235,7 +231,7 @@ function BidDetailsContent() {
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 mb-2">Client Requirements</p>
+              <p className="text-sm text-gray-600 mb-2">{t('client_requirements')}</p>
               <p className="text-gray-900">
                 Major road construction project covering 15km of highway
                 infrastructure in North Doha area.
@@ -248,7 +244,7 @@ function BidDetailsContent() {
       {/* Previous Projects */}
       <Card className="shadow-0">
         <CardHeader>
-          <CardTitle>Previous Projects</CardTitle>
+          <CardTitle>{t('previous_projects')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -265,5 +261,6 @@ function BidDetailsContent() {
 }
 
 export default function BidDetailsPage() {
+
   return <BidDetailsContent />;
 }

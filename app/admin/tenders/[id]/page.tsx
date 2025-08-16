@@ -1,10 +1,19 @@
-"use client"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Building, Calendar, DollarSign, Users, FileText, MapPin } from "lucide-react"
-import { useRouter } from "next/navigation"
+"use client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  ArrowLeft,
+  Building,
+  Calendar,
+  DollarSign,
+  Users,
+  FileText,
+  MapPin,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
+import { useTranslation } from "../../../../lib/hooks/useTranslation";
 const mockTender = {
   id: "TND-001",
   title: "Road Construction Project - Doha North",
@@ -41,7 +50,8 @@ const mockTender = {
     },
     {
       id: 2,
-      question: "Is there flexibility in the project timeline due to weather conditions?",
+      question:
+        "Is there flexibility in the project timeline due to weather conditions?",
       answer:
         "Yes, weather-related delays will be considered. A 30-day buffer is included in the contract for extreme weather conditions.",
       askedBy: "Al-Jazeera Engineering",
@@ -58,21 +68,29 @@ const mockTender = {
       answeredDate: "2023-12-10",
     },
   ],
-}
-
+};
+const { t } = useTranslation();
 function TenderDetailsContent() {
-  const router = useRouter()
+  const router = useRouter();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Active</Badge>
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            Active
+          </Badge>
+        );
       case "rejected":
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Rejected</Badge>
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            Rejected
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>;
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -81,7 +99,7 @@ function TenderDetailsContent() {
         <div className="flex items-center space-x-4">
           <Button variant="outline" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Tenders
+            {t("back_to_tenders")}
           </Button>
           <div>
             <p className="text-gray-600">{mockTender.id}</p>
@@ -89,8 +107,11 @@ function TenderDetailsContent() {
         </div>
         <div className="flex items-center space-x-3">
           {getStatusBadge(mockTender.status)}
-          <Button variant="outline" onClick={() => router.push("/admin/users/ORG-001")}>
-            View Profile
+          <Button
+            variant="outline"
+            onClick={() => router.push("/admin/users/ORG-001")}
+          >
+            {t("view_profile")}
           </Button>
         </div>
       </div>
@@ -99,41 +120,57 @@ function TenderDetailsContent() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium text-gray-600">Budget</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Budget
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{mockTender.budget}</div>
+            <div className="text-2xl font-bold text-gray-900">
+              {mockTender.budget}
+            </div>
           </CardContent>
         </Card>
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Bids</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              {t("total_bids")}
+            </CardTitle>
             <Users className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{mockTender.bidsCount}</div>
+            <div className="text-2xl font-bold text-gray-900">
+              {mockTender.bidsCount}
+            </div>
           </CardContent>
         </Card>
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium text-gray-600">Submitted</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Submitted
+            </CardTitle>
             <Calendar className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-bold text-gray-900">{mockTender.submittedDate}</div>
+            <div className="text-lg font-bold text-gray-900">
+              {mockTender.submittedDate}
+            </div>
           </CardContent>
         </Card>
 
         <Card className="shadow-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium text-gray-600">Category</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Category
+            </CardTitle>
             <FileText className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-bold text-gray-900">{mockTender.category}</div>
+            <div className="text-lg font-bold text-gray-900">
+              {mockTender.category}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -142,7 +179,7 @@ function TenderDetailsContent() {
         {/* Tender Details */}
         <Card className="shadow-0">
           <CardHeader>
-            <CardTitle>Tender Information</CardTitle>
+            <CardTitle>{t("tender_information")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-3">
@@ -184,7 +221,10 @@ function TenderDetailsContent() {
           <CardContent>
             <div className="space-y-2">
               {mockTender.documents.map((doc, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                >
                   <div className="flex items-center space-x-3">
                     <FileText className="h-4 w-4 text-gray-400" />
                     <span className="text-sm font-medium">{doc}</span>
@@ -202,14 +242,16 @@ function TenderDetailsContent() {
       {/* Questions & Answers Section */}
       <Card className="shadow-0">
         <CardHeader>
-          <CardTitle>Questions & Answers</CardTitle>
+          <CardTitle>{t("questions_answers")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             {mockTender.qaSection.map((qa) => (
               <div key={qa.id} className="border-l-4 border-blue-500 pl-4 py-2">
                 <div className="mb-3">
-                  <p className="font-medium text-gray-900 mb-2">Q: {qa.question}</p>
+                  <p className="font-medium text-gray-900 mb-2">
+                    Q: {qa.question}
+                  </p>
                   <div className="flex items-center space-x-4 text-xs text-gray-500 mb-3">
                     <span>Asked by: {qa.askedBy}</span>
                     <span>Date: {qa.askedDate}</span>
@@ -219,19 +261,19 @@ function TenderDetailsContent() {
                   <p className="text-gray-900 mb-2">
                     <strong>A:</strong> {qa.answer}
                   </p>
-                  <p className="text-xs text-gray-500">Answered on: {qa.answeredDate}</p>
+                  <p className="text-xs text-gray-500">
+                    Answered on: {qa.answeredDate}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
-
-    
     </div>
-  )
+  );
 }
 
 export default function TenderDetailsPage() {
-  return <TenderDetailsContent />
+  return <TenderDetailsContent />;
 }

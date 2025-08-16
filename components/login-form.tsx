@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, Shield, Mail, Lock, Smartphone } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { useTranslation } from '../lib/hooks/useTranslation';
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [step, setStep] = useState<"login" | "2fa" | "forgot">("login");
@@ -78,8 +79,10 @@ export function LoginForm() {
       setIsLoading(false);
     }, 1000);
   };
+      const { t } = useTranslation();
 
   const updateFormData = (field: string, value: string) => {
+
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -87,10 +90,9 @@ export function LoginForm() {
     return (
       <Card className="w-full">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('reset_password')}</CardTitle>
           <CardDescription>
-            Enter your email address and we'll send you a reset link
-          </CardDescription>
+            {t('enter_your_email_address_and_well_send_you_a_reset')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleForgotPassword} className="space-y-4">
@@ -101,7 +103,7 @@ export function LoginForm() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="reset-email">Email Address</Label>
+              <Label htmlFor="reset-email">{t('email_address')}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -126,8 +128,7 @@ export function LoginForm() {
               className="w-full"
               onClick={() => setStep("login")}
             >
-              Back to Login
-            </Button>
+              {t('back_to_login')}</Button>
           </form>
         </CardContent>
       </Card>
@@ -142,11 +143,9 @@ export function LoginForm() {
             <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
           </div>
           <CardTitle className="text-2xl font-bold text-center">
-            Two-Factor Authentication
-          </CardTitle>
+            {t('twofactor_authentication')}</CardTitle>
           <CardDescription className="text-center">
-            Enter the 6-digit code from your authenticator app
-          </CardDescription>
+            {t('enter_the_6digit_code_from_your_authenticator_app')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleTwoFactor} className="space-y-4">
@@ -157,7 +156,7 @@ export function LoginForm() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="2fa-code">Authentication Code</Label>
+              <Label htmlFor="2fa-code">{t('authentication_code')}</Label>
               <div className="relative">
                 <Smartphone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -185,8 +184,7 @@ export function LoginForm() {
               className="w-full"
               onClick={() => setStep("login")}
             >
-              Back to Login
-            </Button>
+              {t('back_to_login')}</Button>
           </form>
         </CardContent>
       </Card>
@@ -196,10 +194,9 @@ export function LoginForm() {
   return (
     <Card className="w-full">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
+        <CardTitle className="text-2xl font-bold">{t('sign_in')}</CardTitle>
         <CardDescription>
-          Enter your credentials to access the admin dashboard
-        </CardDescription>
+          {t('enter_your_credentials_to_access_the_admin_dashboa')}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleLogin} className="space-y-4">
@@ -210,7 +207,7 @@ export function LoginForm() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
+            <Label htmlFor="email">{t('email_address')}</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
@@ -232,7 +229,7 @@ export function LoginForm() {
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
+                placeholder={t('enter_your_password')}
                 value={formData.password}
                 onChange={(e) => updateFormData("password", e.target.value)}
                 className="pl-10 pr-10"

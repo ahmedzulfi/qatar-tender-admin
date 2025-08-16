@@ -11,54 +11,54 @@ import {
   TrendingDown,
 } from "lucide-react";
 import { DashboardCharts } from "@/components/dashboard-charts";
-
-const analyticsData = [
-  {
-    title: "Total Tenders",
-    value: "3,421",
-    change: "+8.2%",
-    trend: "up",
-    icon: FileText,
-  },
-  {
-    title: "Total Bids",
-    value: "12,847",
-    change: "+12.5%",
-    trend: "up",
-    icon: Gavel,
-  },
-  {
-    title: "Revenue",
-    value: "1.28M QAR", // Updated to reflect QAR and bid-based revenue
-    change: "+18.7%",
-    trend: "up",
-    icon: DollarSign,
-  },
-  {
-    title: "Active Users",
-    value: "8,932",
-    change: "+5.3%",
-    trend: "up",
-    icon: Users,
-  },
-  {
-    title: "Pending KYCs",
-    value: "247",
-    change: "+15.3%",
-    trend: "up",
-    icon: UserCheck,
-  },
-  {
-    title: "Platform Growth", // Replaced Support Tickets with Platform Growth
-    value: "+23.4%",
-    change: "This month",
-    trend: "up",
-    icon: TrendingUp,
-  },
-];
-
+import { useTranslation } from "../lib/hooks/useTranslation";
 
 export function DashboardContent() {
+  const { t } = useTranslation();
+  const analyticsData = [
+    {
+      title: t("total_tenders"),
+      value: "3,421",
+      change: "+8.2%",
+      trend: "up",
+      icon: FileText,
+    },
+    {
+      title: t("total_bids"),
+      value: "12,847",
+      change: "+12.5%",
+      trend: "up",
+      icon: Gavel,
+    },
+    {
+      title: t("revenue"),
+      value: "1.28M QAR", // Updated to reflect QAR and bid-based revenue
+      change: "+18.7%",
+      trend: "up",
+      icon: DollarSign,
+    },
+    {
+      title: t("active_users"),
+      value: "8,932",
+      change: "+5.3%",
+      trend: "up",
+      icon: Users,
+    },
+    {
+      title: t("pending_kycs"),
+      value: "247",
+      change: "+15.3%",
+      trend: "up",
+      icon: UserCheck,
+    },
+    {
+      title: t("platform_growth"), // Replaced Support Tickets with Platform Growth
+      value: "+23.4%",
+      change: "This month",
+      trend: "up",
+      icon: TrendingUp,
+    },
+  ];
   return (
     <div className="space-y-8">
       {/* Analytics Cards */}
@@ -89,7 +89,7 @@ export function DashboardContent() {
                   {item.change}
                 </span>
                 <span className="text-sm text-gray-500 ml-1">
-                  from last month
+                  {t("from_last_month")}
                 </span>
               </div>
             </CardContent>
@@ -102,7 +102,6 @@ export function DashboardContent() {
         <DashboardCharts />
 
         {/* Platform Insights - Replaced Upcoming Deadlines */}
-     
       </div>
     </div>
   );

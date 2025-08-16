@@ -1,25 +1,45 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Plus, Edit, Trash2 } from "lucide-react"
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Plus, Edit, Trash2 } from "lucide-react";
 
+import { useTranslation } from "../lib/hooks/useTranslation";
 interface AdminUser {
-  id: number
-  name: string
-  email: string
-  role: string
-  status: string
-  lastLogin: string
-  avatar: string
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  lastLogin: string;
+  avatar: string;
 }
 
 const initialAdminUsers: AdminUser[] = [
@@ -59,30 +79,35 @@ const initialAdminUsers: AdminUser[] = [
     lastLogin: "2024-01-09T11:20:00Z",
     avatar: "/placeholder.svg?height=32&width=32",
   },
-]
+];
 
 export function SettingsContent() {
-  const [adminUsers, setAdminUsers] = useState<AdminUser[]>(initialAdminUsers)
-  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false)
-  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [editingUser, setEditingUser] = useState<AdminUser | null>(null)
-  const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null)
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>(initialAdminUsers);
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     role: "",
     password: "",
-  })
+  });
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleAddUser = () => {
-    if (!formData.name || !formData.email || !formData.role || !formData.password) {
-      alert("Please fill in all required fields including password")
-      return
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.role ||
+      !formData.password
+    ) {
+      alert("Please fill in all required fields including password");
+      return;
     }
 
     const newUser: AdminUser = {
@@ -93,33 +118,33 @@ export function SettingsContent() {
       status: "active",
       lastLogin: new Date().toISOString(),
       avatar: "/placeholder.svg?height=32&width=32",
-    }
+    };
 
-    setAdminUsers((prev) => [...prev, newUser])
-    setFormData({ name: "", email: "", role: "", password: "" })
-    setIsAddUserDialogOpen(false)
-  }
+    setAdminUsers((prev) => [...prev, newUser]);
+    setFormData({ name: "", email: "", role: "", password: "" });
+    setIsAddUserDialogOpen(false);
+  };
 
   const handleEditUser = (user: AdminUser) => {
     if (user.role === "Super Admin") {
-      alert("Super Admin users cannot be edited")
-      return
+      alert("Super Admin users cannot be edited");
+      return;
     }
 
-    setEditingUser(user)
+    setEditingUser(user);
     setFormData({
       name: user.name,
       email: user.email,
       role: user.role === "Super Admin" ? "super-admin" : "admin",
       password: "",
-    })
-    setIsEditUserDialogOpen(true)
-  }
+    });
+    setIsEditUserDialogOpen(true);
+  };
 
   const handleUpdateUser = () => {
     if (!formData.name || !formData.email || !formData.role || !editingUser) {
-      alert("Please fill in all required fields")
-      return
+      alert("Please fill in all required fields");
+      return;
     }
 
     setAdminUsers((prev) =>
@@ -131,79 +156,87 @@ export function SettingsContent() {
               email: formData.email,
               role: formData.role === "super-admin" ? "Super Admin" : "Admin",
             }
-          : user,
-      ),
-    )
+          : user
+      )
+    );
 
-    setFormData({ name: "", email: "", role: "", password: "" })
-    setEditingUser(null)
-    setIsEditUserDialogOpen(false)
-  }
+    setFormData({ name: "", email: "", role: "", password: "" });
+    setEditingUser(null);
+    setIsEditUserDialogOpen(false);
+  };
 
   const handleDeleteUser = (user: AdminUser) => {
     if (user.role === "Super Admin") {
-      alert("Super Admin users cannot be deleted")
-      return
+      alert("Super Admin users cannot be deleted");
+      return;
     }
 
-    setUserToDelete(user)
-    setIsDeleteDialogOpen(true)
-  }
+    setUserToDelete(user);
+    setIsDeleteDialogOpen(true);
+  };
 
   const confirmDeleteUser = () => {
     if (userToDelete) {
-      setAdminUsers((prev) => prev.filter((user) => user.id !== userToDelete.id))
-      setUserToDelete(null)
-      setIsDeleteDialogOpen(false)
+      setAdminUsers((prev) =>
+        prev.filter((user) => user.id !== userToDelete.id)
+      );
+      setUserToDelete(null);
+      setIsDeleteDialogOpen(false);
     }
-  }
+  };
 
   const getRoleColor = (role: string) => {
     switch (role) {
       case "Super Admin":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
       case "Admin":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
     }
-  }
+  };
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold">Admin Users</h3>
-          <p className="text-sm text-muted-foreground">Manage administrative access to the platform</p>
+          <h3 className="text-lg font-semibold">{t("admin_users")}</h3>
+          <p className="text-sm text-muted-foreground">
+            {t("manage_administrative_access_to_the_platform")}
+          </p>
         </div>
-        <Dialog open={isAddUserDialogOpen} onOpenChange={setIsAddUserDialogOpen}>
+        <Dialog
+          open={isAddUserDialogOpen}
+          onOpenChange={setIsAddUserDialogOpen}
+        >
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add Admin User
+              {t("add_admin_user")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Admin User</DialogTitle>
+              <DialogTitle>{t("add_new_admin_user")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="name">{t("full_name")}</Label>
                   <Input
                     id="name"
-                    placeholder="Enter full name"
+                    placeholder={t("enter_full_name")}
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email">{t("email_address")}</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Enter email address"
+                    placeholder={t("enter_email_address")}
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                   />
@@ -212,12 +245,17 @@ export function SettingsContent() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
-                  <Select value={formData.role} onValueChange={(value) => handleInputChange("role", value)}>
+                  <Select
+                    value={formData.role}
+                    onValueChange={(value) => handleInputChange("role", value)}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select role" />
+                      <SelectValue placeholder={t("select_role")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="super-admin">Super Admin</SelectItem>
+                      <SelectItem value="super-admin">
+                        {t("super_admin")}
+                      </SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
@@ -227,17 +265,22 @@ export function SettingsContent() {
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Enter password"
+                    placeholder={t("enter_password")}
                     value={formData.password}
-                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("password", e.target.value)
+                    }
                   />
                 </div>
               </div>
               <div className="flex justify-end space-x-2 pt-4">
-                <Button variant="outline" onClick={() => setIsAddUserDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddUserDialogOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleAddUser}>Add User</Button>
+                <Button onClick={handleAddUser}>{t("add_user")}</Button>
               </div>
             </div>
           </DialogContent>
@@ -247,46 +290,54 @@ export function SettingsContent() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Admin User</DialogTitle>
+            <DialogTitle>{t("delete_admin_user")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Are you sure you want to delete <strong>{userToDelete?.name}</strong>? This action cannot be undone.
+              {t("are_you_sure_you_want_to_delete")}
+              <strong>{userToDelete?.name}</strong>? This action cannot be
+              undone.
             </p>
             <div className="flex justify-end space-x-2 pt-4">
-              <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button variant="destructive" onClick={confirmDeleteUser}>
-                Delete User
+                {t("delete_user")}
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isEditUserDialogOpen} onOpenChange={setIsEditUserDialogOpen}>
+      <Dialog
+        open={isEditUserDialogOpen}
+        onOpenChange={setIsEditUserDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Admin User</DialogTitle>
+            <DialogTitle>{t("edit_admin_user")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-name">Full Name</Label>
+                <Label htmlFor="edit-name">{t("full_name")}</Label>
                 <Input
                   id="edit-name"
-                  placeholder="Enter full name"
+                  placeholder={t("enter_full_name")}
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-email">Email Address</Label>
+                <Label htmlFor="edit-email">{t("email_address")}</Label>
                 <Input
                   id="edit-email"
                   type="email"
-                  placeholder="Enter email address"
+                  placeholder={t("enter_email_address")}
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                 />
@@ -295,32 +346,42 @@ export function SettingsContent() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-role">Role</Label>
-                <Select value={formData.role} onValueChange={(value) => handleInputChange("role", value)}>
+                <Select
+                  value={formData.role}
+                  onValueChange={(value) => handleInputChange("role", value)}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
+                    <SelectValue placeholder={t("select_role")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="super-admin">Super Admin</SelectItem>
+                    <SelectItem value="super-admin">
+                      {t("super_admin")}
+                    </SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-password">New Password</Label>
+                <Label htmlFor="edit-password">{t("new_password")}</Label>
                 <Input
                   id="edit-password"
                   type="password"
-                  placeholder="Enter new password (optional)"
+                  placeholder={t("enter_new_password_optional")}
                   value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
                 />
               </div>
             </div>
             <div className="flex justify-end space-x-2 pt-4">
-              <Button variant="outline" onClick={() => setIsEditUserDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setIsEditUserDialogOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleUpdateUser}>Update User</Button>
+              <Button onClick={handleUpdateUser}>{t("update_user")}</Button>
             </div>
           </div>
         </DialogContent>
@@ -334,7 +395,7 @@ export function SettingsContent() {
                 <TableHead>User</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Last Login</TableHead>
+                <TableHead>{t("last_login")}</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -344,22 +405,37 @@ export function SettingsContent() {
                   <TableCell>
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                        <AvatarImage
+                          src={user.avatar || "/placeholder.svg"}
+                          alt={user.name}
+                        />
                         <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="font-medium">{user.name}</div>
-                        <div className="text-sm text-muted-foreground">{user.email}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {user.email}
+                        </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getRoleColor(user.role)}>{user.role}</Badge>
+                    <Badge className={getRoleColor(user.role)}>
+                      {user.role}
+                    </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={user.status === "active" ? "default" : "secondary"}>{user.status}</Badge>
+                    <Badge
+                      variant={
+                        user.status === "active" ? "default" : "secondary"
+                      }
+                    >
+                      {user.status}
+                    </Badge>
                   </TableCell>
-                  <TableCell>{new Date(user.lastLogin).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(user.lastLogin).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Button
@@ -387,5 +463,5 @@ export function SettingsContent() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
