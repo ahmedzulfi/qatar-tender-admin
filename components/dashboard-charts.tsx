@@ -8,8 +8,9 @@ import {
 } from "@/components/ui/chart";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
-
 import { useTranslation } from "../lib/hooks/useTranslation";
+
+// Mock Data
 const monthlyData = [
   { month: "Jan", tenders: 245, bids: 892, revenue: 2450000, users: 1250 },
   { month: "Feb", tenders: 312, bids: 1024, revenue: 3120000, users: 1380 },
@@ -19,101 +20,81 @@ const monthlyData = [
   { month: "Jun", tenders: 398, bids: 1267, revenue: 3980000, users: 1650 },
 ];
 
-const categoryData = [
-  { name: "Construction", value: 35, color: "#3b82f6" },
-  { name: "IT & Technology", value: 25, color: "#60a5fa" },
-  { name: "Healthcare", value: 20, color: "#93c5fd" },
-  { name: "Transportation", value: 12, color: "#bfdbfe" },
-  { name: "Others", value: 8, color: "#dbeafe" },
-];
-
-const paymentsData = [
-  { month: "Jan", amount: 245000 },
-  { month: "Feb", amount: 312000 },
-  { month: "Mar", amount: 289000 },
-  { month: "Apr", amount: 356000 },
-  { month: "May", amount: 423000 },
-  { month: "Jun", amount: 398000 },
-];
-
 const chartConfig = {
-  tenders: {
-    label: "Tenders",
-    color: "#3b82f6",
-  },
-  bids: {
-    label: "Bids",
-    color: "#1d4ed8",
-  },
-  revenue: {
-    label: "Revenue",
-    color: "#2563eb",
-  },
-  users: {
-    label: "Users",
-    color: "#1e40af",
-  },
+  tenders: { label: "Tenders", color: "#3b82f6" },
+  bids: { label: "Bids", color: "#1d4ed8" },
+  revenue: { label: "Revenue", color: "#2563eb" },
+  users: { label: "Users", color: "#1e40af" },
 };
 
-
-interface Tender {
-  jobType: string;
-}
-export function DashboardCharts() {
-  const { t } = useTranslation();
 const platformInsights = [
   {
     id: 1,
-    title: t("peak_bidding_activity"),
-    description: t("construction_tenders_receive_40%_more_bids_on_average"),
+    title: "Peak Bidding Activity",
+    description: "Construction tenders receive 40% more bids on average.",
     metric: "40%",
     trend: "up",
   },
   {
     id: 2,
-    title: t("user_engagement"),
-    description: t("average_session_duration_increased_by_15_minutes"),
+    title: "User Engagement",
+    description: "Average session duration increased by 15 minutes.",
     metric: "+15min",
     trend: "up",
   },
   {
     id: 3,
-    title: t("revenue_growth"),
-    description: t("monthly_revenue_from_bid_payments_trending_upward"),
+    title: "Revenue Growth",
+    description: "Monthly revenue from bid payments trending upward.",
     metric: "+18.7%",
     trend: "up",
   },
   {
     id: 4,
-    title: t("kyc_processing"),
-    description: t("average_kyc_approval_time_reduced_to_2.3_days"),
+    title: "KYC Processing",
+    description: "Average KYC approval time reduced to 2.3 days.",
     metric: "2.3 days",
     trend: "down",
   },
 ];
+
+export function DashboardCharts() {
+  const { t } = useTranslation();
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Growth & Revenue Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-0">
-          <CardHeader>
-            <CardTitle>{t("platform_growth_trends")}</CardTitle>
+        {/* Platform Growth Trends */}
+        <Card className="rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold text-gray-800">
+              {t("platform_growth_trends")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig}>
+            <ChartContainer config={chartConfig} className="h-64">
               <LineChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <CartesianGrid stroke="#f0f4f8" strokeDasharray="4 4" />
                 <XAxis
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#64748b", fontSize: 12 }}
+                  tick={{ fill: "#6b7280", fontSize: 12 }}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#64748b", fontSize: 12 }}
+                  tick={{ fill: "#6b7280", fontSize: 12 }}
                 />
-                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartTooltip
+                  content={<ChartTooltipContent indicator="line" />}
+                  cursor={{
+                    stroke: "#d1d5db",
+                    strokeWidth: 1,
+                    strokeDasharray: "4 4",
+                  }}
+                />
                 <Line
                   type="monotone"
                   dataKey="tenders"
@@ -121,8 +102,8 @@ const platformInsights = [
                   strokeWidth={3}
                   dot={{
                     fill: chartConfig.tenders.color,
-                    strokeWidth: 2,
                     r: 4,
+                    strokeWidth: 2,
                   }}
                   activeDot={{
                     r: 6,
@@ -135,7 +116,11 @@ const platformInsights = [
                   dataKey="bids"
                   stroke={chartConfig.bids.color}
                   strokeWidth={3}
-                  dot={{ fill: chartConfig.bids.color, strokeWidth: 2, r: 4 }}
+                  dot={{
+                    fill: chartConfig.bids.color,
+                    r: 4,
+                    strokeWidth: 2,
+                  }}
                   activeDot={{
                     r: 6,
                     stroke: chartConfig.bids.color,
@@ -146,24 +131,28 @@ const platformInsights = [
             </ChartContainer>
           </CardContent>
         </Card>
-        <Card className="shadow-0">
-          <CardHeader>
-            <CardTitle>{t("revenue_growth")}</CardTitle>
+
+        {/* Revenue Growth */}
+        <Card className="rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold text-gray-800">
+              {t("revenue_growth")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig}>
+            <ChartContainer config={chartConfig} className="h-64">
               <LineChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <CartesianGrid stroke="#f0f4f8" strokeDasharray="4 4" />
                 <XAxis
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#64748b", fontSize: 12 }}
+                  tick={{ fill: "#6b7280", fontSize: 12 }}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#64748b", fontSize: 12 }}
+                  tick={{ fill: "#6b7280", fontSize: 12 }}
                   tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
                 />
                 <ChartTooltip
@@ -180,8 +169,8 @@ const platformInsights = [
                   strokeWidth={3}
                   dot={{
                     fill: chartConfig.revenue.color,
-                    strokeWidth: 2,
                     r: 4,
+                    strokeWidth: 2,
                   }}
                   activeDot={{
                     r: 6,
@@ -194,25 +183,30 @@ const platformInsights = [
           </CardContent>
         </Card>
       </div>
+
+      {/* User Growth & Platform Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-0">
-          <CardHeader>
-            <CardTitle>{t("user_growth")}</CardTitle>
+        {/* User Growth */}
+        <Card className="rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold text-gray-800">
+              {t("user_growth")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig}>
+            <ChartContainer config={chartConfig} className="h-64">
               <LineChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <CartesianGrid stroke="#f0f4f8" strokeDasharray="4 4" />
                 <XAxis
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#64748b", fontSize: 12 }}
+                  tick={{ fill: "#6b7280", fontSize: 12 }}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#64748b", fontSize: 12 }}
+                  tick={{ fill: "#6b7280", fontSize: 12 }}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Line
@@ -220,7 +214,11 @@ const platformInsights = [
                   dataKey="users"
                   stroke={chartConfig.users.color}
                   strokeWidth={3}
-                  dot={{ fill: chartConfig.users.color, strokeWidth: 2, r: 4 }}
+                  dot={{
+                    fill: chartConfig.users.color,
+                    r: 4,
+                    strokeWidth: 2,
+                  }}
                   activeDot={{
                     r: 6,
                     stroke: chartConfig.users.color,
@@ -231,22 +229,24 @@ const platformInsights = [
             </ChartContainer>
           </CardContent>
         </Card>
-        <Card className="shadow-0 h-full flex flex-col">
-          <CardHeader>
-            <CardTitle className="flex items-center text-lg">
-              <TrendingUp className="h-5 w-5 mr-2" />
+
+        {/* Platform Insights */}
+        <Card className="rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-base font-semibold text-gray-800">
+              <TrendingUp className="h-5 w-5 mr-2 text-blue-500" />
               {t("platform_insights_trends")}
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 h-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4  h-full">
+          <CardContent className="flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
               {platformInsights.map((insight) => (
                 <div
                   key={insight.id}
-                  className="p-4 bg-gray-50 rounded-lg flex flex-col justify-center h-full "
+                  className="p-4 bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-colors duration-200"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-semibold text-gray-900">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-800 text-sm">
                       {insight.title}
                     </h4>
                     <div className="flex items-center">
@@ -266,7 +266,9 @@ const platformInsights = [
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600">{insight.description}</p>
+                  <p className="text-xs text-gray-500 leading-tight">
+                    {insight.description}
+                  </p>
                 </div>
               ))}
             </div>
