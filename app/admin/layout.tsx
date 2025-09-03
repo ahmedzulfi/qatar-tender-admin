@@ -139,7 +139,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Mobile sidebar */}
       <div
         className={classNames(
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
@@ -312,13 +311,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                       </p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <Link href={"/admin/settings"}>
-                    <DropdownMenuItem>
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>{t("settings")}</span>
-                    </DropdownMenuItem>
-                  </Link>
+
                   <DropdownMenuSeparator />
                   <Link href={"/login"}>
                     <DropdownMenuItem>

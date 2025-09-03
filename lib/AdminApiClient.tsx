@@ -1,7 +1,7 @@
 import {
-  clearAdminTokens,
-  getAdminTokenFromCookie,
-  setAdminTokenCookie,
+  clearTokens,
+  getTokenFromCookie,
+  setTokenCookie,
 } from "@/utils/adminTokenHelpers";
 import axios from "axios";
 
@@ -18,7 +18,7 @@ const api = axios.create({
 
 // Request interceptor (add token if exists)
 api.interceptors.request.use((config) => {
-  const token = getAdminTokenFromCookie();
+  const token = getTokenFromCookie();
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -44,13 +44,13 @@ api.interceptors.response.use(
         );
 
         if (response.data.accessToken) {
-          setAdminTokenCookie(response.data.accessToken);
+          setTokenCookie(response.data.accessToken);
           originalRequest.headers = originalRequest.headers || {};
           originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
           return api(originalRequest);
         }
       } catch (refreshError) {
-        clearAdminTokens();
+        clearTokens();
         return Promise.reject(refreshError);
       }
     }

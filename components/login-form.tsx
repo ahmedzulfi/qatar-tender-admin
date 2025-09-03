@@ -45,7 +45,7 @@ export function LoginForm() {
 
       if (result.success) {
         // Redirect based on admin type
-        router.push("/admin/dashboard");
+        router.push("/admin");
       } else {
         setError(result.error || "Login failed. Please try again.");
       }
