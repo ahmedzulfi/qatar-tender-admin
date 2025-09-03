@@ -1,6 +1,6 @@
 // api/profileApi.ts
 
-import { api } from "@/lib/AdminApiClient";
+import { api } from "@/lib/apiClient";
 
 // Define TypeScript interfaces for better type safety
 interface ProfileData {

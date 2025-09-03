@@ -1,5 +1,4 @@
-import { api } from "@/lib/AdminApiClient";
-
+import { api } from "@/lib/apiClient";
 
 export const getCategories = async () => {
     try {

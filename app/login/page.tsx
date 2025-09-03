@@ -1,6 +1,6 @@
 "use client";
-import { LoginForm } from "@/components/login-form";
 
+import LoginForm from "@/components/login-form";
 import { useTranslation } from "../../lib/hooks/useTranslation";
 export default function LoginPage() {
   const { t } = useTranslation();

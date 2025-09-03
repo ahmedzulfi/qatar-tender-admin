@@ -1,4 +1,4 @@
-import { api } from "@/lib/AdminApiClient";
+import { api } from "@/lib/apiClient";
 export interface UserProfile {
   _id: string;
   usertype: string;

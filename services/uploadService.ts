@@ -1,5 +1,5 @@
 // services/uploadService.js
-import { api } from "@/lib/AdminApiClient";
+import { api } from "@/lib/apiClient";
 
 export const uploadMedia = async (files: any[]) => {
   const formData = new FormData();

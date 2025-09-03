@@ -1,5 +1,5 @@
 // services/chatService.ts
-import { api } from "@/lib/AdminApiClient";
+import { api } from "@/lib/apiClient";
 
 export interface ChatMessage {
   _id: string;

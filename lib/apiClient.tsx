@@ -1,9 +1,9 @@
+import axios from "axios";
 import {
-  clearTokens,
   getTokenFromCookie,
   setTokenCookie,
-} from "@/utils/adminTokenHelpers";
-import axios from "axios";
+  clearTokens,
+} from "@/utils/tokenHelpers";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 

@@ -1,5 +1,5 @@
 // services/tenderService.ts
-import { api } from "@/lib/AdminApiClient";
+import { api } from "@/lib/apiClient";
 
 // Fetch tenders for a specific user
 export const getUserTenders = async (userId: string) => {

@@ -1,5 +1,5 @@
 // services/reviewService.ts
-import { api } from "@/lib/AdminApiClient";
+import { api } from "@/lib/apiClient";
 
 // Define TypeScript interfaces
 export interface Review {
