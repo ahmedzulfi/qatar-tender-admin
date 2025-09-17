@@ -44,6 +44,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
     try {
       const res = await api.get("/api/profiles"); // use global api
       setAdmin(res.data);
+      console.log("Fetched profile:", res.data);
     } catch (err) {
       console.error("Failed to fetch profile:", err);
       setAdmin(null);

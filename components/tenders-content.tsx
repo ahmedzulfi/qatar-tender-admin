@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,129 +35,410 @@ import {
   Users,
   FileText,
   MoreVertical,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
+import { adminService } from "@/services/adminService";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 
-const mockTenders = [
-  {
-    id: "TND-001",
-    title: "Road Construction Project - Doha North",
-    organization: "Ministry of Infrastructure",
-    category: "Construction",
-    budget: "$2,500,000",
-    status: "active",
-    bidsCount: 12,
-    submittedDate: "2023-12-01",
-    description:
-      "Major road construction project covering 15km of highway infrastructure in North Doha area.",
-    type: "business",
-  },
-  {
-    id: "TND-002",
-    title: "IT Equipment Procurement",
-    organization: "Ministry of Technology",
-    category: "Technology",
-    budget: "$850,000",
-    status: "active",
-    bidsCount: 8,
-    submittedDate: "2023-12-03",
-    description:
-      "Procurement of computers, servers, and networking equipment for government offices.",
-    type: "business",
-  },
-  {
-    id: "TND-003",
-    title: "Healthcare Equipment Tender",
-    organization: "Ministry of Health",
-    category: "Healthcare",
-    budget: "$1,200,000",
-    status: "active",
-    bidsCount: 15,
-    submittedDate: "2023-12-05",
-    description:
-      "Medical equipment procurement for new hospital facilities across Qatar.",
-    type: "business",
-  },
-  {
-    id: "TND-004",
-    title: "Office Supplies Annual Contract",
-    organization: "Government Services",
-    category: "Supplies",
-    budget: "$300,000",
-    status: "awarded",
-    bidsCount: 6,
-    submittedDate: "2023-12-07",
-    description:
-      "Annual contract for office supplies and stationery for government departments.",
-    type: "business",
-  },
-  {
-    id: "TND-005",
-    title: "Security Services Contract",
-    organization: "Ministry of Interior",
-    category: "Services",
-    budget: "$950,000",
-    status: "active",
-    bidsCount: 4,
-    submittedDate: "2023-12-10",
-    description: "Security services for government buildings and facilities.",
-    type: "individual",
-  },
-];
+// Types
+interface Tender {
+  _id: string;
+  title: string;
+  category: { name: string } | null;
+  status: string;
+  bidsCount?: number;
+  bidCount?: number;
+  deadline?: string;
+  createdAt?: string;
+  description?: string;
+  postedBy?: {
+    email?: string;
+    userType?: string;
+  };
+  budget?: string | number;
+  estimatedBudget?: number;
+}
 
 export function TendersContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all"); // New filter for type
-  const [selectedTender, setSelectedTender] = useState(null);
-
-  const filteredTenders = mockTenders.filter((tender) => {
-    const matchesSearch =
-      tender.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tender.organization.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || tender.status === statusFilter;
-    const matchesCategory =
-      categoryFilter === "all" || tender.category === categoryFilter;
-    const matchesType = typeFilter === "all" || tender.type === typeFilter;
-
-    return matchesSearch && matchesStatus && matchesCategory && matchesType;
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [tenders, setTenders] = useState<Tender[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState({
+    totalTenders: 0,
+    activeTenders: 0,
+    totalBids: 0,
+    totalValue: 0,
   });
 
-  const getStatusBadge = (status: "active" | "rejected" | string) => {
-    switch (status) {
+  const { t } = useTranslation();
+
+  // Sorting state
+  const [sortBy, setSortBy] = useState<
+    "none" | "deadline" | "budget" | "bids" | "createdAt" | "title"
+  >("none");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  // Pagination state (client-side)
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const pageOptions = [10, 25, 50, 100];
+
+  // Fetch tenders data
+  useEffect(() => {
+    const fetchTenders = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch tenders with sufficient limit for client-side pagination
+        const response = await adminService.getTenders({ limit: 100 });
+
+        if (response.success && response.data) {
+          const fetchedTenders: Tender[] = response.data.tenders || [];
+          setTenders(fetchedTenders);
+
+          // Calculate stats
+          const totalTenders = fetchedTenders.length;
+          const activeTenders = fetchedTenders.filter(
+            (t) =>
+              (t.status || "").toLowerCase() === "open" ||
+              (t.status || "").toLowerCase() === "active"
+          ).length;
+          const totalBids = fetchedTenders.reduce(
+            (sum, tender) =>
+              sum +
+              Number(
+                (tender as any).bidCount ?? (tender as any).bidsCount ?? 0
+              ),
+            0
+          );
+          const totalValue = fetchedTenders.reduce((sum, tender) => {
+            const budget = resolveBudget(tender);
+            return sum + (budget > 0 ? budget : 0);
+          }, 0);
+
+          setStats({
+            totalTenders,
+            activeTenders,
+            totalBids,
+            totalValue,
+          });
+        } else {
+          setError("Failed to fetch tenders data");
+        }
+      } catch (err) {
+        console.error("Error fetching tenders:", err);
+        setError("Failed to load tenders data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTenders();
+  }, []);
+
+  // Helper function to resolve budget from tender
+  const resolveBudget = (tender: Tender) => {
+    if (typeof tender.estimatedBudget === "number")
+      return tender.estimatedBudget;
+    if (tender.budget && !isNaN(Number(tender.budget)))
+      return Number(tender.budget);
+    if (typeof tender.budget === "string") {
+      const digits = tender.budget.replace(/[^0-9.]/g, "");
+      return digits ? Number(digits) : 0;
+    }
+    return 0;
+  };
+
+  // Helper function to parse and format date
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  // Get unique categories for filter
+  const categories = useMemo(
+    () => [...new Set(tenders.map((t) => t.category?.name).filter(Boolean))],
+    [tenders]
+  );
+
+  // Status badge component (Apple-like subtle pills)
+  const getStatusBadge = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "open":
       case "active":
         return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            Active
+          <Badge className="rounded-full bg-green-100 text-green-800 px-2 py-0.5">
+            {t("status_active")}
+          </Badge>
+        );
+      case "awarded":
+        return (
+          <Badge className="rounded-full bg-blue-100 text-blue-800 px-2 py-0.5">
+            {t("status_awarded")}
+          </Badge>
+        );
+      case "completed":
+        return (
+          <Badge className="rounded-full bg-purple-100 text-purple-800 px-2 py-0.5">
+            {t("status_completed")}
+          </Badge>
+        );
+      case "closed":
+        return (
+          <Badge className="rounded-full bg-gray-100 text-gray-800 px-2 py-0.5">
+            {t("status_closed")}
           </Badge>
         );
       case "rejected":
         return (
-          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-            Rejected
+          <Badge className="rounded-full bg-red-100 text-red-800 px-2 py-0.5">
+            {t("status_rejected")}
           </Badge>
         );
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return (
+          <Badge variant="outline" className="rounded-full px-2 py-0.5">
+            {status}
+          </Badge>
+        );
     }
   };
-  interface Tender {
-    id: string | number;
-    title?: string;
-    description?: string;
-  }
-  const { t } = useTranslation();
 
-  const handleViewDetails = (tender: Tender) => {
-    window.location.href = `/admin/tenders/${tender.id}`;
+  // Format budget for display
+  const formatBudget = (budget: number) => {
+    if (!budget || budget === 0) return "Not specified";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "QAR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(budget);
   };
+
+  // Filter tenders based on search and filters
+  const filteredTenders = useMemo(() => {
+    return tenders.filter((tender) => {
+      const matchesSearch =
+        tender.title?.toLowerCase().includes(searchTerm.toLowerCase() || "") ||
+        tender.postedBy?.email
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase() || "") ||
+        false;
+
+      // Fix active/open selection: when statusFilter === "open", match both "open" and "active"
+      const tenderStatus = (tender.status || "").toLowerCase();
+      const sf = statusFilter.toLowerCase();
+      const matchesStatus =
+        sf === "all" ||
+        (sf === "open" &&
+          (tenderStatus === "open" || tenderStatus === "active")) ||
+        tenderStatus === sf;
+
+      const matchesCategory =
+        categoryFilter === "all" || tender.category?.name === categoryFilter;
+      const matchesType =
+        typeFilter === "all" ||
+        (tender.postedBy?.userType === "individual" &&
+          typeFilter === "individual") ||
+        (tender.postedBy?.userType === "business" && typeFilter === "business");
+
+      return matchesSearch && matchesStatus && matchesCategory && matchesType;
+    });
+  }, [tenders, searchTerm, statusFilter, categoryFilter, typeFilter]);
+
+  // Sorting logic
+  const sortedTenders = useMemo(() => {
+    const list = [...filteredTenders];
+    if (sortBy === "none") return list;
+
+    const order = sortOrder === "asc" ? 1 : -1;
+
+    list.sort((a, b) => {
+      if (sortBy === "deadline") {
+        const da = a.deadline ? new Date(a.deadline).getTime() : 0;
+        const db = b.deadline ? new Date(b.deadline).getTime() : 0;
+        return (da - db) * order;
+      }
+
+      if (sortBy === "createdAt") {
+        const ca = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const cb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return (ca - cb) * order;
+      }
+
+      if (sortBy === "budget") {
+        const ba = resolveBudget(a);
+        const bb = resolveBudget(b);
+        return (ba - bb) * order;
+      }
+
+      if (sortBy === "bids") {
+        const bidsA = Number((a as any).bidCount ?? (a as any).bidsCount ?? 0);
+        const bidsB = Number((b as any).bidCount ?? (b as any).bidsCount ?? 0);
+        return (bidsA - bidsB) * order;
+      }
+
+      if (sortBy === "title") {
+        const ta = (a.title || "").toLowerCase();
+        const tb = (b.title || "").toLowerCase();
+        if (ta < tb) return -1 * order;
+        if (ta > tb) return 1 * order;
+        return 0;
+      }
+
+      return 0;
+    });
+
+    return list;
+  }, [filteredTenders, sortBy, sortOrder]);
+
+  // Pagination derived values
+  const totalItems = sortedTenders.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+  // Ensure currentPage valid when filters or pageSize change
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+    if (currentPage < 1) setCurrentPage(1);
+  }, [totalPages, currentPage]);
+
+  const paginatedTenders = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    return sortedTenders.slice(start, end);
+  }, [sortedTenders, currentPage, pageSize]);
+
+  // Small pagination number generator with ellipsis
+  const getPageNumbers = () => {
+    const pages: (number | "...")[] = [];
+    const maxButtons = 7;
+    if (totalPages <= maxButtons) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      return pages;
+    }
+
+    const left = Math.max(1, currentPage - 2);
+    const right = Math.min(totalPages, currentPage + 2);
+
+    if (left > 1) {
+      pages.push(1);
+      if (left > 2) pages.push("...");
+    }
+
+    for (let i = left; i <= right; i++) pages.push(i);
+
+    if (right < totalPages) {
+      if (right < totalPages - 1) pages.push("...");
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        {/* Skeleton for Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card
+              key={i}
+              className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/70 rounded-2xl"
+            >
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-28" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-20 mb-2" />
+                <Skeleton className="h-4 w-24" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Skeleton for Filters */}
+        <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/60 rounded-2xl">
+          <CardHeader>
+            <Skeleton className="h-6 w-36" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <Skeleton className="h-10 flex-1 rounded-full" />
+              <Skeleton className="h-10 w-full sm:w-[180px] rounded-full" />
+              <Skeleton className="h-10 w-full sm:w-[180px] rounded-full" />
+              <Skeleton className="h-10 w-full sm:w-[180px] rounded-full" />
+              <Skeleton className="h-10 w-full sm:w-[180px] rounded-full" />
+              <Skeleton className="h-10 w-full sm:w-[180px] rounded-full" />
+            </div>
+
+            {/* Skeleton for Table */}
+            <div className="rounded-2xl border border-gray-100 overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {[...Array(7)].map((_, i) => (
+                      <TableHead key={i}>
+                        <Skeleton className="h-4 w-28" />
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[...Array(5)].map((_, i) => (
+                    <TableRow key={i}>
+                      {[...Array(7)].map((_, j) => (
+                        <TableCell key={j}>
+                          <Skeleton className="h-4 w-full" />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] rounded-2xl bg-white/70">
+          <CardContent className="py-8 text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-red-600 mb-2">
+              Error Loading Data
+            </h3>
+            <p className="text-gray-600">{error}</p>
+            <Button onClick={() => window.location.reload()} className="mt-4">
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="shadow-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">
+          <CardHeader className="flex items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               {t("total_tenders")}
             </CardTitle>
@@ -165,7 +446,7 @@ export function TendersContent() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">
-              {mockTenders.length}
+              {stats.totalTenders}
             </div>
             <p className="text-xs text-gray-500 mt-1">
               {t("active_submissions")}
@@ -173,23 +454,23 @@ export function TendersContent() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">
+          <CardHeader className="flex items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               {t("active_tenders")}
             </CardTitle>
-            <FileText className="h-4 w-4 text-gray-400" />
+            <Clock className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {mockTenders.filter((t) => t.status === "active").length}
+              {stats.activeTenders}
             </div>
             <p className="text-xs text-gray-500 mt-1">{t("currently_open")}</p>
           </CardContent>
         </Card>
 
-        <Card className="shadow-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">
+          <CardHeader className="flex items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               {t("total_bids")}
             </CardTitle>
@@ -197,7 +478,7 @@ export function TendersContent() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">
-              {mockTenders.reduce((sum, tender) => sum + tender.bidsCount, 0)}
+              {stats.totalBids}
             </div>
             <p className="text-xs text-gray-500 mt-1">
               {t("across_all_tenders")}
@@ -205,68 +486,91 @@ export function TendersContent() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">
+          <CardHeader className="flex items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               {t("total_value")}
             </CardTitle>
             <DollarSign className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">$5.8M</div>
+            <div className="text-2xl font-bold text-gray-900">
+              {formatBudget(stats.totalValue)}
+            </div>
             <p className="text-xs text-gray-500 mt-1">{t("combined_budget")}</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters and Search */}
-      <Card className="shadow-0">
+      <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">
         <CardHeader>
           <CardTitle>{t("tender_management")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
+          <div className="flex flex-col sm:flex-row gap-3 mb-6 items-center">
+            <div className="relative flex-1 max-w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder={t("search_tenders")}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="pl-10 rounded-full border border-gray-100 shadow-sm"
               />
             </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+            <Select
+              value={statusFilter}
+              onValueChange={(v) => {
+                setStatusFilter(v);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-full sm:w-[170px] rounded-full">
                 <SelectValue placeholder={t("filter_by_status")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("all_status")}</SelectItem>
-                <SelectItem value="active">{t("status_active")}</SelectItem>
+                <SelectItem value="open">{t("status_active")}</SelectItem>
                 <SelectItem value="awarded">{t("status_awarded")}</SelectItem>
                 <SelectItem value="completed">
                   {t("status_completed")}
                 </SelectItem>
+                <SelectItem value="closed">{t("status_closed")}</SelectItem>
               </SelectContent>
             </Select>
 
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+            <Select
+              value={categoryFilter}
+              onValueChange={(v) => {
+                setCategoryFilter(v);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-full sm:w-[170px] rounded-full">
                 <SelectValue placeholder={t("filter_by_category")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("all_categories")}</SelectItem>
-                <SelectItem value="Construction">Construction</SelectItem>
-                <SelectItem value="Technology">Technology</SelectItem>
-                <SelectItem value="Healthcare">Healthcare</SelectItem>
-                <SelectItem value="Services">{t("it_services")}</SelectItem>
-                <SelectItem value="Supplies">Supplies</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
-            {/* New Type Filter */}
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+            <Select
+              value={typeFilter}
+              onValueChange={(v) => {
+                setTypeFilter(v);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-full sm:w-[150px] rounded-full">
                 <SelectValue placeholder={t("filter_by_type")} />
               </SelectTrigger>
               <SelectContent>
@@ -277,67 +581,263 @@ export function TendersContent() {
             </Select>
           </div>
 
-          {/* Tenders Table */}
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("tender_details")}</TableHead>
-                  <TableHead>{t("name")}</TableHead>
+          {/* Sorting + Page size row */}
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-3">
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+                <SelectTrigger className="w-full sm:w-[160px] rounded-full">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="deadline">Deadline</SelectItem>
+                  <SelectItem value="createdAt">Created At</SelectItem>
+                  <SelectItem value="budget">Budget</SelectItem>
+                  <SelectItem value="bids">Bids</SelectItem>
+                  <SelectItem value="title">Title</SelectItem>
+                </SelectContent>
+              </Select>
 
-                  <TableHead>{t("category")}</TableHead>
-                  <TableHead>{t("budget")}</TableHead>
-                  <TableHead>{t("bids")}</TableHead>
-                  <TableHead>{t("status")}</TableHead>
-                  <TableHead>{t("actions")}</TableHead>
+              <Select
+                value={sortOrder}
+                onValueChange={(v) => setSortOrder(v as "asc" | "desc")}
+              >
+                <SelectTrigger className="w-full sm:w-[120px] rounded-full">
+                  <SelectValue placeholder="Order" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="asc">Ascending</SelectItem>
+                  <SelectItem value="desc">Descending</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Select
+                value={String(pageSize)}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[90px] rounded-full">
+                  <SelectValue placeholder={`${pageSize}/page`} />
+                </SelectTrigger>
+                <SelectContent>
+                  {pageOptions.map((p) => (
+                    <SelectItem key={p} value={String(p)}>
+                      {p}/page
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Tenders Table */}
+          <div className="rounded-2xl border border-gray-100 overflow-hidden bg-white/60">
+            <Table>
+              <TableHeader className="bg-transparent">
+                <TableRow>
+                  <TableHead className="text-sm text-gray-600">
+                    {t("tender_details")}
+                  </TableHead>
+                  <TableHead className="text-sm text-gray-600">
+                    {t("posted_by")}
+                  </TableHead>
+                  <TableHead className="text-sm text-gray-600">
+                    {t("category")}
+                  </TableHead>
+                  <TableHead className="text-sm text-gray-600">
+                    {t("budget")}
+                  </TableHead>
+                  <TableHead className="text-sm text-gray-600">
+                    {t("bids")}
+                  </TableHead>
+                  <TableHead className="text-sm text-gray-600">
+                    {t("deadline")}
+                  </TableHead>
+                  <TableHead className="text-sm text-gray-600">
+                    {t("status")}
+                  </TableHead>
+                  <TableHead className="text-sm text-gray-600">
+                    {t("actions")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredTenders.map((tender) => (
-                  <TableRow key={tender.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{tender.title}</div>
-                        <div className="text-sm text-gray-500">{tender.id}</div>
+                {paginatedTenders.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-8">
+                      <div className="text-gray-500">
+                        <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                        <p className="text-lg font-medium">No tenders found</p>
+                        <p className="text-sm">
+                          Try adjusting your filters or search term
+                        </p>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <Building className="h-4 w-4 mr-2 text-gray-400" />
-                        {tender.organization}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{tender.category}</Badge>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {tender.budget}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{tender.bidsCount}</Badge>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(tender.status)}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleViewDetails(tender)}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            {t("view_details")}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  paginatedTenders.map((tender) => {
+                    const bids =
+                      (tender as any).bidCount ??
+                      (tender as any).bidsCount ??
+                      0;
+                    return (
+                      <TableRow key={tender._id} className="hover:bg-gray-50">
+                        <TableCell>
+                          <div>
+                            <div className="font-medium text-gray-900 line-clamp-2">
+                              {tender.title}
+                            </div>
+                            <div className="text-sm text-gray-500 mt-1">
+                              ID: {tender._id}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <Building className="h-4 w-4 mr-2 text-gray-400" />
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {tender.postedBy?.email || "N/A"}
+                              </div>
+                              <div className="text-xs text-gray-500 capitalize">
+                                {tender.postedBy?.userType || "-"}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className="rounded-full px-2 py-0.5"
+                          >
+                            {tender.category?.name || "General"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-medium text-gray-900">
+                          {formatBudget(resolveBudget(tender))}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="secondary"
+                            className="rounded-full bg-blue-50 text-blue-700 px-2 py-0.5"
+                          >
+                            {bids}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-gray-600">
+                          {formatDate(tender.deadline)}
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(tender.status || "")}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                              >
+                                <span className="sr-only">Open menu</span>
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                              <Link
+                                href={`/admin/tenders/${tender._id}`}
+                                passHref
+                              >
+                                <DropdownMenuItem>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  {t("view_details")}
+                                </DropdownMenuItem>
+                              </Link>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="mt-9 flex  items-center justify-center">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 rounded-full"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                aria-label="First page"
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 rounded-full"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+
+              {/* Page numbers */}
+              <div className="flex items-center gap-2 px-2">
+                {getPageNumbers().map((p, idx) =>
+                  p === "..." ? (
+                    <span key={idx} className="text-sm text-gray-400 px-2">
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => setCurrentPage(Number(p))}
+                      className={`min-w-[36px] h-8 px-3 rounded-md text-sm ${
+                        currentPage === p
+                          ? "bg-gray-900 text-white"
+                          : "bg-white/50 text-gray-800 border border-transparent hover:border-gray-100"
+                      }`}
+                      aria-current={currentPage === p ? "page" : undefined}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 rounded-full"
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+                aria-label="Next page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 rounded-full"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                aria-label="Last page"
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

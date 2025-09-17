@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { AdminUser } from "@/services/adminService";
+import { useAdminAuth } from "@/context/AdminAuthProvider";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,24 +14,24 @@ export function ProtectedRoute({
   children,
   allowedUserTypes,
 }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuth();
+  const { admin, isLoading } = useAdminAuth(); // <-- renamed "user" to "admin"
   const router = useRouter();
 
   useEffect(() => {
     if (!isLoading) {
-      if (!user) {
+      if (!admin) {
         router.push("/login");
         return;
       }
 
-      if (allowedUserTypes && !allowedUserTypes.includes(user.userType)) {
-        // Redirect to appropriate dashboard if user type not allowed
-        const redirectPath = getRedirectPath(user.userType);
+      if (allowedUserTypes && !allowedUserTypes.includes(admin.userType)) {
+        // Redirect if admin user type is not allowed
+        const redirectPath = getRedirectPath(admin.userType);
         router.push(redirectPath);
         return;
       }
     }
-  }, [user, isLoading, router, allowedUserTypes]);
+  }, [admin, isLoading, router, allowedUserTypes]);
 
   const getRedirectPath = (userType: string) => {
     switch (userType) {
@@ -44,7 +45,7 @@ export function ProtectedRoute({
     }
   };
 
-  // Show loading while authentication is being checked
+  // Show loading spinner while checking authentication
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -53,10 +54,10 @@ export function ProtectedRoute({
     );
   }
 
-  // Don't render if no user or wrong user type
+  // Prevent rendering if no admin or not in allowed user types
   if (
-    !user ||
-    (allowedUserTypes && !allowedUserTypes.includes(user.userType))
+    !admin ||
+    (allowedUserTypes && !allowedUserTypes.includes(admin.userType))
   ) {
     return null;
   }

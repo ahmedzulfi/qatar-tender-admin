@@ -1,18 +1,24 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Users,
   FileText,
+  Users,
   Gavel,
   UserCheck,
   DollarSign,
   TrendingUp,
   TrendingDown,
+  ChevronRight,
+  Plus,
+  BarChart2,
+  Timer,
+  ClipboardList,
 } from "lucide-react";
-import { DashboardCharts } from "@/components/dashboard-charts";
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type React from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -21,367 +27,737 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { useEffect, useState } from "react";
 import { useTranslation } from "@/lib/hooks/useTranslation";
-import { ProtectedRoute } from "@/components/auth-guard";
+import { adminService } from "@/services/adminService";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PageTransitionWrapper from "@/components/animations/PageTransitionWrapper";
+import AdminDetailedOverview from "@/components/animations/AdminDetailedOverview";
+import AdminOverviewChart from "@/components/animations/AdminDetailedOverview";
 
-// Mock Data
-const analyticsData = [
-  {
-    title: "Total Tenders",
-    value: "3,421",
-    change: "+8.2%",
-    trend: "up",
-    icon: FileText,
-    color: "text-sky-600",
-    bg: "bg-sky-50",
-  },
-  {
-    title: "Total Bids",
-    value: "12,847",
-    change: "+12.5%",
-    trend: "up",
-    icon: Gavel,
-    color: "text-amber-600",
-    bg: "bg-amber-50",
-  },
-  {
-    title: "Revenue",
-    value: "1.28M QAR",
-    change: "+18.7%",
-    trend: "up",
-    icon: DollarSign,
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-  },
-  {
-    title: "Active Users",
-    value: "8,932",
-    change: "+5.3%",
-    trend: "up",
-    icon: Users,
-    color: "text-violet-600",
-    bg: "bg-violet-50",
-  },
-  {
-    title: "Pending KYCs",
-    value: "247",
-    change: "+15.3%",
-    trend: "up",
-    icon: UserCheck,
-    color: "text-rose-600",
-    bg: "bg-rose-50",
-  },
-];
+// Types (same as before)
+interface AnalyticsData {
+  title: string;
+  value: string;
+  trend: "up" | "down";
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  color: string;
+  bg: string;
+}
 
-// Mock Table Data
-const usersTable = [
-  {
-    id: 1,
-    name: "Ahmed Al-Mansoori",
-    role: "Bidder",
-    status: "Active",
-    kyc: "Approved",
-    lastLogin: "2h ago",
-  },
-  {
-    id: 2,
-    name: "Fatima Al-Hassan",
-    role: "Supplier",
-    status: "Active",
-    kyc: "Pending",
-    lastLogin: "1d ago",
-  },
-  {
-    id: 3,
-    name: "Khalid Bin Ali",
-    role: "Admin",
-    status: "Inactive",
-    kyc: "Approved",
-    lastLogin: "3d ago",
-  },
-  {
-    id: 4,
-    name: "Layla Al-Saeed",
-    role: "Bidder",
-    status: "Active",
-    kyc: "Approved",
-    lastLogin: "5h ago",
-  },
-];
+interface User {
+  _id: string;
+  email: string;
+  userType: string;
+  isVerified: boolean;
+  isBanned?: boolean;
+  isDocumentVerified?: "Not Submitted" | "pending" | "verified" | "rejected";
+  createdAt: string;
+  lastLogin?: string;
+}
 
-const tendersTable = [
-  {
-    id: 1,
-    title: "Construction of Dubai Metro Line 8",
-    category: "Infrastructure",
-    status: "Open",
-    bids: 45,
-    deadline: "Jul 15",
-  },
-  {
-    id: 2,
-    title: "Cloud Migration for Ministry of Health",
-    category: "IT",
-    status: "Closed",
-    bids: 23,
-    deadline: "Jun 20",
-  },
-  {
-    id: 3,
-    title: "Smart City IoT Sensors",
-    category: "Technology",
-    status: "Open",
-    bids: 12,
-    deadline: "Aug 1",
-  },
-];
+interface Tender {
+  _id: string;
+  title: string;
+  category: { name: string };
+  status: string;
+  bidsCount: number;
+  deadline: string;
+  createdAt: string;
+}
 
-const bidsTable = [
-  {
-    id: 1,
-    tender: "Metro Line 8",
-    bidder: "Al-Falcon Co.",
-    amount: "2.4M QAR",
-    status: "Submitted",
-    date: "Jul 10",
-  },
-  {
-    id: 2,
-    tender: "Cloud Migration",
-    bidder: "TechNova Inc.",
-    amount: "1.8M QAR",
-    status: "Withdrawn",
-    date: "Jul 5",
-  },
-  {
-    id: 3,
-    tender: "IoT Sensors",
-    bidder: "SensorPro Ltd.",
-    amount: "3.1M QAR",
-    status: "Under Review",
-    date: "Jul 8",
-  },
-];
+interface Bid {
+  _id: string;
+  tender: { _id: string; title: string };
+  bidder: { _id: string; email: string };
+  amount: number;
+  status: string;
+  createdAt: string;
+}
 
-export default function page() {
+export default function DashboardPage() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("users");
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [tenders, setTenders] = useState<Tender[]>([]);
+  const [bids, setBids] = useState<Bid[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
 
-  const renderTable = () => {
-    if (activeTab === "users") {
+  // Fetch dashboard statistics
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      setStatsLoading(true);
+      try {
+        const [usersRes, tendersRes] = await Promise.all([
+          adminService.getUsers(),
+          adminService.getTenders(),
+        ]);
+
+        const totalUsers =
+          usersRes.success && usersRes.data && usersRes.data.pagination
+            ? usersRes.data.pagination.totalUsers || 0
+            : 0;
+
+        const totalTenders =
+          tendersRes.success && tendersRes.data && tendersRes.data.pagination
+            ? tendersRes.data.pagination.totalTenders || 0
+            : 0;
+
+        const totalBids =
+          tendersRes.success && tendersRes.data
+            ? tendersRes.data.totalBids || 0
+            : 0;
+
+        const totalRevenue =
+          tendersRes.success && tendersRes.data
+            ? tendersRes.data.totalRevenue || 0
+            : 0;
+
+        const pendingKYCs = 0;
+
+        const stats: AnalyticsData[] = [
+          {
+            title: "Total Tenders",
+            value: totalTenders.toLocaleString(),
+            trend: "up",
+            icon: FileText,
+            color: "text-blue-600",
+            bg: "bg-blue-50",
+          },
+          {
+            title: "Total Bids",
+            value: totalBids.toLocaleString(),
+            trend: "up",
+            icon: Gavel,
+            color: "text-amber-600",
+            bg: "bg-amber-50",
+          },
+          {
+            title: "Revenue",
+            value: `${(totalRevenue / 1000000).toFixed(2)}M QAR`,
+            trend: "up",
+            icon: DollarSign,
+            color: "text-emerald-600",
+            bg: "bg-emerald-50",
+          },
+          {
+            title: "Active Users",
+            value: totalUsers.toLocaleString(),
+            trend: "up",
+            icon: Users,
+            color: "text-violet-600",
+            bg: "bg-violet-50",
+          },
+          {
+            title: "Pending KYCs",
+            value: pendingKYCs.toString(),
+            trend: "up",
+            icon: UserCheck,
+            color: "text-rose-600",
+            bg: "bg-rose-50",
+          },
+        ];
+
+        setAnalyticsData(stats);
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    fetchDashboardStats();
+  }, []);
+
+  // Fetch table data based on active tab
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        if (activeTab === "users") {
+          const res = await adminService.getUsers({ limit: 10 });
+          if (res.success) {
+            setUsers(res.data.users || []);
+          }
+        } else if (activeTab === "tenders") {
+          const res = await adminService.getTenders({ limit: 10 });
+          if (res.success) {
+            setTenders(res.data.tenders || []);
+          }
+        } else if (activeTab === "bids") {
+          try {
+            const bidsRes = await adminService.getBids({ limit: 10 });
+
+            if (
+              bidsRes.success &&
+              bidsRes.data &&
+              Array.isArray(bidsRes.data.bids)
+            ) {
+              const transformedBids: Bid[] = bidsRes.data.bids.map(
+                (bid: any) => ({
+                  _id: bid._id,
+                  tender: {
+                    _id: bid.tender?._id || "unknown",
+                    title: bid.tender?.title || "Unknown Tender",
+                  },
+                  bidder: {
+                    _id: bid.bidder?._id || "unknown",
+                    email: bid.bidder?.email || "Unknown Bidder",
+                  },
+                  amount: bid.amount || 0,
+                  status: bid.status || "Unknown",
+                  createdAt: bid.createdAt || new Date().toISOString(),
+                })
+              );
+
+              setBids(transformedBids);
+            } else {
+              setBids([]);
+            }
+          } catch (bidError) {
+            console.error(
+              "Error fetching bids via adminService.getBids:",
+              bidError
+            );
+            setBids([]);
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching ${activeTab}:`, error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [activeTab]);
+
+  // Helper functions
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
+  // Apple-style KPI Card
+  const KpiCard = ({
+    title,
+    icon: Icon,
+    children,
+  }: {
+    title: string;
+    icon: React.ElementType;
+    children: React.ReactNode;
+  }) => (
+    <motion.div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-100/50 transition-all duration-300 h-full group">
+      <div className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center transition-transform duration-300">
+            <Icon className="w-5 h-5 text-blue-600" />
+          </div>
+          <h3 className="text-sm font-medium text-gray-600 tracking-wide">
+            {title}
+          </h3>
+        </div>
+        <div className="space-y-3">{children}</div>
+      </div>
+    </motion.div>
+  );
+
+  // Apple-style Badge Component
+  const AppleBadge = ({
+    variant,
+    className,
+    children,
+  }: {
+    variant?: string;
+    className?: string;
+    children: React.ReactNode;
+  }) => {
+    const baseClasses =
+      "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-all duration-200";
+    if (variant === "outline") {
       return (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>KYC</TableHead>
-              <TableHead>Last Login</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {usersTable.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className="font-medium">{user.name}</TableCell>
-                <TableCell>{user.role}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      user.status === "Active"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {user.status}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      user.kyc === "Approved"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {user.kyc}
-                  </span>
-                </TableCell>
-                <TableCell>{user.lastLogin}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <span
+          className={`${baseClasses} bg-gray-50/80 text-gray-600 border border-gray-200/60 hover:bg-gray-100/80 ${className}`}
+        >
+          {children}
+        </span>
+      );
+    }
+    return <span className={`${baseClasses} ${className}`}>{children}</span>;
+  };
+
+  // Status badge function (updated for Apple-style)
+  const getStatusBadge = (status: string, type: string) => {
+    if (type === "user") {
+      return (
+        <AppleBadge
+          className={
+            status === "Active"
+              ? "bg-green-100/80 text-green-700"
+              : "bg-gray-100/80 text-gray-700"
+          }
+        >
+          {status === "Active" ? "Active" : "Inactive"}
+        </AppleBadge>
       );
     }
 
-    if (activeTab === "tenders") {
-      return (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Bids</TableHead>
-              <TableHead>Deadline</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {tendersTable.map((tender) => (
-              <TableRow key={tender.id}>
-                <TableCell className="font-medium">{tender.title}</TableCell>
-                <TableCell>{tender.category}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      tender.status === "Open"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {tender.status}
-                  </span>
-                </TableCell>
-                <TableCell>{tender.bids}</TableCell>
-                <TableCell>{tender.deadline}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      );
+    if (type === "tender") {
+      switch (status.toLowerCase()) {
+        case "open":
+          return (
+            <AppleBadge className="bg-green-100/80 text-green-700">
+              Open
+            </AppleBadge>
+          );
+        case "closed":
+          return (
+            <AppleBadge className="bg-red-100/80 text-red-700">
+              Closed
+            </AppleBadge>
+          );
+        case "awarded":
+          return (
+            <AppleBadge className="bg-blue-100/80 text-blue-700">
+              Awarded
+            </AppleBadge>
+          );
+        case "active":
+          return (
+            <AppleBadge className="bg-green-100/80 text-green-700">
+              Active
+            </AppleBadge>
+          );
+        default:
+          return (
+            <AppleBadge className="bg-gray-100/80 text-gray-700">
+              {status}
+            </AppleBadge>
+          );
+      }
     }
 
-    if (activeTab === "bids") {
-      return (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Tender</TableHead>
-              <TableHead>Bidder</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {bidsTable.map((bid) => (
-              <TableRow key={bid.id}>
-                <TableCell className="font-medium">{bid.tender}</TableCell>
-                <TableCell>{bid.bidder}</TableCell>
-                <TableCell>{bid.amount}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      bid.status === "Submitted"
-                        ? "bg-green-100 text-green-800"
-                        : bid.status === "Under Review"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {bid.status}
-                  </span>
-                </TableCell>
-                <TableCell>{bid.date}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      );
+    if (type === "bid") {
+      // Display "Submitted" text for "Under Review" status
+      const displayStatus = status === "Under Review" ? "Submitted" : status;
+
+      switch (status) {
+        case "Submitted":
+        case "Under Review":
+          return (
+            <AppleBadge className="bg-green-100/80 text-green-700">
+              {displayStatus}
+            </AppleBadge>
+          );
+        case "Accepted":
+          return (
+            <AppleBadge className="bg-blue-100/80 text-blue-700">
+              Accepted
+            </AppleBadge>
+          );
+        case "Rejected":
+          return (
+            <AppleBadge className="bg-red-100/80 text-red-700">
+              Rejected
+            </AppleBadge>
+          );
+        default:
+          return (
+            <AppleBadge className="bg-gray-100/80 text-gray-700">
+              {status}
+            </AppleBadge>
+          );
+      }
     }
+
+    if (type === "kyc") {
+      switch (status) {
+        case "verified":
+          return (
+            <AppleBadge className="bg-green-100/80 text-green-700">
+              Verified
+            </AppleBadge>
+          );
+        case "pending":
+          return (
+            <AppleBadge className="bg-yellow-100/80 text-yellow-700">
+              Pending
+            </AppleBadge>
+          );
+        case "rejected":
+          return (
+            <AppleBadge className="bg-red-100/80 text-red-700">
+              Rejected
+            </AppleBadge>
+          );
+        case "Not Submitted":
+        default:
+          return (
+            <AppleBadge className="bg-gray-100/80 text-gray-700">
+              Not Submitted
+            </AppleBadge>
+          );
+      }
+    }
+
+    return (
+      <AppleBadge className="bg-gray-100/80 text-gray-700">{status}</AppleBadge>
+    );
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-6 font-sans">
-      {/* Top KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-        {analyticsData.map((item) => (
-          <Card
-            key={item.title}
-            className={`${item.bg} rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300`}
-          >
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-700 leading-tight">
-                {item.title}
-              </CardTitle>
-              <div
-                className={`${item.color} bg-white/70 p-2 rounded-lg shadow-sm mt-2`}
-              >
-                <item.icon className="h-5 w-5" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900 mb-1">
-                {item.value}
-              </div>
-              <div className="flex items-center space-x-1">
-                {item.trend === "up" ? (
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-red-500" />
-                )}
-                <span
-                  className={`text-sm font-medium ${
-                    item.trend === "up" ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {item.change}
-                </span>
-                <span className="text-sm text-gray-500">from last month</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Full-Width Chart */}
-      <div className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6 mb-8">
-        <h2 className="text-lg font-semibold text-gray-800 mb-6">
-          {t("platform_growth_trends")}
-        </h2>
-        <DashboardCharts />
-      </div>
-
-      {/* Tabs & Table Section */}
-      <Card className="rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <Tabs
-          defaultValue="users"
-          value={activeTab}
-          onValueChange={setActiveTab}
+    <PageTransitionWrapper>
+      <TooltipProvider>
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={{ show: { transition: { staggerChildren: 0.01 } } }}
+          className="min-h-screen bg-gradient-to-br from-gray-50/50 via-white to-blue-50/30"
         >
-          <TabsList className="flex flex-wrap gap-2 p-4 bg-gray-50 border-b border-gray-100">
-            <TabsTrigger
-              value="users"
-              className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4 py-2 rounded-lg text-sm font-medium"
+          <div className="mx-auto px-6 sm:px-0 lg:px-0 py-4 space-y-8">
+            {/* Apple-style KPI Cards */}
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
             >
-              Users
-            </TabsTrigger>
-            <TabsTrigger
-              value="tenders"
-              className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4 py-2 rounded-lg text-sm font-medium"
+              {statsLoading
+                ? [...Array(5)].map((_, i) => (
+                    <Card
+                      key={i}
+                      className="rounded-xl border border-gray-200 shadow-sm"
+                    >
+                      <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-8 w-8 rounded-lg" />
+                      </CardHeader>
+                      <CardContent className="pb-4">
+                        <Skeleton className="h-6 w-16" />
+                      </CardContent>
+                    </Card>
+                  ))
+                : analyticsData.map((item) => (
+                    <KpiCard
+                      key={item.title}
+                      title={item.title}
+                      icon={item.icon}
+                    >
+                      <div className="text-2xl font-bold text-gray-900">
+                        {item.value}
+                      </div>
+                    </KpiCard>
+                  ))}
+            </motion.div>
+            <AdminOverviewChart />
+            {/* Apple-style Tabs */}
+            <motion.div
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="bg-white/70 backdrop-blur-2xl rounded-3xl shadow-sm border border-gray-100/50 overflow-hidden"
             >
-              Tenders
-            </TabsTrigger>
-            <TabsTrigger
-              value="bids"
-              className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-4 py-2 rounded-lg text-sm font-medium"
-            >
-              Bids
-            </TabsTrigger>
-          </TabsList>
+              {/* Tab Navigation */}
+              <div className="border-b border-gray-100/50 p-6 pb-0">
+                <nav className="flex space-x-1 bg-gray-100/50 rounded-2xl p-1">
+                  {[
+                    { id: "users", label: "Users", icon: Users },
+                    { id: "tenders", label: "Tenders", icon: FileText },
+                    { id: "bids", label: "Bids", icon: Gavel },
+                  ].map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <motion.button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 whitespace-nowrap ${
+                          activeTab === tab.id
+                            ? "bg-white text-blue-600 shadow-sm"
+                            : "text-gray-600 hover:text-gray-800 hover:bg-white/50"
+                        }`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{tab.label}</span>
+                      </motion.button>
+                    );
+                  })}
+                </nav>
+              </div>
 
-          <TabsContent value="users" className="p-6">
-            {renderTable()}
-          </TabsContent>
-          <TabsContent value="tenders" className="p-6">
-            {renderTable()}
-          </TabsContent>
-          <TabsContent value="bids" className="p-6">
-            {renderTable()}
-          </TabsContent>
-        </Tabs>
-      </Card>
-    </div>
+              {/* Tab Content */}
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="p-8"
+              >
+                {loading ? (
+                  <div className="text-center py-16">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                    <p className="text-gray-500 mt-4 text-lg">
+                      {t("loading")}...
+                    </p>
+                  </div>
+                ) : activeTab === "users" ? (
+                  <div>
+                    <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-2xl font-semibold text-gray-900">
+                        User Management
+                      </h3>
+                      <Link
+                        href="/admin/users"
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1 bg-blue-50/80 px-4 py-2 rounded-xl transition-colors"
+                      >
+                        View All
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                    <div className="bg-white/90 rounded-2xl border border-gray-100/60 overflow-hidden">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-gray-100/60 bg-gray-50/50">
+                            <TableHead className="font-semibold text-gray-700">
+                              Email
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              Type
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              Status
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              KYC Status
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              Created
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {users.length === 0 ? (
+                            <TableRow>
+                              <TableCell
+                                colSpan={5}
+                                className="text-center py-12 text-gray-500"
+                              >
+                                <Users className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+                                <p className="text-lg">No users found.</p>
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            users.map((user) => (
+                              <TableRow
+                                key={user._id}
+                                className="hover:bg-gray-50/50 cursor-pointer border-gray-100/60 transition-colors"
+                              >
+                                <TableCell>
+                                  <Link
+                                    href={`/admin/users/${user._id}`}
+                                    className="font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                                  >
+                                    {user.email}
+                                  </Link>
+                                </TableCell>
+                                <TableCell className="text-gray-600 capitalize">
+                                  {user.userType}
+                                </TableCell>
+                                <TableCell>
+                                  {getStatusBadge(
+                                    user.isBanned ? "Inactive" : "Active",
+                                    "user"
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  {getStatusBadge(
+                                    user.isDocumentVerified || "Not Submitted",
+                                    "kyc"
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-gray-600">
+                                  {formatDate(user.createdAt)}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                ) : activeTab === "tenders" ? (
+                  <div>
+                    <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-2xl font-semibold text-gray-900">
+                        Tender Management
+                      </h3>
+                      <Link
+                        href="/admin/tenders"
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1 bg-blue-50/80 px-4 py-2 rounded-xl transition-colors"
+                      >
+                        View All
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                    <div className="bg-white/90 rounded-2xl border border-gray-100/60 overflow-hidden">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-gray-100/60 bg-gray-50/50">
+                            <TableHead className="font-semibold text-gray-700">
+                              Title
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              Category
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              Status
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              Bids
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              Created
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {tenders.length === 0 ? (
+                            <TableRow>
+                              <TableCell
+                                colSpan={5}
+                                className="text-center py-12 text-gray-500"
+                              >
+                                <FileText className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+                                <p className="text-lg">No tenders found.</p>
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            tenders.map((tender) => (
+                              <TableRow
+                                key={tender._id}
+                                className="hover:bg-gray-50/50 cursor-pointer border-gray-100/60 transition-colors"
+                              >
+                                <TableCell>
+                                  <Link
+                                    href={`/admin/tenders/${tender._id}`}
+                                    className="font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                                  >
+                                    {tender.title}
+                                  </Link>
+                                </TableCell>
+                                <TableCell className="text-gray-600">
+                                  {tender.category?.name || "General"}
+                                </TableCell>
+                                <TableCell>
+                                  {getStatusBadge(tender.status, "tender")}
+                                </TableCell>
+                                <TableCell>
+                                  <AppleBadge variant="outline">
+                                    {tender.bidsCount || 0}
+                                  </AppleBadge>
+                                </TableCell>
+                                <TableCell className="text-gray-600">
+                                  {formatDate(tender.createdAt)}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                ) : activeTab === "bids" ? (
+                  <div>
+                    <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-2xl font-semibold text-gray-900">
+                        Bid Management
+                      </h3>
+                      <Link
+                        href="/admin/bids"
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1 bg-blue-50/80 px-4 py-2 rounded-xl transition-colors"
+                      >
+                        View All
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                    <div className="bg-white/90 rounded-2xl border border-gray-100/60 overflow-hidden">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-gray-100/60 bg-gray-50/50">
+                            <TableHead className="font-semibold text-gray-700">
+                              Tender
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              Bidder
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              Amount
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              Status
+                            </TableHead>
+                            <TableHead className="font-semibold text-gray-700">
+                              Date
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {bids.length === 0 ? (
+                            <TableRow>
+                              <TableCell
+                                colSpan={5}
+                                className="text-center py-12 text-gray-500"
+                              >
+                                <Gavel className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+                                <p className="text-lg">No bids found.</p>
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            bids.map((bid) => (
+                              <TableRow
+                                key={bid._id}
+                                className="hover:bg-gray-50/50 cursor-pointer border-gray-100/60 transition-colors"
+                              >
+                                <TableCell>
+                                  <Link
+                                    href={`/admin/tenders/${bid.tender._id}`}
+                                    className="font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                                  >
+                                    {bid.tender.title}
+                                  </Link>
+                                </TableCell>
+                                <TableCell className="text-gray-600">
+                                  {bid.bidder.email}
+                                </TableCell>
+                                <TableCell className="font-semibold text-gray-900">
+                                  {bid.amount.toLocaleString()} QAR
+                                </TableCell>
+                                <TableCell>
+                                  {getStatusBadge(bid.status, "bid")}
+                                </TableCell>
+                                <TableCell className="text-gray-600">
+                                  {formatDate(bid.createdAt)}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                ) : null}
+              </motion.div>
+            </motion.div>
+          </div>
+        </motion.div>
+      </TooltipProvider>
+    </PageTransitionWrapper>
   );
 }

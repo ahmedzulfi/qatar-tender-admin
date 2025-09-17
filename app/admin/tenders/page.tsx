@@ -1,5 +1,5 @@
-import { TendersContent } from "@/components/tenders-content"
+import { TendersContent } from "@/components/tenders-content";
 
 export default function TendersPage() {
-  return <TendersContent />
+  return <TendersContent />;
 }

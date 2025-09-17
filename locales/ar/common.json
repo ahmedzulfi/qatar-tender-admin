@@ -34,6 +34,7 @@
   "minimum_10_years_experience_local_presence_require": "حد أدنى 10 سنوات خبرة، مطلوب وجود محلي",
   "flex_itemscenter_justifybetween": "flex items-center justify-between",
   "fontmedium": "font-medium",
+
   "p3_bggray50_roundedlg": "p-3 bg-gray-50 rounded-lg",
   "fontmedium_textsm": "font-medium text-sm",
   "qatar_tender": "مناقصات قطر",
@@ -966,5 +967,6 @@
   "action": "الإجراء",
   "target": "الهدف",
   "reason": "السبب",
-  "timestamp": "الوقت"
+  "timestamp": "الوقت",
+  "status_closed": "مغلق"
 }

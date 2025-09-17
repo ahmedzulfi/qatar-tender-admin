@@ -966,5 +966,6 @@
   "action": "Action",
   "target": "Target",
   "reason": "Reason",
-  "timestamp": "Timestamp"
+  "timestamp": "Timestamp",
+  "status_closed": "Closed"
 }
