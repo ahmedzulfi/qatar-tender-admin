@@ -117,3 +117,15 @@ export const getBid = async (bidId: string) => {
     throw error;
   }
 };
+export const getUserBidsByAdmin = async (userId: string) => {
+  try {
+    const res = await api.get(`/api/bids/admin/bids/user/${userId}`);
+    return res.data;
+  } catch (error: any) {
+    console.error(
+      "Error fetching bids for user:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

@@ -967,5 +967,6 @@
   "target": "Target",
   "reason": "Reason",
   "timestamp": "Timestamp",
-  "status_closed": "Closed"
+  "status_closed": "Closed",
+  "status_rejected": "Rejected"
 }

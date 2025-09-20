@@ -1,4 +1,5 @@
 "use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   Building,
@@ -23,169 +24,179 @@ import {
   Phone,
   MapPin,
   Star,
+  Eye,
+  AlertCircle,
+  CheckCircle,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-
+import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "../../../../lib/hooks/useTranslation";
+import { adminService } from "@/services/adminService";
+import { profileApi } from "@/services/profileApi";
+import { getUserBidsByAdmin } from "@/services/BidService";
+import { getUserTenders } from "@/services/tenderService";
+
+// Types based on your schemas
+interface User {
+  _id: string;
+  email: string;
+  userType: "individual" | "business" | "admin";
+  isVerified: boolean;
+  isDocumentVerified?: "Not Submitted" | "pending" | "verified" | "rejected";
+  isBanned?: boolean;
+  banReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Profile {
+  _id: string;
+  user: string;
+  phone: string;
+  address: string;
+  userType: "individual" | "business" | "admin";
+  rating: number;
+  ratingCount: number;
+  fullName?: string;
+  nationalId?: string;
+  nationalIdFront?: string;
+  nationalIdBack?: string;
+  companyName?: string;
+  companyEmail?: string;
+  personalEmail?: string;
+  companyDesc?: string;
+  contactPersonName?: string;
+  commercialRegistrationNumber?: string;
+  commercialRegistrationDoc?: string;
+  adminName?: string;
+  adminPosition?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Tender {
+  _id: string;
+  title: string;
+  description: string;
+  category: { _id: string; name: string };
+  location: string;
+  contactEmail: string;
+  image?: string;
+  estimatedBudget: number;
+  postedBy: string;
+  status: "active" | "awarded" | "closed" | "rejected" | "completed";
+  deadline: string;
+  createdAt: string;
+  updatedAt: string;
+  bidCount?: number;
+}
+
+interface Bid {
+  _id: string;
+  tender: string;
+  bidder: string;
+  amount: number;
+  description: string;
+  status:
+    | "pending"
+    | "accepted"
+    | "rejected"
+    | "under_review"
+    | "submitted"
+    | "completed";
+  paymentStatus: "pending" | "completed" | "failed";
+  paymentAmount: number;
+  paymentId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface UserWithProfile {
+  user: User;
+  profile: Profile;
+}
+
 export default function UserProfile() {
   const { t } = useTranslation();
-
   const [activeTab, setActiveTab] = useState("service-providing");
   const router = useRouter();
+  const params = useParams();
+  const userId = params?.id as string;
 
-  const mockUser = {
-    id: 234,
-    name: "Al-Rashid Construction LLC",
-    email: "info@alrashid-construction.qa",
-    phone: "+974 4444 5555",
-    type: "Business",
-    status: "Active",
-    joinDate: "2023-01-15",
-    avatar: "/placeholder.svg?height=100&width=100",
-    rating: 4.8,
-    reviewCount: 156,
-    description:
-      "Leading construction company in Qatar specializing in infrastructure development, commercial buildings, and residential projects. With over 15 years of experience, we deliver high-quality construction solutions.",
-    serviceProvidingStats: {
-      completedProjects: 24,
-      totalBids: 28,
-      successfulBids: 8,
-      totalValue: "$12M",
-    },
-    projectPostingStats: {
-      totalTenders: 15,
-      activeTenders: 3,
-      completedTenders: 12,
-      totalValue: "$45M",
-    },
-    businessDetails: {
-      companyName: "Al-Rashid Construction LLC",
-      contactPersonName: "Mohammed Al-Thani",
-      personalEmail: "mohammed.althani@personal.qa",
-      companyEmail: "info@alrashid-construction.qa",
-      companyPhone: "+974 4444 5555",
-      companyDescription:
-        "Leading construction company in Qatar specializing in infrastructure development, commercial buildings, and residential projects. With over 15 years of experience, we deliver high-quality construction solutions.",
-    },
-    contactPerson: {
-      name: "Mohammed Al-Thani",
-      title: "Business Development Manager",
-      email: "mohammed.althani@alrashid-construction.qa",
-      phone: "+974 4444 5678",
-    },
-    documents: [
-      {
-        name: "Commercial Registration",
-        status: "verified",
-        uploadDate: "2023-01-15",
-      },
-    ],
-    completedProjects: [
-      {
-        id: 1,
-        title: "Al Wakra Stadium Infrastructure",
-        client: "Qatar Sports Authority",
-        completedDate: "2023-11-15",
-        value: "$2.5M",
-        rating: 5,
-        review:
-          "Exceptional work quality and timely delivery. The team exceeded our expectations in every aspect of the project.",
-        reviewer: "Ahmed Al-Mansouri",
-        reviewDate: "2023-11-20",
-      },
-      {
-        id: 2,
-        title: "Doha Metro Station Construction",
-        client: "Qatar Rail Company",
-        completedDate: "2023-09-30",
-        value: "$1.8M",
-        rating: 4,
-        review:
-          "Professional execution with minor delays due to weather conditions. Overall satisfied with the outcome.",
-        reviewer: "Sarah Johnson",
-        reviewDate: "2023-10-05",
-      },
-      {
-        id: 3,
-        title: "Residential Complex - West Bay",
-        client: "Private Developer",
-        completedDate: "2023-08-22",
-        value: "$3.2M",
-        rating: 5,
-        review:
-          "Outstanding construction quality and attention to detail. Highly recommend for future projects.",
-        reviewer: "Mohammed Al-Thani",
-        reviewDate: "2023-08-25",
-      },
-    ],
-    postedTenders: [
-      {
-        id: 1,
-        title: "Office Building Renovation - Pearl Qatar",
-        datePosted: "2024-01-15",
-        status: "Active",
-        bidsReceived: 12,
-        budget: "$850K",
-        deadline: "2024-02-15",
-      },
-      {
-        id: 2,
-        title: "Warehouse Construction - Industrial Area",
-        datePosted: "2024-01-10",
-        status: "Active",
-        bidsReceived: 8,
-        budget: "$1.2M",
-        deadline: "2024-02-10",
-      },
-      {
-        id: 3,
-        title: "Shopping Mall Interior Design",
-        datePosted: "2023-12-20",
-        status: "Completed",
-        bidsReceived: 15,
-        budget: "$2.1M",
-        deadline: "2024-01-20",
-      },
-      {
-        id: 4,
-        title: "Hospital Equipment Installation",
-        datePosted: "2023-12-15",
-        status: "Completed",
-        bidsReceived: 6,
-        budget: "$950K",
-        deadline: "2024-01-15",
-      },
-      {
-        id: 5,
-        title: "School Building Maintenance",
-        datePosted: "2023-11-30",
-        status: "Completed",
-        bidsReceived: 9,
-        budget: "$650K",
-        deadline: "2023-12-30",
-      },
-    ],
+  const [userWithProfile, setUserWithProfile] =
+    useState<UserWithProfile | null>(null);
+  const [userBids, setUserBids] = useState<Bid[]>([]);
+  const [userTenders, setUserTenders] = useState<Tender[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Helper functions
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString();
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
+  const formatDateTime = (dateString: string) => {
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleString();
+  };
+
+  const formatBudget = (budget: number) => {
+    if (budget === 0) return "Not specified";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "QAR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(budget);
+  };
+
+  const getStatusBadge = (status: string, isBanned?: boolean) => {
+    if (isBanned) {
+      return (
+        <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+          {t("status_banned")}
+        </Badge>
+      );
+    }
+
+    switch (status.toLowerCase()) {
       case "active":
+      case "verified":
         return (
           <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            Active
-          </Badge>
-        );
-      case "suspended":
-        return (
-          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-            Suspended
+            {t("status_active")}
           </Badge>
         );
       case "pending":
         return (
           <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-            Pending
+            {t("status_pending")}
+          </Badge>
+        );
+      case "rejected":
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            {t("status_rejected")}
+          </Badge>
+        );
+      case "awarded":
+        return (
+          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+            {t("status_awarded")}
+          </Badge>
+        );
+      case "completed":
+        return (
+          <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
+            {t("status_completed")}
+          </Badge>
+        );
+      case "closed":
+        return (
+          <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+            {t("status_closed")}
           </Badge>
         );
       default:
@@ -193,24 +204,93 @@ export default function UserProfile() {
     }
   };
 
-  const getKycBadge = (status: string) => {
-    switch (status) {
+  const getKycStatusBadge = (status: string) => {
+    switch (status?.toLowerCase()) {
       case "verified":
         return (
           <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            Verified
+            {t("kyc_verified")}
           </Badge>
         );
       case "pending":
         return (
           <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-            Pending
+            {t("kyc_pending")}
           </Badge>
         );
       case "rejected":
         return (
           <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-            Rejected
+            {t("kyc_rejected")}
+          </Badge>
+        );
+      case "not submitted":
+      default:
+        return (
+          <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+            {t("kyc_not_submitted")}
+          </Badge>
+        );
+    }
+  };
+
+  const getBidStatusBadge = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "accepted":
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            {t("status_awarded")}
+          </Badge>
+        );
+      case "submitted":
+      case "under_review":
+        return (
+          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+            {t("status_submitted")}
+          </Badge>
+        );
+      case "rejected":
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            {t("status_rejected")}
+          </Badge>
+        );
+      case "completed":
+        return (
+          <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
+            {t("status_completed")}
+          </Badge>
+        );
+      case "pending":
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+            {t("status_pending")}
+          </Badge>
+        );
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getPaymentStatusBadge = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+      case "paid":
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            {t("payment_paid")}
+          </Badge>
+        );
+      case "pending":
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+            {t("payment_pending")}
+          </Badge>
+        );
+      case "failed":
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            {t("payment_failed")}
           </Badge>
         );
       default:
@@ -223,90 +303,260 @@ export default function UserProfile() {
       <Star
         key={i}
         className={`h-4 w-4 ${
-          i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
+          i < Math.floor(rating)
+            ? "text-yellow-400 fill-current"
+            : "text-gray-300"
         }`}
       />
     ));
   };
 
-  const getAnalyticsCards = () => {
-    if (activeTab === "service-providing") {
-      return [
-        {
-          title: "Completed Projects",
-          value: mockUser.serviceProvidingStats.completedProjects,
-          icon: FileText,
-        },
-        {
-          title: "Total Bids",
-          value: mockUser.serviceProvidingStats.totalBids,
-          icon: Building,
-        },
-        {
-          title: "Success Rate",
-          value: `${Math.round(
-            (mockUser.serviceProvidingStats.successfulBids /
-              mockUser.serviceProvidingStats.totalBids) *
-              100
-          )}%`,
-          icon: DollarSign,
-          color: "text-green-600",
-        },
-        {
-          title: "Total Value",
-          value: mockUser.serviceProvidingStats.totalValue,
-          icon: DollarSign,
-        },
-      ];
-    } else {
-      return [
-        {
-          title: "Total Tenders",
-          value: mockUser.projectPostingStats.totalTenders,
-          icon: FileText,
-        },
-        {
-          title: "Active Tenders",
-          value: mockUser.projectPostingStats.activeTenders,
-          icon: Building,
-        },
-        {
-          title: "Completed Tenders",
-          value: mockUser.projectPostingStats.completedTenders,
-          icon: DollarSign,
-          color: "text-green-600",
-        },
-        {
-          title: "Total Value",
-          value: mockUser.projectPostingStats.totalValue,
-          icon: DollarSign,
-        },
-      ];
+  // Fetch user data and profile
+  useEffect(() => {
+    if (!userId) {
+      setError("User ID is required");
+      setLoading(false);
+      return;
     }
+
+    const fetchUserData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch user data
+        const userResponse = await adminService.getUsers({
+          limit: 1,
+          _id: userId,
+        });
+
+        if (!userResponse.success || !userResponse.data.users?.length) {
+          throw new Error("User not found");
+        }
+
+        const userData = userResponse.data.users[0];
+
+        // Fetch profile data
+        const profileData = await profileApi.getProfileById(userId);
+        console.log("Fetched profile data:", profileData);
+        setUserWithProfile({
+          user: userData,
+          profile: profileData,
+        });
+
+        // Fetch user's bids
+        try {
+          const bidsResponse = await getUserBidsByAdmin(userId);
+
+          if (bidsResponse) {
+            setUserBids(bidsResponse || []);
+          }
+        } catch (bidsError) {
+          console.warn("Could not fetch user bids:", bidsError);
+          setUserBids([]);
+        }
+
+        // Fetch user's tenders (posted by this user)
+        try {
+          const tendersResponse = await getUserTenders(userId);
+
+          if (tendersResponse) {
+            setUserTenders(tendersResponse);
+          }
+        } catch (tendersError) {
+          console.warn("Could not fetch user tenders:", tendersError);
+          setUserTenders([]);
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load user data"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
+
+  if (loading) {
+    return (
+      <div className="space-y-6 p-4 sm:p-6">
+        {/* Header Skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Skeleton className="h-10 w-24" />
+            <div>
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-32 mt-2" />
+            </div>
+          </div>
+          <div className="flex space-x-2">
+            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-8 w-20" />
+          </div>
+        </div>
+
+        {/* Overview Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="shadow-0">
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Tabs Skeleton */}
+        <Card className="shadow-0">
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6 p-4 sm:p-6">
+        <Card className="shadow-0">
+          <CardContent className="py-8 text-center">
+            <div className="text-red-500 mb-4">
+              <AlertCircle className="h-12 w-12 mx-auto" />
+            </div>
+            <h3 className="text-lg font-medium text-red-600 mb-2">
+              Error Loading User Profile
+            </h3>
+            <p className="text-gray-600">{error}</p>
+            <Button onClick={() => router.back()} className="mt-4">
+              Go Back
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!userWithProfile) {
+    return (
+      <div className="space-y-6 p-4 sm:p-6">
+        <Card className="shadow-0">
+          <CardContent className="py-8 text-center">
+            <div className="text-gray-400 mb-4">
+              <FileText className="h-12 w-12 mx-auto" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-600 mb-2">
+              User Not Found
+            </h3>
+            <p className="text-gray-600">
+              The user profile you're looking for doesn't exist.
+            </p>
+            <Button onClick={() => router.back()} className="mt-4">
+              Go Back
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { user, profile } = userWithProfile;
+
+  // Calculate analytics for service providing tab
+  const getServiceProvidingAnalytics = () => {
+    const completedProjects = userBids.filter(
+      (bid) => bid.status === "completed"
+    ).length;
+    const totalBids = userBids.length;
+    const successfulBids = userBids.filter(
+      (bid) => bid.status === "accepted" || bid.status === "completed"
+    ).length;
+    const totalValue = userBids.reduce((sum, bid) => sum + bid.amount, 0);
+
+    return [
+      {
+        title: t("completed_projects"),
+        value: completedProjects,
+        icon: FileText,
+      },
+      {
+        title: t("total_bids"),
+        value: totalBids,
+        icon: Building,
+      },
+      {
+        title: t("success_rate"),
+        value:
+          totalBids > 0
+            ? `${Math.round((successfulBids / totalBids) * 100)}%`
+            : "0%",
+        icon: DollarSign,
+        color: "text-green-600",
+      },
+      {
+        title: t("total_value"),
+        value: formatBudget(totalValue),
+        icon: DollarSign,
+      },
+    ];
   };
 
-  const getTenderStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "active":
-        return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            Active
-          </Badge>
-        );
-      case "completed":
-        return (
-          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
-            Completed
-          </Badge>
-        );
-      case "cancelled":
-        return (
-          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-            Cancelled
-          </Badge>
-        );
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+  // Calculate analytics for project posting tab
+  const getProjectPostingAnalytics = () => {
+    const totalTenders = userTenders.length;
+    const activeTenders = userTenders.filter(
+      (tender) => tender.status === "active"
+    ).length;
+    const completedTenders = userTenders.filter(
+      (tender) => tender.status === "completed"
+    ).length;
+    const totalValue = userTenders.reduce(
+      (sum, tender) => sum + (tender.estimatedBudget || 0),
+      0
+    );
+
+    return [
+      {
+        title: t("total_tenders"),
+        value: totalTenders,
+        icon: FileText,
+      },
+      {
+        title: t("active_tenders"),
+        value: activeTenders,
+        icon: Building,
+      },
+      {
+        title: t("completed_tenders"),
+        value: completedTenders,
+        icon: DollarSign,
+        color: "text-green-600",
+      },
+      {
+        title: t("total_value"),
+        value: formatBudget(totalValue),
+        icon: DollarSign,
+      },
+    ];
+  };
+
+  const getAnalyticsCards = () => {
+    if (activeTab === "service-providing") {
+      return getServiceProvidingAnalytics();
+    } else {
+      return getProjectPostingAnalytics();
     }
   };
 
@@ -321,27 +571,33 @@ export default function UserProfile() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              {mockUser.name}
+              {profile.companyName ||
+                profile.fullName ||
+                profile.adminName ||
+                user.email}
             </h1>
             <div className="flex items-center space-x-4 mt-1">
               <p className="text-gray-600">
-                {mockUser.id} • {mockUser.type}
+                ID: {user._id} • {t(`user_${user.userType}`)}
               </p>
               <div className="flex items-center space-x-1">
-                <div className="flex">
-                  {renderStars(Math.floor(mockUser.rating))}
-                </div>
-                <span className="text-sm font-medium">{mockUser.rating}</span>
+                <div className="flex">{renderStars(profile.rating || 0)}</div>
+                <span className="text-sm font-medium">
+                  {profile.rating?.toFixed(1) || "0.0"}
+                </span>
                 <span className="text-sm text-gray-500">
-                  ({mockUser.reviewCount} reviews)
+                  ({profile.ratingCount || 0} {t("reviews")})
                 </span>
               </div>
             </div>
           </div>
         </div>
         <div className="flex space-x-2">
-          {getStatusBadge(mockUser.status)}
-          {getKycBadge(mockUser.documents[0].status)}
+          {getStatusBadge(
+            user.isVerified ? "verified" : "pending",
+            user.isBanned
+          )}
+          {getKycStatusBadge(user.isDocumentVerified || "Not Submitted")}
         </div>
       </div>
 
@@ -384,8 +640,9 @@ export default function UserProfile() {
           <TabsTrigger value="project-posting">
             {t("project_posting")}
           </TabsTrigger>
-          <TabsTrigger value="profile">{t("profile")}</TabsTrigger>
-          <TabsTrigger value="documents">{t("documents")}</TabsTrigger>
+          <TabsTrigger value="profile-documents">
+            {t("profile_documents")}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="service-providing" className="space-y-6">
@@ -394,139 +651,54 @@ export default function UserProfile() {
               <CardTitle>{t("bids_made")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("project_title")}</TableHead>
-                    <TableHead>{t("bid_amount")}</TableHead>
-                    <TableHead>{t("date_submitted")}</TableHead>
-                    <TableHead>{t("status")}</TableHead>
-                    <TableHead>{t("client")}</TableHead>
-                    <TableHead>{t("actions")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {[
-                    {
-                      id: 1,
-                      title: "E-commerce Website Development",
-                      bidAmount: "45,000 QAR",
-                      dateSubmitted: "2024-01-15",
-                      status: "Won",
-                      client: "Tech Solutions Ltd",
-                    },
-                    {
-                      id: 2,
-                      title: "Mobile App UI/UX Design",
-                      bidAmount: "28,000 QAR",
-                      dateSubmitted: "2024-01-10",
-                      status: "Under Review",
-                      client: "StartupCorp",
-                    },
-                    {
-                      id: 3,
-                      title: "Database Migration Project",
-                      bidAmount: "35,000 QAR",
-                      dateSubmitted: "2024-01-08",
-                      status: "Rejected",
-                      client: "Enterprise Inc",
-                    },
-                    {
-                      id: 4,
-                      title: "Cloud Infrastructure Setup",
-                      bidAmount: "52,000 QAR",
-                      dateSubmitted: "2024-01-05",
-                      status: "Won",
-                      client: "CloudTech Solutions",
-                    },
-                  ].map((bid) => (
-                    <TableRow key={bid.id}>
-                      <TableCell className="font-medium">{bid.title}</TableCell>
-                      <TableCell className="font-medium text-green-600">
-                        {bid.bidAmount}
-                      </TableCell>
-                      <TableCell>{bid.dateSubmitted}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            bid.status === "Won"
-                              ? "default"
-                              : bid.status === "Under Review"
-                              ? "secondary"
-                              : "destructive"
-                          }
-                        >
-                          {bid.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{bid.client}</TableCell>
-                      <TableCell>
-                        <Link href={"/admin/bids/BID-006"}>
-                          <Button variant="outline" size="sm">
-                            {t("view_details")}
-                          </Button>
-                        </Link>
-                      </TableCell>
+              {userBids.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                  <p className="text-lg font-medium">No bids found</p>
+                  <p className="text-sm">
+                    This user hasn't submitted any bids yet
+                  </p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t("project_title")}</TableHead>
+                      <TableHead>{t("bid_amount")}</TableHead>
+                      <TableHead>{t("date_submitted")}</TableHead>
+                      <TableHead>{t("status")}</TableHead>
+                      <TableHead>{t("payment_status")}</TableHead>
+                      <TableHead>{t("actions")}</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-          <Card className="shadow-0">
-            <CardHeader>
-              <CardTitle>{t("completed_projects_reviews")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {mockUser.completedProjects.map((project) => (
-                  <div
-                    key={project.id}
-                    className="border rounded-lg p-6 space-y-4"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {project.title}
-                        </h3>
-                        <p className="text-gray-600">
-                          Client: {project.client}
-                        </p>
-                        <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                          <span>Completed: {project.completedDate}</span>
-                          <span>Value: {project.value}</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center space-x-1 mb-1">
-                          {renderStars(project.rating)}
-                          <span className="text-sm font-medium ml-1">
-                            {project.rating}.0
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-1">
-                          <p className="text-gray-700 italic">
-                            "{project.review}"
-                          </p>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-sm font-medium text-gray-900">
-                              - {project.reviewer}
-                            </span>
-                            <span className="text-sm text-gray-500">
-                              {project.reviewDate}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  </TableHeader>
+                  <TableBody>
+                    {userBids.map((bid) => (
+                      <TableRow key={bid._id}>
+                        <TableCell className="font-medium">
+                          {/* We would need to fetch tender details to show title */}
+                          Bid #{bid._id.substring(0, 8)}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {formatBudget(bid.amount)}
+                        </TableCell>
+                        <TableCell>{formatDate(bid.createdAt)}</TableCell>
+                        <TableCell>{getBidStatusBadge(bid.status)}</TableCell>
+                        <TableCell>
+                          {getPaymentStatusBadge(bid.paymentStatus)}
+                        </TableCell>
+                        <TableCell>
+                          <Link href={`/admin/bids/${bid._id}`}>
+                            <Button variant="outline" size="sm">
+                              <Eye className="h-4 w-4 mr-2" />
+                              {t("view_details")}
+                            </Button>
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -537,288 +709,485 @@ export default function UserProfile() {
               <CardTitle>{t("posted_tenders")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("project_title")}</TableHead>
-                    <TableHead>{t("date_posted")}</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>{t("bids_received")}</TableHead>
-                    <TableHead>Budget</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mockUser.postedTenders.map((tender) => (
-                    <TableRow key={tender.id}>
-                      <TableCell className="font-medium">
-                        {tender.title}
-                      </TableCell>
-                      <TableCell>{tender.datePosted}</TableCell>
-                      <TableCell>
-                        {getTenderStatusBadge(tender.status)}
-                      </TableCell>
-                      <TableCell>{tender.bidsReceived}</TableCell>
-                      <TableCell className="font-medium">
-                        {tender.budget}
-                      </TableCell>
-                      <TableCell>
-                        <Link href={"/admin/tenders/TND-001"}>
-                          <Button variant="outline" size="sm">
-                            {t("view_details")}
-                          </Button>
-                        </Link>
-                      </TableCell>
+              {userTenders.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                  <p className="text-lg font-medium">No tenders found</p>
+                  <p className="text-sm">
+                    This user hasn't posted any tenders yet
+                  </p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t("project_title")}</TableHead>
+                      <TableHead>{t("date_posted")}</TableHead>
+                      <TableHead>{t("status")}</TableHead>
+                      <TableHead>{t("bids_received")}</TableHead>
+                      <TableHead>{t("budget")}</TableHead>
+                      <TableHead>{t("actions")}</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-0">
-            <CardHeader>
-              <CardTitle>{t("client_reviews_ratings")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {[
-                  {
-                    id: 1,
-                    project: "Corporate Website Redesign",
-                    client: "Business Corp Ltd",
-                    rating: 5,
-                    review:
-                      "Excellent project management and delivery. The team was professional and delivered exactly what we needed on time and within budget.",
-                    reviewer: "Sarah Johnson, Project Manager",
-                    reviewDate: "2024-01-20",
-                    completedDate: "2024-01-18",
-                    value: "75,000 QAR",
-                  },
-                  {
-                    id: 2,
-                    project: "Mobile App Development",
-                    client: "TechStart Solutions",
-                    rating: 4,
-                    review:
-                      "Great technical expertise and communication throughout the project. Minor delays but overall satisfied with the quality of work delivered.",
-                    reviewer: "Ahmed Al-Rashid, CTO",
-                    reviewDate: "2024-01-15",
-                    completedDate: "2024-01-12",
-                    value: "95,000 QAR",
-                  },
-                  {
-                    id: 3,
-                    project: "E-commerce Platform",
-                    client: "Retail Innovations",
-                    rating: 5,
-                    review:
-                      "Outstanding work! The platform exceeded our expectations and has significantly improved our online sales. Highly recommended.",
-                    reviewer: "Maria Rodriguez, CEO",
-                    reviewDate: "2024-01-10",
-                    completedDate: "2024-01-08",
-                    value: "120,000 QAR",
-                  },
-                ].map((review) => (
-                  <div
-                    key={review.id}
-                    className="border rounded-lg p-6 space-y-4"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {review.project}
-                        </h3>
-                        <p className="text-gray-600">Client: {review.client}</p>
-                        <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                          <span>Completed: {review.completedDate}</span>
-                          <span>Value: {review.value}</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center space-x-1 mb-1">
-                          {renderStars(review.rating)}
-                          <span className="text-sm font-medium ml-1">
-                            {review.rating}.0
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-1">
-                          <p className="text-gray-700 italic">
-                            "{review.review}"
-                          </p>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-sm font-medium text-gray-900">
-                              - {review.reviewer}
-                            </span>
-                            <span className="text-sm text-gray-500">
-                              {review.reviewDate}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  </TableHeader>
+                  <TableBody>
+                    {userTenders.map((tender) => (
+                      <TableRow key={tender._id}>
+                        <TableCell className="font-medium">
+                          {tender.title}
+                        </TableCell>
+                        <TableCell>{formatDate(tender.createdAt)}</TableCell>
+                        <TableCell>{getStatusBadge(tender.status)}</TableCell>
+                        <TableCell>{tender.bidCount || 0}</TableCell>
+                        <TableCell className="font-medium">
+                          {formatBudget(tender.estimatedBudget)}
+                        </TableCell>
+                        <TableCell>
+                          <Link href={`/admin/tenders/${tender._id}`}>
+                            <Button variant="outline" size="sm">
+                              <Eye className="h-4 w-4 mr-2" />
+                              {t("view_details")}
+                            </Button>
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="profile" className="space-y-6">
+        <TabsContent value="profile-documents" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Basic Information */}
+            {/* Profile Information */}
             <Card className="shadow-0">
               <CardHeader>
-                <CardTitle>{t("basic_information")}</CardTitle>
+                <CardTitle>{t("user_profile")}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <User className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-600">{t("company_name")}</p>
-                    <p className="font-medium">
-                      {mockUser.businessDetails.companyName}
-                    </p>
+              <CardContent className="space-y-6">
+                {/* Basic Information */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    {t("basic_information")}
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <User className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {user.userType === "business"
+                            ? t("company_name")
+                            : user.userType === "individual"
+                            ? t("full_name")
+                            : t("admin_name")}
+                        </p>
+                        <p className="font-medium">
+                          {profile.companyName ||
+                            profile.fullName ||
+                            profile.adminName ||
+                            "N/A"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <Mail className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {t("email")}
+                        </p>
+                        <p className="font-medium">
+                          {profile.companyEmail ||
+                            profile.personalEmail ||
+                            user.email}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <Phone className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {t("phone")}
+                        </p>
+                        <p className="font-medium">{profile.phone || "N/A"}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3">
+                      <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {t("address")}
+                        </p>
+                        <p className="text-gray-900">
+                          {profile.address || "Not provided"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {t("join_date")}
+                        </p>
+                        <p className="font-medium">
+                          {formatDate(user.createdAt)}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-600">Email</p>
-                    <p className="font-medium text-blue-600">
-                      {mockUser.email}
-                    </p>
-                  </div>
-                </div>
+                {/* User Type Specific Details */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    {user.userType === "business"
+                      ? t("business_details")
+                      : user.userType === "individual"
+                      ? t("individual_details")
+                      : t("admin_details")}
+                  </h3>
+                  <div className="space-y-4">
+                    {user.userType === "business" && (
+                      <>
+                        <div className="flex items-center space-x-3">
+                          <Building className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              {t("company_name")}
+                            </p>
+                            <p className="font-medium">
+                              {profile.companyName || "N/A"}
+                            </p>
+                          </div>
+                        </div>
 
-                <div className="flex items-center space-x-3">
-                  <Phone className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-600">Phone</p>
-                    <p className="font-medium">{mockUser.phone}</p>
-                  </div>
-                </div>
+                        <div className="flex items-center space-x-3">
+                          <User className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              {t("contact_person")}
+                            </p>
+                            <p className="font-medium">
+                              {profile.contactPersonName || "N/A"}
+                            </p>
+                          </div>
+                        </div>
 
-                <div className="flex items-center space-x-3">
-                  <MapPin className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-600">Address</p>
-                    <p className="font-medium">
-                      {mockUser.businessDetails.companyPhone}
-                    </p>
-                  </div>
-                </div>
+                        <div className="flex items-center space-x-3">
+                          <Mail className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              {t("company_email")}
+                            </p>
+                            <p className="font-medium">
+                              {profile.companyEmail || "N/A"}
+                            </p>
+                          </div>
+                        </div>
 
-                <div className="flex items-center space-x-3">
-                  <Calendar className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-600">{t("join_date")}</p>
-                    <p className="font-medium">{mockUser.joinDate}</p>
+                        <div className="flex items-start space-x-3">
+                          <FileText className="h-5 w-5 text-gray-400 mt-0.5" />
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              {t("company_description")}
+                            </p>
+                            <p className="text-gray-900">
+                              {profile.companyDesc || "Not provided"}
+                            </p>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {user.userType === "individual" && (
+                      <>
+                        <div className="flex items-center space-x-3">
+                          <User className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              {t("full_name")}
+                            </p>
+                            <p className="font-medium">
+                              {profile.fullName ||
+                                profile.contactPersonName ||
+                                "N/A"}
+                            </p>
+                          </div>
+                        </div>
+
+                   
+                      </>
+                    )}
+
+                    {user.userType === "admin" && (
+                      <>
+                        <div className="flex items-center space-x-3">
+                          <User className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              {t("admin_name")}
+                            </p>
+                            <p className="font-medium">
+                              {profile.adminName || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-3">
+                          <Building className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">
+                              {t("position")}
+                            </p>
+                            <p className="font-medium">
+                              {profile.adminPosition || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    <div className="flex items-center space-x-3">
+                      <CheckCircle className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {t("account_status")}
+                        </p>
+                        <div className="flex items-center">
+                          {getStatusBadge(
+                            user.isVerified ? "verified" : "pending",
+                            user.isBanned
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <FileText className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {t("kyc_status")}
+                        </p>
+                        <div className="flex items-center">
+                          {getKycStatusBadge(
+                            user.isDocumentVerified || "Not Submitted"
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {user.isBanned && user.banReason && (
+                      <div className="flex items-start space-x-3">
+                        <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+                        <div>
+                          <p className="text-sm text-gray-600 mb-1">
+                            {t("ban_reason")}
+                          </p>
+                          <p className="text-red-600 font-medium">
+                            {user.banReason}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Business Details */}
+            {/* Documents Section */}
             <Card className="shadow-0">
               <CardHeader>
-                <CardTitle>{t("business_details")}</CardTitle>
+                <CardTitle>{t("kyc_documents")}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600">{t("company_name")}</p>
-                    <p className="font-medium">
-                      {mockUser.businessDetails.companyName}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      {t("contact_person_name")}
-                    </p>
-                    <p className="font-medium">
-                      {mockUser.businessDetails.contactPersonName}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      {t("personal_email")}
-                    </p>
-                    <p className="font-medium">
-                      {mockUser.businessDetails.personalEmail}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      {t("company_email")}
-                    </p>
-                    <p className="font-medium">
-                      {mockUser.businessDetails.companyEmail}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      {t("company_phone")}
-                    </p>
-                    <p className="font-medium">
-                      {mockUser.businessDetails.companyPhone}
-                    </p>
-                  </div>
-                </div>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t("document_name")}</TableHead>
+                      <TableHead>{t("status")}</TableHead>
+                      <TableHead>{t("actions")}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {user.userType === "business" && (
+                      <>
+                        <TableRow>
+                          <TableCell className="font-medium">
+                            {t("commercial_registration")}
+                          </TableCell>
+                          <TableCell>
+                            {profile.commercialRegistrationNumber ? (
+                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                {t("document_provided")}
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                {t("document_not_provided")}
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {profile.commercialRegistrationDoc ? (
+                              <Button variant="outline" size="sm">
+                                {t("view")}
+                              </Button>
+                            ) : (
+                              <Button variant="outline" size="sm" disabled>
+                                {t("not_available")}
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">
+                            {t("commercial_registration_document")}
+                          </TableCell>
+                          <TableCell>
+                            {profile.commercialRegistrationDoc ? (
+                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                {t("document_uploaded")}
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                {t("document_not_uploaded")}
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {profile.commercialRegistrationDoc ? (
+                              <Button variant="outline" size="sm">
+                                {t("view")}
+                              </Button>
+                            ) : (
+                              <Button variant="outline" size="sm" disabled>
+                                {t("not_available")}
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      </>
+                    )}
 
-                <div>
-                  <p className="text-sm text-gray-600">
-                    {t("company_description")}
-                  </p>
-                  <p className="font-medium">
-                    {mockUser.businessDetails.companyDescription}
-                  </p>
-                </div>
+                    {user.userType === "individual" && (
+                      <>
+                        <TableRow>
+                          <TableCell className="font-medium">
+                            {t("national_id")}
+                          </TableCell>
+                          <TableCell>
+                            {profile.nationalId ? (
+                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                {t("document_provided")}
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                {t("document_not_provided")}
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {profile.nationalId ? (
+                              <Button variant="outline" size="sm">
+                                {t("view")}
+                              </Button>
+                            ) : (
+                              <Button variant="outline" size="sm" disabled>
+                                {t("not_available")}
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">
+                            {t("national_id_front")}
+                          </TableCell>
+                          <TableCell>
+                            {profile.nationalIdFront ? (
+                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                {t("document_uploaded")}
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                {t("document_not_uploaded")}
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {profile.nationalIdFront ? (
+                              <Button variant="outline" size="sm">
+                                {t("view")}
+                              </Button>
+                            ) : (
+                              <Button variant="outline" size="sm" disabled>
+                                {t("not_available")}
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">
+                            {t("national_id_back")}
+                          </TableCell>
+                          <TableCell>
+                            {profile.nationalIdBack ? (
+                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                {t("document_uploaded")}
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                {t("document_not_uploaded")}
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {profile.nationalIdBack ? (
+                              <Button variant="outline" size="sm">
+                                {t("view")}
+                              </Button>
+                            ) : (
+                              <Button variant="outline" size="sm" disabled>
+                                {t("not_available")}
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      </>
+                    )}
+
+                    {user.userType === "admin" && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={3}
+                          className="text-center py-8 text-gray-500"
+                        >
+                          <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                          <p>{t("no_documents_required_for_admin")}</p>
+                        </TableCell>
+                      </TableRow>
+                    )}
+
+                    {user.userType !== "business" &&
+                      user.userType !== "individual" &&
+                      user.userType !== "admin" && (
+                        <TableRow>
+                          <TableCell
+                            colSpan={3}
+                            className="text-center py-8 text-gray-500"
+                          >
+                            <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                            <p>{t("no_documents_available")}</p>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
           </div>
-
-          {/* Contact Person */}
-        </TabsContent>
-
-        <TabsContent value="documents">
-          <Card className="shadow-0">
-            <CardHeader>
-              <CardTitle>{t("kyc_documents")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("document_name")}</TableHead>
-                    <TableHead>{t("upload_date")}</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mockUser.documents.map((doc, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{doc.name}</TableCell>
-                      <TableCell>{doc.uploadDate}</TableCell>
-                      <TableCell>{getKycBadge(doc.status)}</TableCell>
-                      <TableCell>
-                        <Button variant="outline" size="sm">
-                          View
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

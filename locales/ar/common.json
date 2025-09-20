@@ -968,5 +968,6 @@
   "target": "الهدف",
   "reason": "السبب",
   "timestamp": "الوقت",
+  "status_rejected": "مرفوض",
   "status_closed": "مغلق"
 }
