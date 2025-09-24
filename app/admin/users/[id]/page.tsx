@@ -577,9 +577,7 @@ export default function UserProfile() {
                 user.email}
             </h1>
             <div className="flex items-center space-x-4 mt-1">
-              <p className="text-gray-600">
-                ID: {user._id} • {t(`user_${user.userType}`)}
-              </p>
+              <p className="text-gray-600">• {t(`user_${profile.userType}`)}</p>
               <div className="flex items-center space-x-1">
                 <div className="flex">{renderStars(profile.rating || 0)}</div>
                 <span className="text-sm font-medium">
@@ -776,9 +774,9 @@ export default function UserProfile() {
                       <User className="h-5 w-5 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-600 mb-1">
-                          {user.userType === "business"
+                          {profile.userType === "business"
                             ? t("company_name")
-                            : user.userType === "individual"
+                            : profile.userType === "individual"
                             ? t("full_name")
                             : t("admin_name")}
                         </p>
@@ -844,14 +842,14 @@ export default function UserProfile() {
                 {/* User Type Specific Details */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    {user.userType === "business"
+                    {profile.userType === "business"
                       ? t("business_details")
-                      : user.userType === "individual"
+                      : profile.userType === "individual"
                       ? t("individual_details")
                       : t("admin_details")}
                   </h3>
                   <div className="space-y-4">
-                    {user.userType === "business" && (
+                    {profile.userType === "business" && (
                       <>
                         <div className="flex items-center space-x-3">
                           <Building className="h-5 w-5 text-gray-400" />
@@ -903,7 +901,7 @@ export default function UserProfile() {
                       </>
                     )}
 
-                    {user.userType === "individual" && (
+                    {profile.userType === "individual" && (
                       <>
                         <div className="flex items-center space-x-3">
                           <User className="h-5 w-5 text-gray-400" />
@@ -918,12 +916,10 @@ export default function UserProfile() {
                             </p>
                           </div>
                         </div>
-
-                   
                       </>
                     )}
 
-                    {user.userType === "admin" && (
+                    {profile.userType === "admin" && (
                       <>
                         <div className="flex items-center space-x-3">
                           <User className="h-5 w-5 text-gray-400" />
@@ -1013,7 +1009,7 @@ export default function UserProfile() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {user.userType === "business" && (
+                    {profile.userType === "business" && (
                       <>
                         <TableRow>
                           <TableCell className="font-medium">
@@ -1072,7 +1068,7 @@ export default function UserProfile() {
                       </>
                     )}
 
-                    {user.userType === "individual" && (
+                    {profile.userType === "individual" && (
                       <>
                         <TableRow>
                           <TableCell className="font-medium">
@@ -1158,7 +1154,7 @@ export default function UserProfile() {
                       </>
                     )}
 
-                    {user.userType === "admin" && (
+                    {profile.userType === "admin" && (
                       <TableRow>
                         <TableCell
                           colSpan={3}
@@ -1170,9 +1166,9 @@ export default function UserProfile() {
                       </TableRow>
                     )}
 
-                    {user.userType !== "business" &&
-                      user.userType !== "individual" &&
-                      user.userType !== "admin" && (
+                    {profile.userType !== "business" &&
+                      profile.userType !== "individual" &&
+                      profile.userType !== "admin" && (
                         <TableRow>
                           <TableCell
                             colSpan={3}

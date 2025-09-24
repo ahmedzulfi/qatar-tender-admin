@@ -1,10 +1,12 @@
+// app/admin/kyc/page.tsx
 "use client";
 
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -20,6 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -28,9 +33,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useTranslation } from "../lib/hooks/useTranslation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,762 +47,1206 @@ import {
 import {
   Search,
   Eye,
-  Check,
-  X,
-  FileText,
-  Download,
   Building,
   User,
+  FileText,
   Clock,
   CheckCircle,
   XCircle,
-  AlertTriangle,
+  AlertCircle,
+  Download,
+  MapPin,
+  Calendar,
+  Mail,
+  Phone,
+  RefreshCw,
 } from "lucide-react";
+import Link from "next/link";
+import { useTranslation } from "@/lib/hooks/useTranslation";
+import {
+  getPendingVerifications,
+  verifyUserDocuments,
+} from "@/services/verificationService";
+import { adminService } from "@/services/adminService";
 
-const mockKycRequests = [
-  {
-    id: "KYC-001",
-    userId: "BUS-004",
-    userName: "Suspicious Vendor LLC",
-    userType: "Business",
-    email: "contact@suspicious.com",
-    submittedDate: "2023-12-01",
-    status: "pending",
-    documents: [
-      {
-        name: "trade-license.pdf",
-        type: "Trade License",
-        size: "2.4 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-      {
-        name: "tax-certificate.pdf",
-        type: "Tax Certificate",
-        size: "1.8 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-    ],
-    notes: "Initial KYC submission for new business registration.",
-    priority: "high",
-  },
-  {
-    id: "KYC-002",
-    userId: "IND-003",
-    userName: "Mohammed Al-Kuwari",
-    userType: "Individual",
-    email: "mohammed.kuwari@email.com",
-    submittedDate: "2023-11-15",
-    status: "pending",
-    documents: [
-      {
-        name: "qid-copy.pdf",
-        type: "Qatar ID",
-        size: "1.2 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-      {
-        name: "bank-statement.pdf",
-        type: "Bank Statement",
-        size: "3.1 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-    ],
-    notes: "Individual contractor KYC verification.",
-    priority: "medium",
-  },
-  {
-    id: "KYC-003",
-    userId: "BUS-005",
-    userName: "New Construction LLC",
-    userType: "Business",
-    email: "info@newconstruction.qa",
-    submittedDate: "2023-12-10",
-    status: "under_review",
-    documents: [
-      {
-        name: "trade-license.pdf",
-        type: "Trade License",
-        size: "2.1 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-      {
-        name: "company-profile.pdf",
-        type: "Company Profile",
-        size: "4.5 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-      {
-        name: "insurance-certificate.pdf",
-        type: "Insurance Certificate",
-        size: "1.9 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-    ],
-    notes: "Construction company with good credentials. Under detailed review.",
-    priority: "medium",
-  },
-  {
-    id: "KYC-004",
-    userId: "IND-005",
-    userName: "Aisha Al-Naimi",
-    userType: "Individual",
-    email: "aisha.naimi@email.com",
-    submittedDate: "2023-12-12",
-    status: "pending",
-    documents: [
-      {
-        name: "qid-copy.pdf",
-        type: "Qatar ID",
-        size: "1.1 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-      {
-        name: "professional-certificate.pdf",
-        type: "Professional Certificate",
-        size: "2.3 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-    ],
-    notes: "Professional consultant seeking individual verification.",
-    priority: "low",
-  },
-  {
-    id: "KYC-005",
-    userId: "BUS-006",
-    userName: "Tech Innovations Qatar",
-    userType: "Business",
-    email: "admin@techinnovations.qa",
-    submittedDate: "2023-12-14",
-    status: "pending",
-    documents: [
-      {
-        name: "trade-license.pdf",
-        type: "Trade License",
-        size: "2.2 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-      {
-        name: "technical-certifications.pdf",
-        type: "Technical Certifications",
-        size: "3.8 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-      {
-        name: "financial-statement.pdf",
-        type: "Financial Statement",
-        size: "2.7 MB",
-        url: "/placeholder.svg?height=400&width=600",
-      },
-    ],
-    notes: "Technology company with comprehensive documentation.",
-    priority: "high",
-  },
-];
+// Types based on your schemas
+interface User {
+  _id: string;
+  email: string;
+  userType: "individual" | "business" | "admin";
+  isVerified: boolean;
+  isDocumentVerified?: "Not Submitted" | "pending" | "verified" | "rejected";
+  isBanned?: boolean;
+  banReason?: string;
+  createdAt: string;
+  updatedAt: string;
+  profile?: {
+    fullName?: string;
+    phone?: string;
+    address?: string;
+    companyName?: string;
+    commercialRegistrationNumber?: string;
+    nationalId?: string;
+    nationalIdFront?: string;
+    nationalIdBack?: string;
+  };
+}
 
-// Types
+interface KycRequest {
+  _id: string;
+  email: string;
+  userType: "individual" | "business" | "admin";
+  isVerified: boolean;
+  isDocumentVerified?: "Not Submitted" | "pending" | "verified" | "rejected";
+  isBanned?: boolean;
+  banReason?: string;
+  createdAt: string;
+  updatedAt: string;
+  profile?: {
+    fullName?: string;
+    phone?: string;
+    address?: string;
+    companyName?: string;
+    commercialRegistrationNumber?: string;
+    nationalId?: string;
+    nationalIdFront?: string;
+    nationalIdBack?: string;
+  };
+  documents: {
+    nationalId?: string;
+    nationalIdFront?: string;
+    nationalIdBack?: string;
+    commercialRegistrationNumber?: string;
+    commercialRegistrationDoc?: string;
+  };
+}
 
-type KycRequest = (typeof mockKycRequests)[number];
-type Document = KycRequest["documents"][number];
-
-type StatusFilter =
-  | "all"
-  | "pending"
-  | "under_review"
-  | "approved"
-  | "rejected";
-type TypeFilter = "all" | "business" | "individual";
-type PriorityFilter = "all" | "high" | "medium" | "low";
-
-export function KycContent() {
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
-  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("all");
+export default function KycContent() {
+  const { t } = useTranslation();
+  const [kycRequests, setKycRequests] = useState<KycRequest[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<KycRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [selectedRequest, setSelectedRequest] = useState<KycRequest | null>(
     null
   );
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
-    null
-  );
-  const [rejectionReason, setRejectionReason] = useState<string>("");
-  const [approvalNotes, setApprovalNotes] = useState<string>("");
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [approvalNotes, setApprovalNotes] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
-  const filteredRequests = mockKycRequests.filter((request) => {
-    const matchesSearch =
-      request.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.id.toLowerCase().includes(searchTerm.toLowerCase());
+  // Fetch KYC requests
+  useEffect(() => {
+    const fetchKycRequests = async () => {
+      setLoading(true);
+      setError(null);
 
-    const matchesStatus =
-      statusFilter === "all" || request.status === statusFilter;
+      try {
+        const response = await getPendingVerifications();
+        console.log("KYC Requests fetched:", response);
 
-    // userType in data is "Business"/"Individual" - normalize for comparison
-    const matchesType =
-      typeFilter === "all" ||
-      request.userType.toLowerCase() === typeFilter.toLowerCase();
+        if (Array.isArray(response)) {
+          setKycRequests(response);
+          setFilteredRequests(response);
+        } else {
+          throw new Error("Invalid response format");
+        }
+      } catch (err) {
+        console.error("Error fetching KYC requests:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load KYC requests"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const matchesPriority =
-      priorityFilter === "all" || request.priority === priorityFilter;
+    fetchKycRequests();
+  }, []);
 
-    return matchesSearch && matchesStatus && matchesType && matchesPriority;
-  });
+  // Apply filters
+  useEffect(() => {
+    let result = [...kycRequests];
 
-  const getStatusBadge = (status: string): React.ReactNode => {
-    switch (status) {
+    // Apply search filter
+    if (searchTerm) {
+      result = result.filter(
+        (request) =>
+          request.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          request.profile?.fullName
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          request.profile?.companyName
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter !== "all") {
+      result = result.filter(
+        (request) => request.isDocumentVerified === statusFilter
+      );
+    }
+
+    // Apply type filter
+    if (typeFilter !== "all") {
+      result = result.filter((request) => request.userType === typeFilter);
+    }
+
+    setFilteredRequests(result);
+  }, [searchTerm, statusFilter, typeFilter, kycRequests]);
+
+  // Handle document verification
+  const handleVerifyDocument = async (
+    userId: string,
+    status: "verified" | "rejected"
+  ) => {
+    setActionLoading(true);
+    try {
+      const response = await verifyUserDocuments(
+        userId,
+        status,
+        status === "rejected" ? rejectionReason : undefined
+      );
+
+      console.log("Verification response:", response);
+
+      // Update local state
+      setKycRequests((prev) =>
+        prev.map((req) =>
+          req._id === userId ? { ...req, isDocumentVerified: status } : req
+        )
+      );
+
+      setFilteredRequests((prev) =>
+        prev.map((req) =>
+          req._id === userId ? { ...req, isDocumentVerified: status } : req
+        )
+      );
+
+      // Close dialog
+      setSelectedRequest(null);
+      setRejectionReason("");
+    } catch (err) {
+      console.error("Error verifying document:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to verify document"
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Get status badge
+  const getStatusBadge = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "verified":
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            {t("kyc_verified")}
+          </Badge>
+        );
       case "pending":
         return (
           <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-            Pending
-          </Badge>
-        );
-      case "under_review":
-        return (
-          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
-            {t("under_review")}
-          </Badge>
-        );
-      case "approved":
-        return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            Approved
+            {t("kyc_pending")}
           </Badge>
         );
       case "rejected":
         return (
           <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-            Rejected
+            {t("kyc_rejected")}
           </Badge>
         );
+      case "not submitted":
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return (
+          <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+            {t("kyc_not_submitted")}
+          </Badge>
+        );
     }
   };
 
-  const getPriorityBadge = (priority: string): React.ReactNode => {
-    switch (priority) {
-      case "high":
+  // Get user type badge
+  const getUserTypeBadge = (userType: string) => {
+    switch (userType?.toLowerCase()) {
+      case "individual":
         return (
-          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-            High
+          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+            {t("user_individual")}
           </Badge>
         );
-      case "medium":
+      case "business":
         return (
-          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-            Medium
+          <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
+            {t("user_business")}
           </Badge>
         );
-      case "low":
+      case "admin":
         return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            Low
+          <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100">
+            {t("user_admin")}
           </Badge>
         );
       default:
-        return <Badge variant="outline">{priority}</Badge>;
+        return <Badge variant="outline">{userType}</Badge>;
     }
   };
-  const { t } = useTranslation();
 
-  const handleApprove = (requestId: string) => {
-    console.log(
-      "Approving KYC request:",
-      requestId,
-      "with notes:",
-      approvalNotes
-    );
-    setApprovalNotes("");
+  // Format date
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString();
   };
 
-  const handleReject = (requestId: string) => {
-    console.log(
-      "Rejecting KYC request:",
-      requestId,
-      "with reason:",
-      rejectionReason
-    );
-    setRejectionReason("");
+  // Open document in new tab
+  const openDocument = (url: string) => {
+    if (url) {
+      window.open(url, "_blank");
+    }
   };
 
-  const getDaysAgo = (date: string): number => {
-    const today = new Date();
-    const submittedDate = new Date(date);
-    const diffTime = today.getTime() - submittedDate.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-  return (
-    <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("total_requests")}
-            </CardTitle>
-            <FileText className="h-4 w-4 text-gray-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              {mockKycRequests.length}
+  if (loading) {
+    return (
+      <div className="space-y-6 p-4 sm:p-6">
+        {/* Header Skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Skeleton className="h-10 w-32" />
+            <div>
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-32 mt-2" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {t("all_kyc_submissions")}
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="flex items-center space-x-3">
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("pending_review")}
-            </CardTitle>
-            <Clock className="h-4 w-4 text-gray-400" />
+        {/* Filters Skeleton */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Skeleton className="h-10 flex-1" />
+          <Skeleton className="h-10 w-full sm:w-[180px]" />
+          <Skeleton className="h-10 w-full sm:w-[180px]" />
+        </div>
+
+        {/* Stats Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card
+              key={i}
+              className="shadow-0 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50"
+            >
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-4 w-20" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* KYC Requests Table Skeleton */}
+        <Card className="shadow-0 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
-              {
-                mockKycRequests.filter(
-                  (r) => r.status === "pending" || r.status === "under_review"
-                ).length
-              }
+            <div className="rounded-lg border border-gray-100/50 overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50/50">
+                    {[...Array(5)].map((_, i) => (
+                      <TableHead key={i}>
+                        <Skeleton className="h-4 w-20" />
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[...Array(5)].map((_, i) => (
+                    <TableRow key={i} className="hover:bg-gray-50/50">
+                      {[...Array(5)].map((_, j) => (
+                        <TableCell key={j}>
+                          <Skeleton className="h-4 w-full" />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {t("awaiting_verification")}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("high_priority")}
-            </CardTitle>
-            <AlertTriangle className="h-4 w-4 text-gray-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {mockKycRequests.filter((r) => r.priority === "high").length}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">{t("urgent_reviews")}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("approved_today")}
-            </CardTitle>
-            <CheckCircle className="h-4 w-4 text-gray-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">3</div>
-            <p className="text-xs text-gray-500 mt-1">
-              {t("completed_verifications")}
-            </p>
           </CardContent>
         </Card>
       </div>
+    );
+  }
 
-      {/* KYC Requests Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("kyc_verification_requests")}</CardTitle>
+  if (error) {
+    return (
+      <div className="space-y-6 p-4 sm:p-6">
+        <Card className="shadow-0 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+          <CardContent className="py-8 text-center">
+            <div className="text-red-500 mb-4">
+              <AlertCircle className="h-12 w-12 mx-auto" />
+            </div>
+            <h3 className="text-lg font-medium text-red-600 mb-2">
+              {t("error_loading_kyc_requests")}
+            </h3>
+            <p className="text-gray-600">{error}</p>
+            <Button onClick={() => window.location.reload()} className="mt-4">
+              {t("retry")}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6 "
+    >
+      {/* Stats Cards - Apple Style */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <Card className="shadow-0 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50 hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">
+                {t("total_requests")}
+              </CardTitle>
+              <FileText className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">
+                {kycRequests.length}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {t("all_kyc_submissions")}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <Card className="shadow-0 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50 hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">
+                {t("pending_review")}
+              </CardTitle>
+              <Clock className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-600">
+                {
+                  kycRequests.filter((r) => r.isDocumentVerified === "pending")
+                    .length
+                }
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {t("awaiting_verification")}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <Card className="shadow-0 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50 hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">
+                {t("verified_requests")}
+              </CardTitle>
+              <CheckCircle className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {
+                  kycRequests.filter((r) => r.isDocumentVerified === "verified")
+                    .length
+                }
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {t("successfully_verified")}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+        >
+          <Card className="shadow-0 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50 hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">
+                {t("rejected_requests")}
+              </CardTitle>
+              <XCircle className="h-4 w-4 text-gray-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">
+                {
+                  kycRequests.filter((r) => r.isDocumentVerified === "rejected")
+                    .length
+                }
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {t("verification_failed")}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Filters - Apple Style */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.5 }}
+        className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden"
+      >
+        <CardHeader className=" border-b pt-5 pb-1 border-gray-300">
+          <CardTitle className="text-xl font-semibold text-gray-900">
+            {t("filter_requests")}
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          {/* Filters and Search */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <CardContent className="p-6 pt-02">
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder={t("search_kyc_requests")}
+                placeholder={t("search_users_emails_names")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-gray-300 focus:border-blue-500 transition-colors"
               />
             </div>
 
-            <Select value={statusFilter} onValueChange={() => setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[150px]">
-                <SelectValue placeholder="Status" />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[180px] bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-gray-300 focus:border-blue-500 transition-colors">
+                <SelectValue placeholder={t("filter_by_status")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t("all_status")}</SelectItem>
-                <SelectItem value="pending">{t("pending")}</SelectItem>
-                <SelectItem value="under_review">
-                  {t("under_review")}
+                <SelectItem value="all">{t("all_statuses")}</SelectItem>
+                <SelectItem value="pending">{t("status_pending")}</SelectItem>
+                <SelectItem value="verified">{t("status_verified")}</SelectItem>
+                <SelectItem value="rejected">{t("status_rejected")}</SelectItem>
+                <SelectItem value="not submitted">
+                  {t("status_not_submitted")}
                 </SelectItem>
-                <SelectItem value="approved">{t("approved")}</SelectItem>
-                <SelectItem value="rejected">{t("rejected")}</SelectItem>
               </SelectContent>
             </Select>
 
-            <Select
-              value={typeFilter}
-              onValueChange={(value) => setTypeFilter(value as TypeFilter)}
-            >
-              <SelectTrigger className="w-full sm:w-[150px]">
-                <SelectValue placeholder={t("user_type")} />
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-full sm:w-[180px] bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-gray-300 focus:border-blue-500 transition-colors">
+                <SelectValue placeholder={t("filter_by_type")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("all_types")}</SelectItem>
-                <SelectItem value="business">{t("business")}</SelectItem>
-                <SelectItem value="individual">{t("individual")}</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={priorityFilter}
-              onValueChange={(value) =>
-                setPriorityFilter(value as PriorityFilter)
-              }
-            >
-              <SelectTrigger className="w-full sm:w-[150px]">
-                <SelectValue placeholder="Priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("all_priority")}</SelectItem>
-                <SelectItem value="high">{t("high")}</SelectItem>
-                <SelectItem value="medium">{t("medium")}</SelectItem>
-                <SelectItem value="low">{t("low")}</SelectItem>
+                <SelectItem value="individual">
+                  {t("user_individual")}
+                </SelectItem>
+                <SelectItem value="business">{t("user_business")}</SelectItem>
+                <SelectItem value="admin">{t("user_admin")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
+        </CardContent>
+      </motion.div>
 
-          {/* KYC Requests Table */}
-          <div className="rounded-md border">
+      {/* KYC Requests Table - Apple Style */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.6 }}
+        className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden"
+      >
+        <CardHeader className="border pt-3 pb-1 border-gray-100/50">
+          <CardTitle className="text-xl font-semibold text-gray-900">
+            {t("pending_kyc_requests")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>{t("request_details")}</TableHead>
-                  <TableHead>{t("user")}</TableHead>
+                <TableRow className="bg-gray-50/50 hover:bg-gray-50/80 transition-colors">
+                  <TableHead className="w-1/4">{t("user")}</TableHead>
+                  <TableHead>{t("email")}</TableHead>
                   <TableHead>{t("type")}</TableHead>
-                  <TableHead>{t("documents")}</TableHead>
+                  <TableHead>{t("status")}</TableHead>
                   <TableHead>{t("submitted")}</TableHead>
-                  <TableHead>{t("view")}</TableHead>
+                  <TableHead className="text-right">{t("actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredRequests.map((request) => {
-                  const daysAgo = getDaysAgo(request.submittedDate);
-                  return (
-                    <TableRow key={request.id} className={""}>
+                {filteredRequests.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-12">
+                      <div className="text-gray-500">
+                        <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                        <p className="text-lg font-medium">
+                          {t("no_kyc_requests_found")}
+                        </p>
+                        <p className="text-sm">
+                          {t("adjust_filters_or_search")}
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredRequests.map((request) => (
+                    <TableRow
+                      key={request._id}
+                      className="border-b border-gray-100/50 hover:bg-gray-50/50 transition-colors group"
+                    >
                       <TableCell>
-                        <div className="flex items-center">
-                          <div className="ml-2">
-                            <div className="font-medium">{request.id}</div>
-                            <div className="text-sm text-gray-500">
-                              {request.userId}
-                            </div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          {request.userType === "Business" ? (
-                            <Building className="h-4 w-4 mr-2 text-gray-400" />
-                          ) : (
-                            <User className="h-4 w-4 mr-2 text-gray-400" />
-                          )}
+                        <div className="flex items-center space-x-3">
+                          <div className="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10" />
                           <div>
-                            <div className="font-medium">
-                              {request.userName}
+                            <div className="font-medium text-gray-900">
+                              {request.profile?.companyName ||
+                                request.profile?.fullName ||
+                                request.email}
                             </div>
-                            <div className="text-sm text-gray-500">
-                              {request.email}
+                            <div className="text-xs text-gray-500 capitalize">
+                              {request.userType}
                             </div>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{request.userType}</Badge>
+                      <TableCell className="font-medium text-gray-900">
+                        {request.email}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center">
-                          <FileText className="h-4 w-4 mr-1 text-gray-400" />
-                          <span className="text-sm">
-                            {request.documents.length} files
-                          </span>
-                        </div>
+                        {getUserTypeBadge(request.userType)}
                       </TableCell>
                       <TableCell>
-                        <div>
-                          <div className="text-sm">{request.submittedDate}</div>
-                          <div className="text-xs text-gray-500">
-                            {daysAgo} days ago
-                          </div>
-                        </div>
+                        {getStatusBadge(
+                          request.isDocumentVerified || "Not Submitted"
+                        )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-gray-600">
+                        {formatDate(request.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-right">
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button
                               variant="ghost"
                               size="sm"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity"
                               onClick={() => setSelectedRequest(request)}
                             >
-                              <Eye className="h-4 w-4" />
+                              <Eye className="h-4 w-4 mr-2" />
+                              {t("view_details")}
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
                             <DialogHeader>
-                              <DialogTitle>
-                                KYC Request - {request.id}
+                              <DialogTitle className="text-2xl font-bold text-gray-900">
+                                {t("kyc_verification_request")}
                               </DialogTitle>
-                              <DialogDescription>
+                              <DialogDescription className="text-gray-600">
                                 {t("review_and_verify_user_documents")}
                               </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-6">
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <Label className="text-sm font-medium">
-                                    {t("user_name")}
-                                  </Label>
-                                  <p className="text-sm text-gray-600">
-                                    {request.userName}
-                                  </p>
-                                </div>
-                                <div>
-                                  <Label className="text-sm font-medium">
-                                    {t("user_type")}
-                                  </Label>
-                                  <p className="text-sm text-gray-600">
-                                    {request.userType}
-                                  </p>
-                                </div>
-                                <div>
-                                  <Label className="text-sm font-medium">
-                                    Email
-                                  </Label>
-                                  <p className="text-sm text-gray-600">
-                                    {request.email}
-                                  </p>
-                                </div>
-                                <div>
-                                  <Label className="text-sm font-medium">
-                                    {t("submitted_date")}
-                                  </Label>
-                                  <p className="text-sm text-gray-600">
-                                    {request.submittedDate}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div>
-                                <Label className="text-sm font-medium">
-                                  Notes
-                                </Label>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  {request.notes}
-                                </p>
-                              </div>
-
-                              <div>
-                                <Label className="text-sm font-medium">
-                                  Documents
-                                </Label>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                                  {request.documents.map((doc, index) => (
-                                    <Card key={index} className="p-4 shadow-0">
-                                      <div className="flex items-center justify-between mb-2">
+                            {selectedRequest && (
+                              <div className="space-y-6">
+                                {/* User Information */}
+                                <Card className="shadow-0 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+                                  <CardHeader>
+                                    <CardTitle className="text-xl font-semibold text-gray-900">
+                                      {t("user_information")}
+                                    </CardTitle>
+                                  </CardHeader>
+                                  <CardContent className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                      <div className="flex items-center space-x-3">
+                                        <User className="h-5 w-5 text-gray-400" />
                                         <div>
-                                          <h4 className="font-medium text-sm">
-                                            {doc.type}
-                                          </h4>
-                                          <p className="text-xs text-gray-500">
-                                            {doc.name} • {doc.size}
+                                          <p className="text-sm text-gray-600 mb-1">
+                                            {t("name")}
+                                          </p>
+                                          <p className="font-medium">
+                                            {selectedRequest.profile
+                                              ?.fullName ||
+                                              selectedRequest.profile
+                                                ?.companyName ||
+                                              selectedRequest.email}
                                           </p>
                                         </div>
-                                        <div className="flex space-x-2">
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() =>
-                                              setSelectedDocument(doc)
-                                            }
-                                          >
-                                            <Eye className="h-4 w-4" />
-                                          </Button>
-                                          <Button variant="ghost" size="sm">
-                                            <Download className="h-4 w-4" />
-                                          </Button>
+                                      </div>
+
+                                      <div className="flex items-center space-x-3">
+                                        <Mail className="h-5 w-5 text-gray-400" />
+                                        <div>
+                                          <p className="text-sm text-gray-600 mb-1">
+                                            {t("email")}
+                                          </p>
+                                          <p className="font-medium">
+                                            {selectedRequest.email}
+                                          </p>
                                         </div>
                                       </div>
-                                      <div className="border rounded-lg overflow-hidden">
-                                        <img
-                                          src={doc.url || "/placeholder.svg"}
-                                          alt={doc.type}
-                                          className="w-full h-32 object-cover"
-                                        />
+
+                                      <div className="flex items-center space-x-3">
+                                        <Phone className="h-5 w-5 text-gray-400" />
+                                        <div>
+                                          <p className="text-sm text-gray-600 mb-1">
+                                            {t("phone")}
+                                          </p>
+                                          <p className="font-medium">
+                                            {selectedRequest.profile?.phone ||
+                                              "N/A"}
+                                          </p>
+                                        </div>
                                       </div>
-                                    </Card>
-                                  ))}
+
+                                      <div className="flex items-center space-x-3">
+                                        <Building className="h-5 w-5 text-gray-400" />
+                                        <div>
+                                          <p className="text-sm text-gray-600 mb-1">
+                                            {selectedRequest.userType ===
+                                            "business"
+                                              ? t("company_name")
+                                              : t("user_type")}
+                                          </p>
+                                          <p className="font-medium">
+                                            {selectedRequest.userType ===
+                                            "business"
+                                              ? selectedRequest.profile
+                                                  ?.companyName || "N/A"
+                                              : t(
+                                                  `user_${selectedRequest.userType}`
+                                                )}
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-start space-x-3">
+                                        <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
+                                        <div>
+                                          <p className="text-sm text-gray-600 mb-1">
+                                            {t("address")}
+                                          </p>
+                                          <p className="text-gray-900">
+                                            {selectedRequest.profile?.address ||
+                                              "Not provided"}
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-center space-x-3">
+                                        <Calendar className="h-5 w-5 text-gray-400" />
+                                        <div>
+                                          <p className="text-sm text-gray-600 mb-1">
+                                            {t("join_date")}
+                                          </p>
+                                          <p className="font-medium">
+                                            {formatDate(
+                                              selectedRequest.createdAt
+                                            )}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+
+                                {/* Documents Section */}
+                                <Card className="shadow-0 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+                                  <CardHeader>
+                                    <CardTitle className="text-xl font-semibold text-gray-900">
+                                      {t("documents")}
+                                    </CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    {selectedRequest.userType ===
+                                    "individual" ? (
+                                      <div className="space-y-6">
+                                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50/50">
+                                          <div className="flex items-center justify-between mb-3">
+                                            <h3 className="font-medium text-gray-900">
+                                              {t("national_id")}
+                                            </h3>
+                                            {selectedRequest.documents
+                                              .nationalId ? (
+                                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                                {t("document_provided")}
+                                              </Badge>
+                                            ) : (
+                                              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                                {t("document_not_provided")}
+                                              </Badge>
+                                            )}
+                                          </div>
+                                          <p className="text-sm text-gray-600 mb-3">
+                                            {selectedRequest.documents
+                                              .nationalId || "N/A"}
+                                          </p>
+                                          <div className="flex items-center space-x-2">
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                                              disabled={
+                                                !selectedRequest.documents
+                                                  .nationalId
+                                              }
+                                              onClick={() =>
+                                                selectedRequest.documents
+                                                  .nationalId &&
+                                                alert(
+                                                  `National ID: ${selectedRequest.documents.nationalId}`
+                                                )
+                                              }
+                                            >
+                                              <Eye className="h-4 w-4 mr-2" />
+                                              {t("view")}
+                                            </Button>
+                                          </div>
+                                        </div>
+
+                                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50/50">
+                                          <div className="flex items-center justify-between mb-3">
+                                            <h3 className="font-medium text-gray-900">
+                                              {t("national_id_front")}
+                                            </h3>
+                                            {selectedRequest.documents
+                                              .nationalIdFront ? (
+                                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                                {t("document_uploaded")}
+                                              </Badge>
+                                            ) : (
+                                              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                                {t("document_not_uploaded")}
+                                              </Badge>
+                                            )}
+                                          </div>
+                                          <div className="flex items-center justify-between">
+                                            <div className="flex-1">
+                                              {selectedRequest.documents
+                                                .nationalIdFront ? (
+                                                <div className="aspect-video bg-white rounded mb-3 flex items-center justify-center border border-gray-200">
+                                                  <FileText className="h-8 w-8 text-gray-400" />
+                                                </div>
+                                              ) : (
+                                                <div className="aspect-video bg-gray-100 rounded mb-3 flex items-center justify-center">
+                                                  <FileText className="h-8 w-8 text-gray-300" />
+                                                </div>
+                                              )}
+                                            </div>
+                                            <div className="flex flex-col space-y-2 ml-4">
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                                                disabled={
+                                                  !selectedRequest.documents
+                                                    .nationalIdFront
+                                                }
+                                                onClick={() =>
+                                                  openDocument(
+                                                    selectedRequest.documents
+                                                      .nationalIdFront || ""
+                                                  )
+                                                }
+                                              >
+                                                <Eye className="h-4 w-4 mr-2" />
+                                                {t("view")}
+                                              </Button>
+                                              <a
+                                                href={
+                                                  selectedRequest.documents
+                                                    .nationalIdFront || "#"
+                                                }
+                                                download
+                                                className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                                onClick={(e) => {
+                                                  if (
+                                                    !selectedRequest.documents
+                                                      .nationalIdFront
+                                                  ) {
+                                                    e.preventDefault();
+                                                  }
+                                                }}
+                                              >
+                                                <Download className="h-3 w-3 mr-1" />
+                                                {t("download")}
+                                              </a>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50/50">
+                                          <div className="flex items-center justify-between mb-3">
+                                            <h3 className="font-medium text-gray-900">
+                                              {t("national_id_back")}
+                                            </h3>
+                                            {selectedRequest.documents
+                                              .nationalIdBack ? (
+                                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                                {t("document_uploaded")}
+                                              </Badge>
+                                            ) : (
+                                              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                                {t("document_not_uploaded")}
+                                              </Badge>
+                                            )}
+                                          </div>
+                                          <div className="flex items-center justify-between">
+                                            <div className="flex-1">
+                                              {selectedRequest.documents
+                                                .nationalIdBack ? (
+                                                <div className="aspect-video bg-white rounded mb-3 flex items-center justify-center border border-gray-200">
+                                                  <FileText className="h-8 w-8 text-gray-400" />
+                                                </div>
+                                              ) : (
+                                                <div className="aspect-video bg-gray-100 rounded mb-3 flex items-center justify-center">
+                                                  <FileText className="h-8 w-8 text-gray-300" />
+                                                </div>
+                                              )}
+                                            </div>
+                                            <div className="flex flex-col space-y-2 ml-4">
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                                                disabled={
+                                                  !selectedRequest.documents
+                                                    .nationalIdBack
+                                                }
+                                                onClick={() =>
+                                                  openDocument(
+                                                    selectedRequest.documents
+                                                      .nationalIdBack || ""
+                                                  )
+                                                }
+                                              >
+                                                <Eye className="h-4 w-4 mr-2" />
+                                                {t("view")}
+                                              </Button>
+                                              <a
+                                                href={
+                                                  selectedRequest.documents
+                                                    .nationalIdBack || "#"
+                                                }
+                                                download
+                                                className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                                onClick={(e) => {
+                                                  if (
+                                                    !selectedRequest.documents
+                                                      .nationalIdBack
+                                                  ) {
+                                                    e.preventDefault();
+                                                  }
+                                                }}
+                                              >
+                                                <Download className="h-3 w-3 mr-1" />
+                                                {t("download")}
+                                              </a>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ) : selectedRequest.userType ===
+                                      "business" ? (
+                                      <div className="space-y-6">
+                                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50/50">
+                                          <div className="flex items-center justify-between mb-3">
+                                            <h3 className="font-medium text-gray-900">
+                                              {t(
+                                                "commercial_registration_number"
+                                              )}
+                                            </h3>
+                                            {selectedRequest.documents
+                                              .commercialRegistrationNumber ? (
+                                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                                {t("document_provided")}
+                                              </Badge>
+                                            ) : (
+                                              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                                {t("document_not_provided")}
+                                              </Badge>
+                                            )}
+                                          </div>
+                                          <p className="text-sm text-gray-600 mb-3">
+                                            {selectedRequest.documents
+                                              .commercialRegistrationNumber ||
+                                              "N/A"}
+                                          </p>
+                                          <div className="flex items-center space-x-2">
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                                              disabled={
+                                                !selectedRequest.documents
+                                                  .commercialRegistrationNumber
+                                              }
+                                              onClick={() =>
+                                                selectedRequest.documents
+                                                  .commercialRegistrationNumber &&
+                                                alert(
+                                                  `Commercial Registration Number: ${selectedRequest.documents.commercialRegistrationNumber}`
+                                                )
+                                              }
+                                            >
+                                              <Eye className="h-4 w-4 mr-2" />
+                                              {t("view")}
+                                            </Button>
+                                          </div>
+                                        </div>
+
+                                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50/50">
+                                          <div className="flex items-center justify-between mb-3">
+                                            <h3 className="font-medium text-gray-900">
+                                              {t("commercial_registration_doc")}
+                                            </h3>
+                                            {selectedRequest.documents
+                                              .commercialRegistrationDoc ? (
+                                              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                                {t("document_uploaded")}
+                                              </Badge>
+                                            ) : (
+                                              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                                {t("document_not_uploaded")}
+                                              </Badge>
+                                            )}
+                                          </div>
+                                          <div className="flex items-center justify-between">
+                                            <div className="flex-1">
+                                              {selectedRequest.documents
+                                                .commercialRegistrationDoc ? (
+                                                <div className="aspect-video bg-white rounded mb-3 flex items-center justify-center border border-gray-200">
+                                                  <FileText className="h-8 w-8 text-red-600" />
+                                                </div>
+                                              ) : (
+                                                <div className="aspect-video bg-gray-100 rounded mb-3 flex items-center justify-center">
+                                                  <FileText className="h-8 w-8 text-gray-300" />
+                                                </div>
+                                              )}
+                                            </div>
+                                            <div className="flex flex-col space-y-2 ml-4">
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                                                disabled={
+                                                  !selectedRequest.documents
+                                                    .commercialRegistrationDoc
+                                                }
+                                                onClick={() =>
+                                                  openDocument(
+                                                    selectedRequest.documents
+                                                      .commercialRegistrationDoc ||
+                                                      ""
+                                                  )
+                                                }
+                                              >
+                                                <Eye className="h-4 w-4 mr-2" />
+                                                {t("view")}
+                                              </Button>
+                                              <a
+                                                href={
+                                                  selectedRequest.documents
+                                                    .commercialRegistrationDoc ||
+                                                  "#"
+                                                }
+                                                download
+                                                className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                                onClick={(e) => {
+                                                  if (
+                                                    !selectedRequest.documents
+                                                      .commercialRegistrationDoc
+                                                  ) {
+                                                    e.preventDefault();
+                                                  }
+                                                }}
+                                              >
+                                                <Download className="h-3 w-3 mr-1" />
+                                                {t("download")}
+                                              </a>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="text-center py-8 text-gray-500">
+                                        <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                                        <p className="text-lg font-medium">
+                                          {t("no_documents_required")}
+                                        </p>
+                                        <p className="text-sm">
+                                          {t(
+                                            "admin_accounts_do_not_require_documents"
+                                          )}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </CardContent>
+                                </Card>
+
+                                {/* Verification Actions */}
+                                {selectedRequest.isDocumentVerified ===
+                                  "pending" && (
+                                  <Card className="shadow-0 bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+                                    <CardHeader>
+                                      <CardTitle className="text-xl font-semibold text-gray-900">
+                                        {t("verification_actions")}
+                                      </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="flex flex-col sm:flex-row gap-4">
+                                        <Button
+                                          className="flex-1 bg-green-600 hover:bg-green-700 text-white transition-colors"
+                                          onClick={() =>
+                                            handleVerifyDocument(
+                                              selectedRequest._id,
+                                              "verified"
+                                            )
+                                          }
+                                          disabled={actionLoading}
+                                        >
+                                          {actionLoading ? (
+                                            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                          ) : (
+                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                          )}
+                                          {t("approve_kyc")}
+                                        </Button>
+
+                                        <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                            <Button
+                                              variant="destructive"
+                                              className="flex-1 bg-red-600 hover:bg-red-700 text-white transition-colors"
+                                              disabled={actionLoading}
+                                            >
+                                              {actionLoading ? (
+                                                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                              ) : (
+                                                <XCircle className="h-4 w-4 mr-2" />
+                                              )}
+                                              {t("reject_kyc")}
+                                            </Button>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle className="text-xl font-semibold text-gray-900">
+                                                {t("reject_kyc_request")}
+                                              </AlertDialogTitle>
+                                              <AlertDialogDescription className="text-gray-600">
+                                                {t(
+                                                  "please_provide_reason_for_rejection"
+                                                )}
+                                              </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <div className="py-4">
+                                              <Label htmlFor="rejection-reason">
+                                                {t("rejection_reason")}
+                                              </Label>
+                                              <Textarea
+                                                id="rejection-reason"
+                                                placeholder={t(
+                                                  "enter_reason_for_rejection"
+                                                )}
+                                                value={rejectionReason}
+                                                onChange={(e) =>
+                                                  setRejectionReason(
+                                                    e.target.value
+                                                  )
+                                                }
+                                                className="mt-2"
+                                              />
+                                            </div>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel
+                                                onClick={() =>
+                                                  setRejectionReason("")
+                                                }
+                                                className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                                              >
+                                                {t("cancel")}
+                                              </AlertDialogCancel>
+                                              <AlertDialogAction
+                                                className="bg-red-600 hover:bg-red-700 text-white transition-colors"
+                                                onClick={() =>
+                                                  handleVerifyDocument(
+                                                    selectedRequest._id,
+                                                    "rejected"
+                                                  )
+                                                }
+                                                disabled={actionLoading}
+                                              >
+                                                {actionLoading ? (
+                                                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                                ) : (
+                                                  <XCircle className="h-4 w-4 mr-2" />
+                                                )}
+                                                {t("reject_request")}
+                                              </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                )}
+
+                                {/* User Profile Link */}
+                                <div className="flex justify-end">
+                                  <Link
+                                    href={`/admin/users/${selectedRequest._id}`}
+                                    passHref
+                                  >
+                                    <Button
+                                      variant="outline"
+                                      className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                                    >
+                                      <User className="h-4 w-4 mr-2" />
+                                      {t("view_full_user_profile")}
+                                    </Button>
+                                  </Link>
                                 </div>
                               </div>
-
-                              {request.status === "pending" ||
-                              request.status === "under_review" ? (
-                                <div className="flex justify-end space-x-2">
-                                  <Button
-                                    variant="outline"
-                                    onClick={() =>
-                                      (window.location.href = `/admin/users/${request.userId}`)
-                                    }
-                                  >
-                                    <User className="h-4 w-4 mr-2" />
-                                    {t("view_user_complete_profile")}
-                                  </Button>
-
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button
-                                        variant="outline"
-                                        className="text-red-600 bg-transparent"
-                                      >
-                                        <X className="h-4 w-4 mr-2" />
-                                        Reject
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>
-                                          {t("reject_kyc_request")}
-                                        </AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Please provide a reason for rejecting
-                                          this KYC request.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <div className="py-4">
-                                        <Label htmlFor="rejection-reason">
-                                          {t("rejection_reason")}
-                                        </Label>
-                                        <Textarea
-                                          id="rejection-reason"
-                                          placeholder={t(
-                                            "enter_reason_for_rejection"
-                                          )}
-                                          value={rejectionReason}
-                                          onChange={(e) =>
-                                            setRejectionReason(e.target.value)
-                                          }
-                                          className="mt-2"
-                                        />
-                                      </div>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>
-                                          Cancel
-                                        </AlertDialogCancel>
-                                        <AlertDialogAction
-                                          className="bg-red-600 hover:bg-red-700"
-                                          onClick={() =>
-                                            handleReject(request.id)
-                                          }
-                                        >
-                                          {t("reject_request")}
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-
-                                  <Dialog>
-                                    <DialogTrigger asChild>
-                                      <Button>
-                                        <Check className="h-4 w-4 mr-2" />
-                                        Approve
-                                      </Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                      <DialogHeader>
-                                        <DialogTitle>
-                                          {t("approve_kyc_request")}
-                                        </DialogTitle>
-                                        <DialogDescription>
-                                          Confirm approval of this KYC request.
-                                        </DialogDescription>
-                                      </DialogHeader>
-                                      <div className="py-4">
-                                        <Label htmlFor="approval-notes">
-                                          Approval Notes (Optional)
-                                        </Label>
-                                        <Textarea
-                                          id="approval-notes"
-                                          placeholder={t(
-                                            "add_any_notes_about_the_approval"
-                                          )}
-                                          value={approvalNotes}
-                                          onChange={(e) =>
-                                            setApprovalNotes(e.target.value)
-                                          }
-                                          className="mt-2"
-                                        />
-                                      </div>
-                                      <div className="flex justify-end space-x-2">
-                                        <Button variant="outline">
-                                          Cancel
-                                        </Button>
-                                        <Button
-                                          onClick={() =>
-                                            handleApprove(request.id)
-                                          }
-                                        >
-                                          {t("approve_request")}
-                                        </Button>
-                                      </div>
-                                    </DialogContent>
-                                  </Dialog>
-                                </div>
-                              ) : (
-                                <div className="text-center py-4">
-                                  <p className="text-sm text-gray-500">
-                                    This request has been {request.status}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
+                            )}
                           </DialogContent>
                         </Dialog>
                       </TableCell>
                     </TableRow>
-                  );
-                })}
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
         </CardContent>
-      </Card>
-
-      {/* Document Preview Dialog */}
-      <Dialog
-        open={!!selectedDocument}
-        onOpenChange={() => setSelectedDocument(null)}
-      >
-        <DialogContent className="max-w-4xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>{t("document_preview")}</DialogTitle>
-            <DialogDescription>
-              {selectedDocument?.type} - {selectedDocument?.name}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center">
-            {selectedDocument && (
-              <img
-                src={selectedDocument.url || "/placeholder.svg"}
-                alt={selectedDocument.type}
-                className="max-w-full max-h-[70vh] object-contain border rounded-lg"
-              />
-            )}
-          </div>
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Download
-            </Button>
-            <Button onClick={() => setSelectedDocument(null)}>Close</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
