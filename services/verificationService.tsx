@@ -48,8 +48,24 @@ export const verifyUserDocuments = async (userId, status, rejectionReason) => {
     console.log("↩️ Finished verifyUserDocuments request");
   }
 };
-
+export const getAllVerifications = async () => {
+  console.log("➡️ Starting getAllVerifications request...");
+  try {
+    const response = await api.get("/api/verification/all");
+    console.log("✅ getAllVerifications success:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "❌ Error fetching all verifications:",
+      error.response?.data || error.message
+    );
+    throw error;
+  } finally {
+    console.log("↩️ Finished getAllVerifications request");
+  }
+};
 export default {
   getPendingVerifications,
   verifyUserDocuments,
+  getAllVerifications,
 };
