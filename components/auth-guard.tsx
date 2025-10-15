@@ -4,17 +4,18 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AdminUser } from "@/services/adminService";
 import { useAdminAuth } from "@/context/AdminAuthProvider";
-
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedUserTypes?: string[];
+  allowedAdminTypes?: string[]; // <-- new optional param
 }
 
 export function ProtectedRoute({
   children,
   allowedUserTypes,
+  allowedAdminTypes,
 }: ProtectedRouteProps) {
-  const { admin, isLoading } = useAdminAuth(); // <-- renamed "user" to "admin"
+  const { admin, isLoading } = useAdminAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -24,14 +25,24 @@ export function ProtectedRoute({
         return;
       }
 
+      // Check userType
       if (allowedUserTypes && !allowedUserTypes.includes(admin.userType)) {
-        // Redirect if admin user type is not allowed
+        const redirectPath = getRedirectPath(admin.userType);
+        router.push(redirectPath);
+        return;
+      }
+
+      // Check adminType if specified
+      if (
+        allowedAdminTypes &&
+        (!admin.adminType || !allowedAdminTypes.includes(admin.adminType))
+      ) {
         const redirectPath = getRedirectPath(admin.userType);
         router.push(redirectPath);
         return;
       }
     }
-  }, [admin, isLoading, router, allowedUserTypes]);
+  }, [admin, isLoading, router, allowedUserTypes, allowedAdminTypes]);
 
   const getRedirectPath = (userType: string) => {
     switch (userType) {
@@ -41,11 +52,10 @@ export function ProtectedRoute({
         return "/business-dashboard";
       case "individual":
       default:
-        return "/dashboard";
+        return "/admin";
     }
   };
 
-  // Show loading spinner while checking authentication
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -54,32 +64,14 @@ export function ProtectedRoute({
     );
   }
 
-  // Prevent rendering if no admin or not in allowed user types
   if (
     !admin ||
-    (allowedUserTypes && !allowedUserTypes.includes(admin.userType))
+    (allowedUserTypes && !allowedUserTypes.includes(admin.userType)) ||
+    (allowedAdminTypes &&
+      (!admin.adminType || !allowedAdminTypes.includes(admin.adminType)))
   ) {
     return null;
   }
 
   return <>{children}</>;
-}
-
-// HOC version (alternative usage)
-export function withAuth<P extends object>(
-  Component: React.ComponentType<P>,
-  allowedUserTypes?: string[]
-) {
-  const AuthenticatedComponent: React.FC<P> = (props) => {
-    return (
-      <ProtectedRoute allowedUserTypes={allowedUserTypes}>
-        <Component {...props} />
-      </ProtectedRoute>
-    );
-  };
-
-  AuthenticatedComponent.displayName = `withAuth(${
-    Component.displayName || Component.name
-  })`;
-  return AuthenticatedComponent;
 }

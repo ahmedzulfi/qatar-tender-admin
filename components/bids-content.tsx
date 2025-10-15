@@ -462,7 +462,7 @@ export function BidsContent() {
   return (
     <div className="space-y-6">
       {/* Enhanced Apple-style KPI Cards - Now showing data for ALL bids */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -620,7 +620,7 @@ export function BidsContent() {
             </CardContent>
           </Card>
         </motion.div>
-      </div>
+      </div> */}
 
       {/* Apple-style Filters and Search */}
       <motion.div

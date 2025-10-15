@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 export default function Home() {
   return (
     <>
+      aaa
       <AuthProvider>
         <ProtectedRoute allowedUserTypes={["admin"]}>
           <div className="div">

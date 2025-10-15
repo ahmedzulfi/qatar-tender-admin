@@ -69,8 +69,8 @@
     "zod": "3.25.67"
   },
   "devDependencies": {
-    "@babel/parser": "^7.28.3",
-    "@babel/traverse": "^7.28.3",
+    "@babel/parser": "^7.28.4",
+    "@babel/traverse": "^7.28.4",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
@@ -78,7 +78,10 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
+    "fs-extra": "^11.3.2",
+    "glob": "^11.0.3",
     "i18next-scanner": "^4.6.0",
+    "minimist": "^1.2.8",
     "tailwindcss": "^4.1.11",
     "typescript": "^5"
   }

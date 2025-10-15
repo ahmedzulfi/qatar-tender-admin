@@ -126,6 +126,7 @@ export default function KycVerificationPage() {
 
         if (Array.isArray(response)) {
           setKycRequests(response);
+          console.log(response);
           setFilteredRequests(response);
         } else {
           throw new Error("Invalid response format");
@@ -257,7 +258,7 @@ export default function KycVerificationPage() {
             {t("kyc_rejected")}
           </Badge>
         );
-      case "not submitted":
+      case "Not Submitted":
       default:
         return (
           <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
@@ -512,7 +513,7 @@ export default function KycVerificationPage() {
                 <SelectItem value="pending">{t("status_pending")}</SelectItem>
                 <SelectItem value="verified">{t("status_verified")}</SelectItem>
                 <SelectItem value="rejected">{t("status_rejected")}</SelectItem>
-                <SelectItem value="not submitted">
+                <SelectItem value="Not Submitted">
                   {t("status_not_submitted")}
                 </SelectItem>
               </SelectContent>
@@ -590,9 +591,7 @@ export default function KycVerificationPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {getStatusBadge(
-                          request.isDocumentVerified || "Not Submitted"
-                        )}
+                        {getStatusBadge(request.isDocumentVerified)}
                       </TableCell>
                       <TableCell className="text-gray-600">
                         {formatDate(request.createdAt)}
@@ -613,15 +612,8 @@ export default function KycVerificationPage() {
                               {t("view_details")}
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
-                            <DialogHeader>
-                              <DialogTitle className="text-2xl font-bold text-gray-900">
-                                {t("kyc_verification_request")}
-                              </DialogTitle>
-                              <DialogDescription className="text-gray-600">
-                                {t("review_and_verify_user_documents")}
-                              </DialogDescription>
-                            </DialogHeader>
+                          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+                      
                             {selectedRequest && (
                               <div className="space-y-6">
                                 {/* User Information - Simplified */}
@@ -742,8 +734,7 @@ export default function KycVerificationPage() {
                                               {getStatusBadge(
                                                 selectedRequest.isVerified
                                                   ? "verified"
-                                                  : "pending",
-                                                selectedRequest.isBanned
+                                                  : "pending"
                                               )}
                                             </div>
                                           </div>
@@ -763,7 +754,19 @@ export default function KycVerificationPage() {
                                             </div>
                                           </div>
                                         </div>
-
+                                        <div className="flex items-center space-x-3">
+                                          <FileText className="h-5 w-5 text-gray-400" />
+                                          <div>
+                                            <p className="text-sm text-gray-600 mb-1">
+                                              {t("rejection_reason")}
+                                            </p>
+                                            <div className="flex items-center text-red-500">
+                                              {
+                                                selectedRequest.documentRejectionReason
+                                              }
+                                            </div>
+                                          </div>
+                                        </div>
                                         {selectedRequest.isBanned &&
                                           selectedRequest.banReason && (
                                             <div className="flex items-start space-x-3">

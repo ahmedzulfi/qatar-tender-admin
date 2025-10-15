@@ -35,6 +35,7 @@ export default function LoginForm() {
       if (!result?.success) {
         setError(result?.error || "Invalid credentials");
       }
+      console.log(result);
     } catch (err) {
       setError("An unexpected error occurred. Try again.");
       // optionally: console.error(err);

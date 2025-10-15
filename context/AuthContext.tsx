@@ -263,7 +263,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         return "/business-dashboard";
       case "individual":
       default:
-        return "/dashboard";
+        return "/admin";
     }
   };
 

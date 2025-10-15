@@ -436,7 +436,7 @@ export function TendersContent() {
   return (
     <div className="space-y-6 font-sans">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">
           <CardHeader className="flex items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
@@ -500,7 +500,7 @@ export function TendersContent() {
             <p className="text-xs text-gray-500 mt-1">{t("combined_budget")}</p>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Filters and Search */}
       <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">

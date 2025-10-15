@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -36,6 +37,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   Search,
   Shield,
@@ -49,121 +51,37 @@ import {
   Ban,
   Trash2,
   Settings,
+  RefreshCw,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
 } from "lucide-react";
 import { format } from "date-fns";
 import { SettingsContent } from "./settings-content";
-
 import { useTranslation } from "../lib/hooks/useTranslation";
-// Mock data for users that can be suspended
-const usersData = [
-  {
-    id: 1,
-    name: "Ahmed Al-Rashid",
-    email: "ahmed@example.com",
-    company: "Al-Rashid Construction",
-    status: "active",
-    joinDate: "2024-01-15T00:00:00Z",
-    lastActivity: "2024-01-20T14:30:00Z",
-    tenderCount: 12,
-    suspensionReason: null,
-  },
-  {
-    id: 2,
-    name: "Qatar Construction Co.",
-    email: "info@qatarconstruction.com",
-    company: "Qatar Construction Co.",
-    status: "suspended",
-    joinDate: "2024-01-10T00:00:00Z",
-    lastActivity: "2024-01-18T09:15:00Z",
-    tenderCount: 8,
-    suspensionReason: "Fraudulent bidding activity",
-  },
-  {
-    id: 3,
-    name: "Doha Engineering Ltd.",
-    email: "contact@dohaeng.com",
-    company: "Doha Engineering Ltd.",
-    status: "active",
-    joinDate: "2024-01-12T00:00:00Z",
-    lastActivity: "2024-01-20T16:45:00Z",
-    tenderCount: 15,
-    suspensionReason: null,
-  },
-];
+import { adminService } from "@/services/adminService";
 
-// Mock data for tenders that can be removed
-const tendersData = [
-  {
-    id: 1,
-    title: "Construction Project - Phase 1",
-    tenderCode: "TND-2024-001",
-    status: "active",
-    bidCount: 23,
-    deadline: "2024-02-15T23:59:59Z",
-    publishedDate: "2024-01-15T00:00:00Z",
-    category: "Construction",
-    estimatedValue: 2500000,
-  },
-  {
-    id: 2,
-    title: "IT Infrastructure Upgrade",
-    tenderCode: "TND-2024-002",
-    status: "active",
-    bidCount: 15,
-    deadline: "2024-02-20T23:59:59Z",
-    publishedDate: "2024-01-16T00:00:00Z",
-    category: "IT & Technology",
-    estimatedValue: 850000,
-  },
-  {
-    id: 3,
-    title: "Healthcare Equipment Procurement",
-    tenderCode: "TND-2024-003",
-    status: "closed",
-    bidCount: 8,
-    deadline: "2024-01-25T23:59:59Z",
-    publishedDate: "2024-01-10T00:00:00Z",
-    category: "Healthcare",
-    estimatedValue: 1200000,
-  },
-];
-
-// Mock audit log data
-const auditLogData = [
-  {
-    id: 1,
-    action: "User Suspended",
-    target: "Qatar Construction Co.",
-    admin: "Super Admin",
-    timestamp: "2024-01-20T10:30:00Z",
-    reason: "Fraudulent bidding activity",
-    severity: "high",
-  },
-  {
-    id: 2,
-    action: "Tender Removed",
-    target: "TND-2024-005",
-    admin: "Super Admin",
-    timestamp: "2024-01-19T15:45:00Z",
-    reason: "Duplicate tender posting",
-    severity: "medium",
-  },
-  {
-    id: 3,
-    action: "Bidding Closed",
-    target: "TND-2024-004",
-    admin: "Admin User",
-    timestamp: "2024-01-18T09:20:00Z",
-    reason: "Emergency closure due to specification changes",
-    severity: "medium",
-  },
-];
+interface AdminActivity {
+  _id: string;
+  adminId: {
+    _id: string;
+    email: string;
+  };
+  adminEmail: string;
+  action: string;
+  targetId: string;
+  targetModel: string;
+  details: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export function AdminControlsContent() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("users");
-  const [users, setUsers] = useState(usersData);
-  const [tenders, setTenders] = useState(tendersData);
-  const [auditLog, setAuditLog] = useState(auditLogData);
+  const [users, setUsers] = useState<any[]>([]);
+  const [tenders, setTenders] = useState<any[]>([]);
+  const [auditLog, setAuditLog] = useState<AdminActivity[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{
@@ -173,82 +91,127 @@ export function AdminControlsContent() {
   } | null>(null);
   const [password, setPassword] = useState("");
   const [actionReason, setActionReason] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch users
+        const usersResponse = await adminService.getUsers();
+        if (usersResponse.success) {
+          setUsers(usersResponse.data.users);
+        }
+
+        // Fetch tenders
+        const tendersResponse = await adminService.getTenders();
+        if (tendersResponse.success) {
+          setTenders(tendersResponse.data.tenders);
+        }
+
+        // Fetch audit log
+        const auditResponse = await adminService.getAdminActivities();
+        if (auditResponse.success) {
+          setAuditLog(auditResponse.data.activities);
+        }
+      } catch (err) {
+        setError("Failed to load admin data");
+        console.error("Error loading admin data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Security check - in real app, this would check user permissions
   const isSuperAdmin = true; // Mock super admin status
-  const { t } = useTranslation();
-  const handlePasswordVerification = () => {
-    // In real app, this would verify the password against the current user's password
-    if (password === "admin123") {
-      // Mock password verification
-      executeAction();
+
+  const handlePasswordVerification = async () => {
+    setActionLoading(true);
+    try {
+      // In real app, this would verify the password against the current user's password
+      // For now, we'll assume verification is successful
+      await executeAction();
       setIsPasswordDialogOpen(false);
       setPassword("");
       setPendingAction(null);
       setActionReason("");
-    } else {
-      alert("Incorrect password. Action cancelled.");
+    } catch (err) {
+      console.error("Action failed:", err);
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  const executeAction = () => {
+  const executeAction = async () => {
     if (!pendingAction) return;
 
-    const timestamp = new Date().toISOString();
-    const newAuditEntry = {
-      id: auditLog.length + 1,
-      action: pendingAction.type,
-      target:
-        pendingAction.target.name ||
-        pendingAction.target.title ||
-        pendingAction.target.tenderCode,
-      admin: "Super Admin",
-      timestamp,
-      reason: pendingAction.reason,
-      severity: "high" as const,
-    };
+    try {
+      switch (pendingAction.type) {
+        case "User Suspended":
+          await adminService.editUser(pendingAction.target._id, {
+            isBanned: true,
+            banReason: pendingAction.reason,
+          });
+          setUsers(
+            users.map((user) =>
+              user._id === pendingAction.target._id
+                ? { ...user, isBanned: true, banReason: pendingAction.reason }
+                : user
+            )
+          );
+          break;
+        case "User Reactivated":
+          await adminService.editUser(pendingAction.target._id, {
+            isBanned: false,
+            banReason: "",
+          });
+          setUsers(
+            users.map((user) =>
+              user._id === pendingAction.target._id
+                ? { ...user, isBanned: false, banReason: "" }
+                : user
+            )
+          );
+          break;
+        case "Tender Removed":
+          await adminService.deleteTender(pendingAction.target._id);
+          setTenders(
+            tenders.filter((tender) => tender._id !== pendingAction.target._id)
+          );
+          break;
+        case "Bidding Closed":
+          await adminService.closeTender(pendingAction.target._id, {
+            reason: pendingAction.reason,
+          });
+          setTenders(
+            tenders.map((tender) =>
+              tender._id === pendingAction.target._id
+                ? { ...tender, status: "closed" }
+                : tender
+            )
+          );
+          break;
+      }
 
-    switch (pendingAction.type) {
-      case "User Suspended":
-        setUsers(
-          users.map((user) =>
-            user.id === pendingAction.target.id
-              ? {
-                  ...user,
-                  status: "suspended",
-                  suspensionReason: pendingAction.reason,
-                }
-              : user
-          )
-        );
-        break;
-      case "User Reactivated":
-        setUsers(
-          users.map((user) =>
-            user.id === pendingAction.target.id
-              ? { ...user, status: "active", suspensionReason: null }
-              : user
-          )
-        );
-        break;
-      case "Tender Removed":
-        setTenders(
-          tenders.filter((tender) => tender.id !== pendingAction.target.id)
-        );
-        break;
-      case "Bidding Closed":
-        setTenders(
-          tenders.map((tender) =>
-            tender.id === pendingAction.target.id
-              ? { ...tender, status: "closed" }
-              : tender
-          )
-        );
-        break;
+      // Refresh audit log
+      const auditResponse = await adminService.getAdminActivities();
+      if (auditResponse.success) {
+        setAuditLog(auditResponse.data.activities);
+      }
+
+      alert(`${pendingAction.type} completed successfully.`);
+    } catch (err) {
+      console.error("Action execution failed:", err);
+      alert(`Failed to execute action: ${err.message || "Unknown error"}`);
     }
-
-    setAuditLog([newAuditEntry, ...auditLog]);
-    alert(`${pendingAction.type} completed successfully.`);
   };
 
   const initiateAction = (type: string, target: any, reason: string) => {
@@ -259,52 +222,162 @@ export function AdminControlsContent() {
 
   const filteredUsers = users.filter(
     (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.company.toLowerCase().includes(searchTerm.toLowerCase())
+      user.profile?.fullName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      user.profile?.companyName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase())
   );
 
   const filteredTenders = tenders.filter(
     (tender) =>
       tender.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tender.tenderCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tender.category.toLowerCase().includes(searchTerm.toLowerCase())
+      tender.tenderCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tender.category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (!isSuperAdmin) {
     return (
-      <Card>
-        <CardContent className="p-12 text-center">
-          <Shield className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            {t("access_restricted")}
-          </h3>
-          <p className="text-gray-600">
-            You don't have permission to access admin controls. Contact your
-            system administrator.
-          </p>
-        </CardContent>
-      </Card>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="space-y-6 p-4 sm:p-6"
+      >
+        <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+          <CardContent className="py-8 text-center">
+            <Shield className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              {t("access_restricted")}
+            </h3>
+            <p className="text-gray-600">
+              {t("no_permission_to_access_admin_controls")}
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6 p-4 sm:p-6">
+        {/* Header Skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col">
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <div className="flex items-center space-x-3">
+            <Skeleton className="h-10 w-24" />
+          </div>
+        </div>
+
+        {/* Tabs Skeleton */}
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50 overflow-hidden">
+          <CardHeader className="border-b border-gray-100/50">
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="relative flex-1 mb-6">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Skeleton className="pl-10 w-full h-10 rounded-lg" />
+            </div>
+
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50/50">
+                    {[...Array(5)].map((_, i) => (
+                      <TableHead key={i}>
+                        <Skeleton className="h-4 w-20" />
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[...Array(5)].map((_, i) => (
+                    <TableRow key={i} className="hover:bg-gray-50/50">
+                      {[...Array(5)].map((_, j) => (
+                        <TableCell key={j}>
+                          <Skeleton className="h-4 w-full" />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6 p-4 sm:p-6">
+        <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+          <CardContent className="py-8 text-center">
+            <div className="text-red-500 mb-4">
+              <AlertCircle className="h-12 w-12 mx-auto" />
+            </div>
+            <h3 className="text-lg font-medium text-red-600 mb-2">
+              {t("error_loading_data")}
+            </h3>
+            <p className="text-gray-600">{error}</p>
+            <Button
+              onClick={() => window.location.reload()}
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {t("retry")}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6 p-4 sm:p-6"
+    >
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-4">
-          <TabsTrigger value="users" className="flex items-center gap-2 ">
+        <TabsList className="grid w-full grid-cols-4 mb-6 bg-white/80 backdrop-blur-sm rounded-xl p-1">
+          <TabsTrigger
+            value="users"
+            className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 rounded-lg py-2"
+          >
             <UserX className="h-4 w-4" />
             {t("user_management")}
           </TabsTrigger>
-          <TabsTrigger value="tenders" className="flex items-center gap-2">
+          <TabsTrigger
+            value="tenders"
+            className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 rounded-lg py-2"
+          >
             <FileX className="h-4 w-4" />
             {t("tender_controls")}
           </TabsTrigger>
-          <TabsTrigger value="audit" className="flex items-center gap-2">
+          <TabsTrigger
+            value="audit"
+            className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 rounded-lg py-2"
+          >
             <History className="h-4 w-4" />
             {t("audit_log")}
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
+          <TabsTrigger
+            value="settings"
+            className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 rounded-lg py-2"
+          >
             <Settings className="h-4 w-4" />
             {t("settings")}
           </TabsTrigger>
@@ -312,420 +385,506 @@ export function AdminControlsContent() {
 
         {/* User Management Tab */}
         <TabsContent value="users" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <UserX className="h-5 w-5" />
-                {t("user_suspension_controls")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-6">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder={t("search_users")}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50 overflow-hidden">
+              <CardHeader className="border-b border-gray-100/50">
+                <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <UserX className="h-5 w-5 text-blue-600" />
+                  {t("user_management")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder={t("search_users")}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-gray-300 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="border rounded-lg">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("user")}</TableHead>
-                      <TableHead>{t("company")}</TableHead>
-                      <TableHead>{t("status")}</TableHead>
-                      <TableHead>{t("tenders")}</TableHead>
-                      <TableHead>{t("last_activity")}</TableHead>
-                      <TableHead>{t("actions")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{user.name}</div>
-                            <div className="text-sm text-gray-500">
-                              {user.email}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{user.company}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              user.status === "active"
-                                ? "default"
-                                : "destructive"
-                            }
-                            className={
-                              user.status === "suspended"
-                                ? "bg-red-100 text-red-800"
-                                : ""
-                            }
-                          >
-                            {user.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{user.tenderCount}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          {format(
-                            new Date(user.lastActivity),
-                            "MMM dd, yyyy HH:mm"
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {user.status === "active" ? (
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button variant="destructive" size="sm">
-                                    <Ban className="h-4 w-4 mr-2" />
-                                    Suspend
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>
-                                      {t("suspend_user")}
-                                    </DialogTitle>
-                                    <DialogDescription>
-                                      This will immediately suspend {user.name}
-                                      and prevent them from accessing the
-                                      platform.
-                                    </DialogDescription>
-                                  </DialogHeader>
-                                  <form
-                                    onSubmit={(e) => {
-                                      e.preventDefault();
-                                      const formData = new FormData(
-                                        e.currentTarget
-                                      );
-                                      const reason = formData.get(
-                                        "reason"
-                                      ) as string;
-                                      initiateAction(
-                                        "User Suspended",
-                                        user,
-                                        reason
-                                      );
-                                    }}
-                                  >
-                                    <div className="space-y-4">
-                                      <div>
-                                        <Label htmlFor="reason">
-                                          {t("suspension_reason")}
-                                        </Label>
-                                        <Textarea
-                                          id="reason"
-                                          name="reason"
-                                          placeholder={t(
-                                            "provide_a_detailed_reason_for_suspension"
-                                          )}
-                                          required
-                                        />
-                                      </div>
-                                    </div>
-                                    <DialogFooter className="mt-6">
-                                      <Button
-                                        type="submit"
-                                        variant="destructive"
-                                      >
-                                        {t("proceed_to_suspend")}
-                                      </Button>
-                                    </DialogFooter>
-                                  </form>
-                                </DialogContent>
-                              </Dialog>
-                            ) : (
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button variant="outline" size="sm">
-                                    <UserX className="h-4 w-4 mr-2" />
-                                    Reactivate
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                      {t("reactivate_user")}
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      This will reactivate {user.name} and
-                                      restore their platform access.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>
-                                      Cancel
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() =>
-                                        initiateAction(
-                                          "User Reactivated",
-                                          user,
-                                          "Account reactivated by admin"
-                                        )
-                                      }
-                                    >
-                                      Reactivate
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            )}
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="rounded-md border border-gray-100/50 overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50/50 hover:bg-gray-50/80 transition-colors">
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("user")}
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("email")}
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("status")}
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("kyc_status")}
+                        </TableHead>
+                        <TableHead className="text-right font-semibold text-gray-600">
+                          {t("actions")}
+                        </TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredUsers.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-12">
+                            <div className="text-gray-500">
+                              <UserX className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                              <p className="text-lg font-medium">
+                                {t("no_users_found")}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {t("try_adjusting_your_search")}
+                              </p>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredUsers.map((user) => (
+                          <TableRow
+                            key={user._id}
+                            className="border-b border-gray-100/50 hover:bg-gray-50/50 transition-colors"
+                          >
+                            <TableCell className="font-medium text-gray-900">
+                              <div className="flex items-center space-x-3">
+                                <div className="bg-gray-200 border-2 border-dashed rounded-xl w-8 h-8" />
+                                <div>
+                                  <div>
+                                    {user.profile?.fullName ||
+                                      user.profile?.companyName ||
+                                      user.email}
+                                  </div>
+                                  <div className="text-xs text-gray-500 capitalize">
+                                    {user.userType}
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-gray-600">
+                              {user.email}
+                            </TableCell>
+                            <TableCell>
+                              {user.isBanned ? (
+                                <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+                                  {t("banned")}
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                  {t("active")}
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {user.isDocumentVerified === "verified" ? (
+                                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                                  {t("kyc_verified")}
+                                </Badge>
+                              ) : user.isDocumentVerified === "pending" ? (
+                                <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                                  {t("kyc_pending")}
+                                </Badge>
+                              ) : user.isDocumentVerified === "rejected" ? (
+                                <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+                                  {t("kyc_rejected")}
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                                  {t("kyc_not_submitted")}
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                {user.isBanned ? (
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="bg-green-100 hover:bg-green-200 text-green-800 border-green-200 hover:border-green-300"
+                                      >
+                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        {t("reactivate")}
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle className="text-xl font-semibold text-gray-900">
+                                          {t("reactivate_user")}
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription className="text-gray-600">
+                                          {t("reactivate_user_description", {
+                                            name:
+                                              user.profile?.fullName ||
+                                              user.profile?.companyName ||
+                                              user.email,
+                                          })}
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors">
+                                          {t("cancel")}
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() =>
+                                            initiateAction(
+                                              "User Reactivated",
+                                              user,
+                                              "Account reactivated by admin"
+                                            )
+                                          }
+                                          className="bg-green-600 hover:bg-green-700 text-white"
+                                        >
+                                          {t("reactivate")}
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                ) : (
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button variant="destructive" size="sm">
+                                        <Ban className="h-4 w-4 mr-2" />
+                                        {t("suspend")}
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-md bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+                                      <DialogHeader>
+                                        <DialogTitle className="text-xl font-semibold text-gray-900">
+                                          {t("suspend_user")}
+                                        </DialogTitle>
+                                        <DialogDescription className="text-gray-600">
+                                          {t("suspend_user_description", {
+                                            name:
+                                              user.profile?.fullName ||
+                                              user.profile?.companyName ||
+                                              user.email,
+                                          })}
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <form
+                                        onSubmit={(e) => {
+                                          e.preventDefault();
+                                          const formData = new FormData(
+                                            e.currentTarget
+                                          );
+                                          const reason = formData.get(
+                                            "reason"
+                                          ) as string;
+                                          initiateAction(
+                                            "User Suspended",
+                                            user,
+                                            reason
+                                          );
+                                        }}
+                                      >
+                                        <div className="space-y-4 py-4">
+                                          <div className="space-y-2">
+                                            <Label
+                                              htmlFor="reason"
+                                              className="text-sm font-medium text-gray-700"
+                                            >
+                                              {t("suspension_reason")}
+                                            </Label>
+                                            <Textarea
+                                              id="reason"
+                                              name="reason"
+                                              placeholder={t(
+                                                "provide_reason_for_suspension"
+                                              )}
+                                              required
+                                              rows={3}
+                                              className="bg-white/80 backdrop-blur-sm border border-gray-200/50"
+                                            />
+                                          </div>
+                                        </div>
+                                        <DialogFooter className="pt-4 border-t border-gray-100/50">
+                                          <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() =>
+                                              setIsPasswordDialogOpen(false)
+                                            }
+                                            className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                                          >
+                                            {t("cancel")}
+                                          </Button>
+                                          <Button
+                                            type="submit"
+                                            className="bg-red-600 hover:bg-red-700 text-white"
+                                          >
+                                            {t("suspend_user")}
+                                          </Button>
+                                        </DialogFooter>
+                                      </form>
+                                    </DialogContent>
+                                  </Dialog>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </TabsContent>
 
         {/* Tender Controls Tab */}
         <TabsContent value="tenders" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileX className="h-5 w-5" />
-                {t("tender_management_controls")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-6">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder={t("search_tenders")}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50 overflow-hidden">
+              <CardHeader className="border-b border-gray-100/50">
+                <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <FileX className="h-5 w-5 text-blue-600" />
+                  {t("tender_controls")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder={t("search_tenders")}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-gray-300 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="border rounded-lg">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("tender")}</TableHead>
-                      <TableHead>{t("category")}</TableHead>
-                      <TableHead>{t("status")}</TableHead>
-                      <TableHead>{t("bids")}</TableHead>
-                      <TableHead>{t("actions")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredTenders.map((tender) => (
-                      <TableRow key={tender.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{tender.title}</div>
-                            <div className="text-sm text-gray-500">
-                              {tender.tenderCode}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{tender.category}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              tender.status === "active"
-                                ? "default"
-                                : "secondary"
-                            }
-                            className={
-                              tender.status === "closed"
-                                ? "bg-gray-100 text-gray-800"
-                                : ""
-                            }
-                          >
-                            {tender.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{tender.bidCount}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {tender.status === "active" && (
-                              <>
-                                <Dialog>
-                                  <DialogTrigger asChild>
-                                    <Button variant="outline" size="sm">
-                                      <StopCircle className="h-4 w-4 mr-2" />
-                                      {t("close_bidding")}
-                                    </Button>
-                                  </DialogTrigger>
-                                  <DialogContent>
-                                    <DialogHeader>
-                                      <DialogTitle>
-                                        {t("force_close_bidding")}
-                                      </DialogTitle>
-                                      <DialogDescription>
-                                        This will immediately close bidding for
-                                        "{tender.title}" and prevent new bids.
-                                      </DialogDescription>
-                                    </DialogHeader>
-                                    <form
-                                      onSubmit={(e) => {
-                                        e.preventDefault();
-                                        const formData = new FormData(
-                                          e.currentTarget
-                                        );
-                                        const reason = formData.get(
-                                          "reason"
-                                        ) as string;
-                                        initiateAction(
-                                          "Bidding Closed",
-                                          tender,
-                                          reason
-                                        );
-                                      }}
-                                    >
-                                      <div className="space-y-4">
-                                        <div>
-                                          <Label htmlFor="close-reason">
-                                            {t("closure_reason")}
-                                          </Label>
-                                          <Textarea
-                                            id="close-reason"
-                                            name="reason"
-                                            placeholder={t(
-                                              "provide_a_reason_for_closing_bidding_early"
-                                            )}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                      <DialogFooter className="mt-6">
-                                        <Button
-                                          type="submit"
-                                          variant="destructive"
-                                        >
-                                          {t("close_bidding")}
-                                        </Button>
-                                      </DialogFooter>
-                                    </form>
-                                  </DialogContent>
-                                </Dialog>
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" size="sm">
-                                      <Trash2 className="h-4 w-4 mr-2" />
-                                      Remove
-                                    </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>
-                                        {t("remove_tender")}
-                                      </AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        This will permanently remove "
-                                        {tender.title}" from the platform. This
-                                        action cannot be undone and will affect
-                                        {tender.bidCount} existing bids.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>
-                                        Cancel
-                                      </AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={() =>
-                                          initiateAction(
-                                            "Tender Removed",
-                                            tender,
-                                            "Tender removed by admin"
-                                          )
-                                        }
-                                        className="bg-red-600 hover:bg-red-700"
-                                      >
-                                        {t("remove_tender")}
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              </>
-                            )}
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="rounded-md border border-gray-100/50 overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50/50 hover:bg-gray-50/80 transition-colors">
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("tender")}
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("category")}
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("status")}
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("bids")}
+                        </TableHead>
+                        <TableHead className="text-right font-semibold text-gray-600">
+                          {t("actions")}
+                        </TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredTenders.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-12">
+                            <div className="text-gray-500">
+                              <FileX className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                              <p className="text-lg font-medium">
+                                {t("no_tenders_found")}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {t("try_adjusting_your_search")}
+                              </p>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredTenders.map((tender) => (
+                          <TableRow
+                            key={tender._id}
+                            className="border-b border-gray-100/50 hover:bg-gray-50/50 transition-colors"
+                          >
+                            <TableCell className="font-medium text-gray-900">
+                              <div>
+                                <div>{tender.title}</div>
+                                <div className="text-xs text-gray-500">
+                                  {tender.tenderCode}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="capitalize">
+                                {tender.category?.name}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  tender.status === "active"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                                className={
+                                  tender.status === "closed"
+                                    ? "bg-gray-100 text-gray-800"
+                                    : ""
+                                }
+                              >
+                                {t(tender.status)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">
+                                {tender.bidCount || 0}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                {tender.status === "active" && (
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="destructive" size="sm">
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        {t("remove")}
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle className="text-xl font-semibold text-gray-900">
+                                          {t("remove_tender")}
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription className="text-gray-600">
+                                          {t("remove_tender_description", {
+                                            title: tender.title,
+                                          })}
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors">
+                                          {t("cancel")}
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() =>
+                                            initiateAction(
+                                              "Tender Removed",
+                                              tender,
+                                              "Tender removed by admin"
+                                            )
+                                          }
+                                          className="bg-red-600 hover:bg-red-700 text-white"
+                                        >
+                                          {t("remove_tender")}
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                )}
+                                <Button variant="outline" size="sm">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </TabsContent>
 
         {/* Audit Log Tab */}
         <TabsContent value="audit" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <History className="h-5 w-5" />
-                {t("admin_action_audit_log")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="border rounded-lg">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("action")}</TableHead>
-                      <TableHead>{t("target")}</TableHead>
-                      <TableHead>{t("admin")}</TableHead>
-                      <TableHead>{t("reason")}</TableHead>
-                      <TableHead>{t("timestamp")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {auditLog.map((entry) => (
-                      <TableRow key={entry.id}>
-                        <TableCell className="font-medium">
-                          {entry.action}
-                        </TableCell>
-                        <TableCell>{entry.target}</TableCell>
-                        <TableCell>{entry.admin}</TableCell>
-                        <TableCell className="max-w-xs">
-                          <div className="truncate">{entry.reason}</div>
-                        </TableCell>
-                        <TableCell>
-                          {format(
-                            new Date(entry.timestamp),
-                            "MMM dd, yyyy HH:mm:ss"
-                          )}
-                        </TableCell>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50 overflow-hidden">
+              <CardHeader className="border-b border-gray-100/50">
+                <CardTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <History className="h-5 w-5 text-blue-600" />
+                  {t("audit_log")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="rounded-md border border-gray-100/50 overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50/50 hover:bg-gray-50/80 transition-colors">
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("action")}
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("target")}
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("admin")}
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-600">
+                          {t("timestamp")}
+                        </TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {auditLog.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center py-12">
+                            <div className="text-gray-500">
+                              <History className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                              <p className="text-lg font-medium">
+                                {t("no_audit_logs_found")}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {t("audit_logs_will_appear_here")}
+                              </p>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        auditLog.map((entry) => (
+                          <TableRow
+                            key={entry._id}
+                            className="border-b border-gray-100/50 hover:bg-gray-50/50 transition-colors"
+                          >
+                            <TableCell className="font-medium text-gray-900">
+                              {t(`audit_action_${entry.action}`)}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="capitalize">
+                                {entry.targetModel}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{entry.adminEmail}</TableCell>
+                            <TableCell className="text-gray-600">
+                              {new Date(entry.createdAt).toLocaleString()}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </TabsContent>
+
         <TabsContent value="settings" className="space-y-6">
-          <SettingsContent />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <SettingsContent />
+          </motion.div>
         </TabsContent>
       </Tabs>
 
@@ -734,51 +893,58 @@ export function AdminControlsContent() {
         open={isPasswordDialogOpen}
         onOpenChange={setIsPasswordDialogOpen}
       >
-        <DialogContent>
+        <DialogContent className="max-w-md bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center gap-2">
               <Lock className="h-5 w-5 text-red-600" />
               {t("security_verification_required")}
             </DialogTitle>
-            <DialogDescription>
-              Please enter your admin password to confirm this sensitive action.
+            <DialogDescription className="text-gray-600">
+              {t("enter_admin_password_to_confirm_action")}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 py-4">
             {pendingAction && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="h-4 w-4 text-red-600" />
                   <span className="font-medium text-red-900">
-                    Action to be performed:
+                    {t("action_to_be_performed")}
                   </span>
                 </div>
                 <div className="text-sm text-red-800">
-                  <strong>{pendingAction.type}</strong> on
+                  <strong>{t(`audit_action_${pendingAction.type}`)}</strong>{" "}
+                  {t("on")}{" "}
                   <strong>
-                    {pendingAction.target.name ||
+                    {pendingAction.target.profile?.fullName ||
+                      pendingAction.target.profile?.companyName ||
                       pendingAction.target.title ||
                       pendingAction.target.tenderCode}
                   </strong>
                 </div>
                 <div className="text-sm text-red-700 mt-1">
-                  Reason: {pendingAction.reason}
+                  {t("reason")}: {pendingAction.reason}
                 </div>
               </div>
             )}
-            <div>
-              <Label htmlFor="admin-password">{t("admin_password")}</Label>
+            <div className="space-y-2">
+              <Label
+                htmlFor="admin-password"
+                className="text-sm font-medium text-gray-700"
+              >
+                {t("admin_password")}
+              </Label>
               <Input
                 id="admin-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={t("enter_your_password")}
-                className="mt-1"
+                className="bg-white/80 backdrop-blur-sm border border-gray-200/50"
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="pt-4 border-t border-gray-100/50">
             <Button
               variant="outline"
               onClick={() => {
@@ -786,19 +952,26 @@ export function AdminControlsContent() {
                 setPassword("");
                 setPendingAction(null);
               }}
+              className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handlePasswordVerification}
-              disabled={!password}
+              disabled={!password || actionLoading}
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
+              {actionLoading ? (
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Lock className="h-4 w-4 mr-2" />
+              )}
               {t("confirm_action")}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }

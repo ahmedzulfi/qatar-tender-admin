@@ -129,6 +129,67 @@ export class AdminService {
     }
   }
 
+  // ====== NEWLY ADDED ENDPOINTS BELOW ======
+
+  /**
+   * Creates the initial super admin account
+   * @param email - Super admin email (must match SUPER_ADMIN_EMAIL env var)
+   * @param password - Initial password for super admin
+   * @returns Success status and response data
+   */
+  async createSuperAdmin(email: string, password: string) {
+    try {
+      console.log("🔐 Creating super admin with email:", email);
+      const response = await api.post("/api/admin/create-super-admin", {
+        email,
+        password,
+      });
+      console.log("✅ Super admin created:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to create super admin:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error: error.response?.data?.message || "Failed to create super admin",
+      };
+    }
+  }
+
+  /**
+   * Verifies super admin's email using verification token
+   * @param token - Email verification token
+   * @returns Success status and verification result
+   */
+  async verifySuperAdminEmail(token: string) {
+    try {
+      console.log(`📧 Verifying super admin email with token: ${token}`);
+      const response = await api.get(`/api/admin/verify-email/${token}`);
+      console.log("✅ Super admin email verified:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to verify super admin email:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || "Failed to verify super admin email",
+      };
+    }
+  }
+
+  // ====== EXISTING ENDPOINTS (UNMODIFIED) ======
+
   // User management
   async getUsers(params: UserListParams = {}) {
     try {
@@ -153,7 +214,7 @@ export class AdminService {
     data: { email?: string; isBanned?: boolean; banReason?: string }
   ) {
     try {
-      console.log(`✏️ Editing user ${userId} with data:`, data);
+      console.log(`✏️ Editing user ${userId} with `, data);
       const response = await api.put(`/api/admin/users/${userId}`, data);
       console.log("✅ User updated:", response.data);
       return {
