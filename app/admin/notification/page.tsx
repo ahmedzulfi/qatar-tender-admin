@@ -94,8 +94,6 @@ const NotificationDemo = () => {
     const paymentId = getId(n.relatedPayment);
     const profileId = getId(n.profileId);
 
-    const p = prefix();
-
     switch (n.type) {
       case "user_registered":
       case "password_changed":
@@ -104,62 +102,36 @@ const NotificationDemo = () => {
       case "verification":
       case "password_setting_change":
       case "transaction":
-        return `/${p}/profile`;
+        return `/admin/users/${userId || ""}`;
 
       case "question":
-        if (tenderId) return `/${p}/tender/${tenderId}`;
-        return `/${p}/tenders`;
-
       case "answer":
-        if (tenderId) return `/${p}/tender-details/${tenderId}`;
-        return `/${p}/tenders`;
-
       case "new_tender":
-        if (tenderId) return `/${p}/tender-details/${tenderId}`;
-        return `/${p}/tenders`;
-
+      case "tender_posted":
       case "tender_created":
-        if (tenderId) return `/${p}/tender/${tenderId}`;
-        return `/${p}/tenders`;
-
+      case "tender_updated":
       case "tender_status":
-        if (tenderId) return `/${p}/tender/${tenderId}`;
-        return `/${p}/tenders`;
+        return `/admin/tenders/${tenderId || ""}`;
 
       case "tender_awarded":
-        return `/${p}/projects`;
+        return `/admin/tenders/${tenderId || ""}`;
 
       case "tender_deleted":
-        return `/${p}/my-tenders`;
+        return `/admin/tenders`;
 
       case "new_bid_received":
-        if (tenderId) return `/${p}/tender/${tenderId}`;
-        return `/${p}/tenders`;
-
       case "bid_submitted":
-        if (tenderId) return `/${p}/tender-details/${tenderId}`;
-        return `/${p}/bids`;
+      case "bid_status_update":
+      case "bid_rejected":
+      case "bid_deleted":
+        return `/admin/bids/${bidId || ""}`;
 
       case "payment_success":
       case "bid_paid":
-        if (tenderId) return `/${p}/tender-details/${tenderId}`;
-        return `/${p}/payments`;
-
-      case "bid_status_update":
-        if (tenderId) return `/${p}/tender-details/${tenderId}`;
-        return `/${p}/bids`;
-
-      case "bid_rejected": {
-        if (getId(n.relatedBid)) return `/${p}/bids`;
-        if (tenderId) return `/${p}/tender-details/${tenderId}`;
-        return `/${p}/bids`;
-      }
+        return `/admin/payments/${paymentId || ""}`;
 
       default:
-        if (tenderId) return `/${p}/tender-details/${tenderId}`;
-        if (bidId) return `/${p}/bids/${bidId}`;
-        if (userId) return `/${p}/users/${userId}`;
-        return `/${p}`;
+        return `/admin`;
     }
   };
 
@@ -282,7 +254,7 @@ const NotificationDemo = () => {
               strokeWidth="1.8"
               strokeLinecap="round"
               strokeLinejoin="round"
-              d="M9 12l2 2 4-4M12 2a10 10 0 100 20 10 10 0 000-20z"
+              d="M9 12l2 2 4-4M14 14l-4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
         );

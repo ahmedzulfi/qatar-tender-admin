@@ -439,6 +439,52 @@ export class AdminService {
       };
     }
   }
+  async universalSearch(search: string) {
+    try {
+      console.log("🔍 Performing universal admin search with query:", search);
+      const response = await api.get("/api/admin/search", {
+        params: { search },
+      });
+      console.log("✅ Universal search results:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to perform universal search:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || "Failed to perform universal search",
+      };
+    }
+  }
+  // async universalSearch(search: string) {
+  //   try {
+  //     console.log("🔍 Performing universal admin search with query:", search);
+  //     const response = await api.get("/api/admin/search", {
+  //       params: { q: search },
+  //     });
+  //     console.log("✅ Universal search results:", response.data);
+  //     return {
+  //       success: true,
+  //       data: response.data,
+  //     };
+  //   } catch (error: any) {
+  //     console.error(
+  //       "❌ Failed to perform universal search:",
+  //       error.response?.data || error
+  //     );
+  //     return {
+  //       success: false,
+  //       error:
+  //         error.response?.data?.message || "Failed to perform universal search",
+  //     };
+  //   }
+  // }
 }
 
 export const adminService = new AdminService();

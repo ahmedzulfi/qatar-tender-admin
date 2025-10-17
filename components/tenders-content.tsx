@@ -89,7 +89,7 @@ export function TendersContent() {
   >("none");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-  // Pagination state (client-side)
+  // Pagination state
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const pageOptions = [10, 25, 50, 100];
@@ -101,14 +101,12 @@ export function TendersContent() {
       setError(null);
 
       try {
-        // Fetch tenders with sufficient limit for client-side pagination
         const response = await adminService.getTenders({ limit: 100 });
 
         if (response.success && response.data) {
           const fetchedTenders: Tender[] = response.data.tenders || [];
           setTenders(fetchedTenders);
 
-          // Calculate stats
           const totalTenders = fetchedTenders.length;
           const activeTenders = fetchedTenders.filter(
             (t) =>
@@ -148,7 +146,6 @@ export function TendersContent() {
     fetchTenders();
   }, []);
 
-  // Helper function to resolve budget from tender
   const resolveBudget = (tender: Tender) => {
     if (typeof tender.estimatedBudget === "number")
       return tender.estimatedBudget;
@@ -161,20 +158,22 @@ export function TendersContent() {
     return 0;
   };
 
-  // Helper function to parse and format date
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
     return new Date(dateString).toLocaleDateString();
   };
 
-  // Get unique categories for filter
   const categories = useMemo(
-    () =>
-      [...new Set(tenders.map((t) => t.category?.name).filter((name): name is string => typeof name === "string"))],
+    () => [
+      ...new Set(
+        tenders
+          .map((t) => t.category?.name)
+          .filter((name): name is string => typeof name === "string")
+      ),
+    ],
     [tenders]
   );
 
-  // Status badge component (Apple-like subtle pills)
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case "open":
@@ -217,7 +216,6 @@ export function TendersContent() {
     }
   };
 
-  // Format budget for display
   const formatBudget = (budget: number) => {
     if (!budget || budget === 0) return "Not specified";
     return new Intl.NumberFormat("en-US", {
@@ -228,17 +226,15 @@ export function TendersContent() {
     }).format(budget);
   };
 
-  // Filter tenders based on search and filters
   const filteredTenders = useMemo(() => {
     return tenders.filter((tender) => {
       const matchesSearch =
-        tender.title?.toLowerCase().includes(searchTerm.toLowerCase() || "") ||
+        tender.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         tender.postedBy?.email
           ?.toLowerCase()
-          .includes(searchTerm.toLowerCase() || "") ||
+          .includes(searchTerm.toLowerCase()) ||
         false;
 
-      // Fix active/open selection: when statusFilter === "open", match both "open" and "active"
       const tenderStatus = (tender.status || "").toLowerCase();
       const sf = statusFilter.toLowerCase();
       const matchesStatus =
@@ -259,7 +255,11 @@ export function TendersContent() {
     });
   }, [tenders, searchTerm, statusFilter, categoryFilter, typeFilter]);
 
-  // Sorting logic
+  // 🔥 CRITICAL FIX: Reset to page 1 whenever filtered results change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredTenders]);
+
   const sortedTenders = useMemo(() => {
     const list = [...filteredTenders];
     if (sortBy === "none") return list;
@@ -305,15 +305,15 @@ export function TendersContent() {
     return list;
   }, [filteredTenders, sortBy, sortOrder]);
 
-  // Pagination derived values
   const totalItems = sortedTenders.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
-  // Ensure currentPage valid when filters or pageSize change
+  // Ensure currentPage is valid if pageSize changes
   useEffect(() => {
-    if (currentPage > totalPages) setCurrentPage(totalPages);
-    if (currentPage < 1) setCurrentPage(1);
-  }, [totalPages, currentPage]);
+    if (currentPage > totalPages) {
+      setCurrentPage(1); // Safe fallback
+    }
+  }, [pageSize, totalPages, currentPage]);
 
   const paginatedTenders = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -321,7 +321,6 @@ export function TendersContent() {
     return sortedTenders.slice(start, end);
   }, [sortedTenders, currentPage, pageSize]);
 
-  // Small pagination number generator with ellipsis
   const getPageNumbers = () => {
     const pages: (number | "...")[] = [];
     const maxButtons = 7;
@@ -351,7 +350,6 @@ export function TendersContent() {
   if (loading) {
     return (
       <div className="space-y-6">
-        {/* Skeleton for Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <Card
@@ -369,7 +367,6 @@ export function TendersContent() {
           ))}
         </div>
 
-        {/* Skeleton for Filters */}
         <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/60 rounded-2xl">
           <CardHeader>
             <Skeleton className="h-6 w-36" />
@@ -384,7 +381,6 @@ export function TendersContent() {
               <Skeleton className="h-10 w-full sm:w-[180px] rounded-full" />
             </div>
 
-            {/* Skeleton for Table */}
             <div className="rounded-2xl border border-gray-100 overflow-hidden">
               <Table>
                 <TableHeader>
@@ -436,74 +432,6 @@ export function TendersContent() {
 
   return (
     <div className="space-y-6 font-sans">
-      {/* Summary Cards */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">
-          <CardHeader className="flex items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("total_tenders")}
-            </CardTitle>
-            <FileText className="h-4 w-4 text-gray-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              {stats.totalTenders}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {t("active_submissions")}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">
-          <CardHeader className="flex items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("active_tenders")}
-            </CardTitle>
-            <Clock className="h-4 w-4 text-gray-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {stats.activeTenders}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">{t("currently_open")}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">
-          <CardHeader className="flex items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("total_bids")}
-            </CardTitle>
-            <Users className="h-4 w-4 text-gray-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              {stats.totalBids}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {t("across_all_tenders")}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">
-          <CardHeader className="flex items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("total_value")}
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-gray-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              {formatBudget(stats.totalValue)}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">{t("combined_budget")}</p>
-          </CardContent>
-        </Card>
-      </div> */}
-
-      {/* Filters and Search */}
       <Card className="shadow-[0_6px_18px_rgba(0,0,0,0.06)] bg-white/80 rounded-2xl">
         <CardHeader>
           <CardTitle>{t("tender_management")}</CardTitle>
@@ -515,20 +443,14 @@ export function TendersContent() {
               <Input
                 placeholder={t("search_tenders")}
                 value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
+                onChange={(e) => setSearchTerm(e.target.value)} // ✅ Removed setCurrentPage(1)
                 className="pl-10 rounded-full border border-gray-100 shadow-sm"
               />
             </div>
 
             <Select
               value={statusFilter}
-              onValueChange={(v) => {
-                setStatusFilter(v);
-                setCurrentPage(1);
-              }}
+              onValueChange={(v) => setStatusFilter(v)} // ✅ Removed setCurrentPage(1)
             >
               <SelectTrigger className="w-full sm:w-[170px] rounded-full">
                 <SelectValue placeholder={t("filter_by_status")} />
@@ -546,10 +468,7 @@ export function TendersContent() {
 
             <Select
               value={categoryFilter}
-              onValueChange={(v) => {
-                setCategoryFilter(v);
-                setCurrentPage(1);
-              }}
+              onValueChange={(v) => setCategoryFilter(v)} // ✅ Removed setCurrentPage(1)
             >
               <SelectTrigger className="w-full sm:w-[170px] rounded-full">
                 <SelectValue placeholder={t("filter_by_category")} />
@@ -566,10 +485,7 @@ export function TendersContent() {
 
             <Select
               value={typeFilter}
-              onValueChange={(v) => {
-                setTypeFilter(v);
-                setCurrentPage(1);
-              }}
+              onValueChange={(v) => setTypeFilter(v)} // ✅ Removed setCurrentPage(1)
             >
               <SelectTrigger className="w-full sm:w-[150px] rounded-full">
                 <SelectValue placeholder={t("filter_by_type")} />
@@ -582,7 +498,6 @@ export function TendersContent() {
             </Select>
           </div>
 
-          {/* Sorting + Page size row */}
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-3">
               <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
@@ -618,7 +533,7 @@ export function TendersContent() {
                 value={String(pageSize)}
                 onValueChange={(v) => {
                   setPageSize(Number(v));
-                  setCurrentPage(1);
+                  // Note: currentPage reset handled by useEffect below if needed
                 }}
               >
                 <SelectTrigger className="w-[90px] rounded-full">
@@ -635,7 +550,6 @@ export function TendersContent() {
             </div>
           </div>
 
-          {/* Tenders Table */}
           <div className="rounded-2xl border border-gray-100 overflow-hidden bg-white/60">
             <Table>
               <TableHeader className="bg-transparent">
@@ -768,8 +682,7 @@ export function TendersContent() {
             </Table>
           </div>
 
-          {/* Pagination Controls */}
-          <div className="mt-9 flex  items-center justify-center">
+          <div className="mt-9 flex items-center justify-center">
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -792,7 +705,6 @@ export function TendersContent() {
                 <ChevronLeft className="h-4 w-4" />
               </Button>
 
-              {/* Page numbers */}
               <div className="flex items-center gap-2 px-2">
                 {getPageNumbers().map((p, idx) =>
                   p === "..." ? (
