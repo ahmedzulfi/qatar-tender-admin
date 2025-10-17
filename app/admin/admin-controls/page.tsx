@@ -1,6 +1,6 @@
 "use client";
-import { Suspense } from "react";
 import { AdminControlsContent } from "@/components/admin-controls-content";
+import { Suspense } from "react";
 
 export default function AdminControlsPage() {
   return (

@@ -125,24 +125,6 @@ export default function layout({ children }: { children: React.ReactNode }) {
     return currentNav?.name || t("dashboard");
   };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setQuery(value);
-
-    if (value.trim().length < 1) {
-      setResults([]);
-      return;
-    }
-
-    const filtered = mockResults.filter(
-      (item) =>
-        item.title.toLowerCase().includes(value.toLowerCase()) ||
-        item.subtitle.toLowerCase().includes(value.toLowerCase())
-    );
-
-    setResults(filtered);
-  };
-
   return (
     <AuthProvider>
       <NotificationProvider>
@@ -266,34 +248,6 @@ export default function layout({ children }: { children: React.ReactNode }) {
 
                 {/* Right Section */}
                 <div className="flex items-center space-x-4 relative gap-6">
-                  {/* Search Bar */}
-                  <div className="relative hidden md:block">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                    <Input
-                      placeholder={t("search")}
-                      className="pl-10 w-64"
-                      value={query}
-                      onChange={handleSearch}
-                    />
-
-                    {/* Search Results Dropdown */}
-                    {results.length > 0 && (
-                      <div className="absolute mt-2 w-64 bg-white shadow-lg rounded-md border z-50">
-                        {results.map((item) => (
-                          <Link
-                            key={`${item.type}-${item.id}`}
-                            href={`/${item.type}/${item.id}`}
-                            className="block px-4 py-2 hover:bg-gray-100"
-                          >
-                            <p className="text-sm font-medium">{item.title}</p>
-                            <p className="text-xs text-gray-500">
-                              {item.subtitle}
-                            </p>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
                   <LanguageToggle />
                   {/* Avatar & Dropdown */}
                   <DropdownMenu>
