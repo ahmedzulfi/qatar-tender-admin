@@ -38,6 +38,8 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/auth-guard";
 import { NotificationProvider } from "@/context/NotificationContext";
+import { adminService } from "@/services/adminService";
+import { useAdminAuth } from "@/context/AdminAuthProvider";
 // Types
 type NavItem = {
   name: string;
@@ -98,7 +100,7 @@ export default function layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useTranslation();
-
+  const { logout, admin } = useAdminAuth();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const navigation: NavItem[] = [
@@ -123,6 +125,10 @@ export default function layout({ children }: { children: React.ReactNode }) {
       return false;
     });
     return currentNav?.name || t("dashboard");
+  };
+  const handellogout = async () => {
+    logout();
+    router.push("/login");
   };
 
   return (
@@ -276,18 +282,21 @@ export default function layout({ children }: { children: React.ReactNode }) {
                             {t("admin_user")}
                           </p>
                           <p className="text-xs leading-none text-muted-foreground">
-                            admin@qatartender.com
+                            {admin?.email}
                           </p>
                         </div>
                       </DropdownMenuLabel>
 
                       <DropdownMenuSeparator />
-                      <Link href={"/login"}>
-                        <DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <div
+                          className="div flex"
+                          onClick={() => handellogout()}
+                        >
                           <LogOut className="mr-2 h-4 w-4" />
                           <span>{t("log_out")}</span>
-                        </DropdownMenuItem>
-                      </Link>
+                        </div>
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

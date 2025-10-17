@@ -36,6 +36,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PageTransitionWrapper from "@/components/animations/PageTransitionWrapper";
 import AdminDetailedOverview from "@/components/animations/AdminDetailedOverview";
 import AdminOverviewChart from "@/components/animations/AdminDetailedOverview";
+import { useAuth } from "@/context/AuthContext";
 
 // Types (same as before)
 interface AnalyticsData {
