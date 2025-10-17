@@ -15,6 +15,7 @@ export interface Question {
 }
 
 export interface ApiResponse<T> {
+  questions: Question[];
   data: T;
   message?: string;
 }

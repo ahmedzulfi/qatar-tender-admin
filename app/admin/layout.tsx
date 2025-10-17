@@ -36,6 +36,7 @@ import { useTranslation } from "../../lib/hooks/useTranslation";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/auth-guard";
+import { NotificationProvider } from "@/context/NotificationContext";
 // Types
 type NavItem = {
   name: string;
@@ -106,7 +107,7 @@ export default function layout({ children }: { children: React.ReactNode }) {
     { name: t("bids"), href: "/admin/bids", icon: Gavel },
     { name: t("users"), href: "/admin/users", icon: Users },
     { name: t("kyc"), href: "/admin/kyc", icon: UserCheck },
-    { name: t("transactions"), href: "/admin/transactions", icon: CreditCard },
+    // { name: t("transactions"), href: "/admin/transactions", icon: CreditCard },
     { name: t("analytics"), href: "/admin/analytics", icon: BarChart3 },
     { name: t("categories"), href: "/admin/categories", icon: Tags },
     { name: t("settings"), href: "/admin/settings", icon: Settings },
@@ -142,75 +143,35 @@ export default function layout({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthProvider>
-      <div className="flex h-screen bg-gray-50">
-        <div
-          className={classNames(
-            sidebarOpen ? "translate-x-0" : "-translate-x-full",
-            "fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out lg:hidden"
-          )}
-        >
-          <div className="flex h-16 items-center justify-between px-6 border-b">
-            <h1 className="text-xl font-bold text-gray-900">
-              {t("qatar_tender")}
-            </h1>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-          <nav className="mt-6 px-3">
-            <ul className="space-y-1">
-              {navigation.map((item) => (
-                <li key={item.name}>
-                  <button
-                    onClick={() => {
-                      router.push(item.href);
-                      setSidebarOpen(false);
-                    }}
-                    className={classNames(
-                      (item.href === "/admin" && pathname === "/admin") ||
-                        (item.href !== "/admin" &&
-                          pathname.startsWith(item.href))
-                        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-                        : "text-gray-700 hover:bg-gray-50",
-                      "group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
-                    )}
-                  >
-                    <item.icon
-                      className={classNames(
-                        (item.href === "/admin" && pathname === "/admin") ||
-                          (item.href !== "/admin" &&
-                            pathname.startsWith(item.href))
-                          ? "text-blue-700"
-                          : "text-gray-400",
-                        "mr-3 h-5 w-5 flex-shrink-0"
-                      )}
-                    />
-                    {item.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
-
-        {/* Desktop sidebar */}
-        <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
-          <div className="flex flex-col flex-grow bg-white border-r border-gray-200 overflow-y-auto">
-            <div className="flex h-16 items-center px-6 border-b">
+      <NotificationProvider>
+        <div className="flex h-screen bg-gray-50">
+          <div
+            className={classNames(
+              sidebarOpen ? "translate-x-0" : "-translate-x-full",
+              "fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transition-transform duration-300 ease-in-out lg:hidden"
+            )}
+          >
+            <div className="flex h-16 items-center justify-between px-6 border-b">
               <h1 className="text-xl font-bold text-gray-900">
                 {t("qatar_tender")}
               </h1>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
             </div>
-            <nav className="mt-6 flex-1 px-3">
+            <nav className="mt-6 px-3">
               <ul className="space-y-1">
                 {navigation.map((item) => (
                   <li key={item.name}>
                     <button
-                      onClick={() => router.push(item.href)}
+                      onClick={() => {
+                        router.push(item.href);
+                        setSidebarOpen(false);
+                      }}
                       className={classNames(
                         (item.href === "/admin" && pathname === "/admin") ||
                           (item.href !== "/admin" &&
@@ -237,114 +198,160 @@ export default function layout({ children }: { children: React.ReactNode }) {
               </ul>
             </nav>
           </div>
-        </div>
 
-        {/* Main content */}
-        <div className="flex flex-1 flex-col lg:pl-64">
-          <header className="bg-white border-b border-gray-200 relative">
-            <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-              {/* Left Section */}
-              <div className="flex items-center">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="lg:hidden"
-                  onClick={() => setSidebarOpen(true)}
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-                <div className="ml-4 lg:ml-0">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {getCurrentPageName()}
-                  </h2>
-                </div>
+          {/* Desktop sidebar */}
+          <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
+            <div className="flex flex-col flex-grow bg-white border-r border-gray-200 overflow-y-auto">
+              <div className="flex h-16 items-center px-6 border-b">
+                <h1 className="text-xl font-bold text-gray-900">
+                  {t("qatar_tender")}
+                </h1>
               </div>
-
-              {/* Right Section */}
-              <div className="flex items-center space-x-4 relative gap-6">
-                {/* Search Bar */}
-                <div className="relative hidden md:block">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    placeholder={t("search")}
-                    className="pl-10 w-64"
-                    value={query}
-                    onChange={handleSearch}
-                  />
-
-                  {/* Search Results Dropdown */}
-                  {results.length > 0 && (
-                    <div className="absolute mt-2 w-64 bg-white shadow-lg rounded-md border z-50">
-                      {results.map((item) => (
-                        <Link
-                          key={`${item.type}-${item.id}`}
-                          href={`/${item.type}/${item.id}`}
-                          className="block px-4 py-2 hover:bg-gray-100"
-                        >
-                          <p className="text-sm font-medium">{item.title}</p>
-                          <p className="text-xs text-gray-500">
-                            {item.subtitle}
-                          </p>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <LanguageToggle />
-                {/* Avatar & Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="relative h-8 w-8 rounded-full"
-                    >
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage
-                          src="/placeholder.svg?height=32&width=32"
-                          alt="Admin"
+              <nav className="mt-6 flex-1 px-3">
+                <ul className="space-y-1">
+                  {navigation.map((item) => (
+                    <li key={item.name}>
+                      <button
+                        onClick={() => router.push(item.href)}
+                        className={classNames(
+                          (item.href === "/admin" && pathname === "/admin") ||
+                            (item.href !== "/admin" &&
+                              pathname.startsWith(item.href))
+                            ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
+                            : "text-gray-700 hover:bg-gray-50",
+                          "group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                        )}
+                      >
+                        <item.icon
+                          className={classNames(
+                            (item.href === "/admin" && pathname === "/admin") ||
+                              (item.href !== "/admin" &&
+                                pathname.startsWith(item.href))
+                              ? "text-blue-700"
+                              : "text-gray-400",
+                            "mr-3 h-5 w-5 flex-shrink-0"
+                          )}
                         />
-                        <AvatarFallback>AD</AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {t("admin_user")}
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          admin@qatartender.com
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-
-                    <DropdownMenuSeparator />
-                    <Link href={"/login"}>
-                      <DropdownMenuItem>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>{t("log_out")}</span>
-                      </DropdownMenuItem>
-                    </Link>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                        {item.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             </div>
-          </header>
+          </div>
 
-          {/* Page content */}
-          <main className="flex-1 overflow-y-auto">
-            <div className="p-4 sm:p-6 lg:p-8">{children}</div>
-          </main>
+          {/* Main content */}
+          <div className="flex flex-1 flex-col lg:pl-64">
+            <header className="bg-white border-b border-gray-200 relative">
+              <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+                {/* Left Section */}
+                <div className="flex items-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="lg:hidden"
+                    onClick={() => setSidebarOpen(true)}
+                  >
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                  <div className="ml-4 lg:ml-0">
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      {getCurrentPageName()}
+                    </h2>
+                  </div>
+                </div>
+
+                {/* Right Section */}
+                <div className="flex items-center space-x-4 relative gap-6">
+                  {/* Search Bar */}
+                  <div className="relative hidden md:block">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Input
+                      placeholder={t("search")}
+                      className="pl-10 w-64"
+                      value={query}
+                      onChange={handleSearch}
+                    />
+
+                    {/* Search Results Dropdown */}
+                    {results.length > 0 && (
+                      <div className="absolute mt-2 w-64 bg-white shadow-lg rounded-md border z-50">
+                        {results.map((item) => (
+                          <Link
+                            key={`${item.type}-${item.id}`}
+                            href={`/${item.type}/${item.id}`}
+                            className="block px-4 py-2 hover:bg-gray-100"
+                          >
+                            <p className="text-sm font-medium">{item.title}</p>
+                            <p className="text-xs text-gray-500">
+                              {item.subtitle}
+                            </p>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <LanguageToggle />
+                  {/* Avatar & Dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="relative h-8 w-8 rounded-full"
+                      >
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage
+                            src="/placeholder.svg?height=32&width=32"
+                            alt="Admin"
+                          />
+                          <AvatarFallback>AD</AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      className="w-56"
+                      align="end"
+                      forceMount
+                    >
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">
+                            {t("admin_user")}
+                          </p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            admin@qatartender.com
+                          </p>
+                        </div>
+                      </DropdownMenuLabel>
+
+                      <DropdownMenuSeparator />
+                      <Link href={"/login"}>
+                        <DropdownMenuItem>
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>{t("log_out")}</span>
+                        </DropdownMenuItem>
+                      </Link>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            </header>
+
+            {/* Page content */}
+            <main className="flex-1 overflow-y-auto">
+              <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+            </main>
+          </div>
+
+          {sidebarOpen && (
+            <div
+              className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
         </div>
-
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-      </div>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

@@ -325,22 +325,42 @@ export default function UserProfile() {
 
       try {
         // Fetch user data
-        const userResponse = await adminService.getUsers({
-          limit: 1,
-          _id: userId,
-        });
-
-        if (!userResponse.success || !userResponse.data.users?.length) {
-          throw new Error("User not found");
-        }
-
-        const userData = userResponse.data.users[0];
+        const userResponse = await adminService.getUser(userId);
 
         // Fetch profile data
-        const profileData = await profileApi.getProfileById(userId);
+        const profileApiResponse = await profileApi.getProfileById(userId);
+        // Ensure profileData matches Profile type
+        const rawProfile = profileApiResponse?.profile || profileApiResponse;
+        const profileData: Profile = {
+          _id: rawProfile._id,
+          user: rawProfile.user,
+          phone: rawProfile.phone ?? "",
+          address: rawProfile.address?? "",
+          userType: ["individual", "business", "admin"].includes(rawProfile.userType)
+            ? (rawProfile.userType as "individual" | "business" | "admin")
+            : "individual",
+          rating: rawProfile.rating ?? 0,
+          ratingCount: rawProfile.ratingCount ?? 0,
+          fullName: rawProfile.fullName,
+          nationalId: rawProfile.nationalId,
+          nationalIdFront: rawProfile.nationalIdFront,
+          nationalIdBack: rawProfile.nationalIdBack,
+          companyName: rawProfile.companyName,
+          companyEmail: rawProfile.companyEmail,
+          personalEmail: rawProfile.personalEmail,
+          companyDesc: rawProfile.companyDesc,
+          contactPersonName: rawProfile.contactPersonName,
+          commercialRegistrationNumber: rawProfile.commercialRegistrationNumber,
+          commercialRegistrationDoc: rawProfile.commercialRegistrationDoc,
+          adminName: rawProfile.adminName,
+          adminPosition: rawProfile.adminPosition,
+          createdAt: rawProfile.createdAt,
+          updatedAt: rawProfile.updatedAt,
+        };
         console.log("Fetched profile data:", profileData);
+        console.log("Fetched user data:", userResponse.data.user);
         setUserWithProfile({
-          user: userData,
+          user: userResponse.data.user,
           profile: profileData,
         });
 
@@ -595,8 +615,13 @@ export default function UserProfile() {
             user.isVerified ? "verified" : "pending",
             user.isBanned
           )}
-          {getKycStatusBadge(user.isDocumentVerified || "Not Submitted")}
-        </div>
+          {getKycStatusBadge(user.isDocumentVerified || "Not Submitted")}{" "}
+          {user.isBanned && user.banReason && (
+            <p className="text-sm text-red-600 font-medium">
+              Reason: {user.banReason}
+            </p>
+          )}
+        </div>{" "}
       </div>
 
       {/* Overview Cards */}

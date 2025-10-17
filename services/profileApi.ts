@@ -4,6 +4,15 @@ import { api } from "@/lib/apiClient";
 
 // Define TypeScript interfaces for better type safety
 interface ProfileData {
+  adminPosition: string | undefined;
+  createdAt: string;
+  updatedAt: string;
+  adminName: string | undefined;
+  ratingCount: number;
+  rating: number;
+  _id: string;
+  user: string;
+  profile: ProfileData;
   personalEmail: string;
   userType: string;
   fullName?: string;

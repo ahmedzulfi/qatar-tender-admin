@@ -169,7 +169,8 @@ export function TendersContent() {
 
   // Get unique categories for filter
   const categories = useMemo(
-    () => [...new Set(tenders.map((t) => t.category?.name).filter(Boolean))],
+    () =>
+      [...new Set(tenders.map((t) => t.category?.name).filter((name): name is string => typeof name === "string"))],
     [tenders]
   );
 

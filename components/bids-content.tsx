@@ -150,7 +150,7 @@ export function BidsContent() {
         let fetchedBids = response.data.bids || [];
 
         // Apply client-side sorting
-        fetchedBids = fetchedBids.sort((a, b) => {
+        fetchedBids = fetchedBids.sort((a: { [x: string]: any; amount: any; }, b: { [x: string]: any; amount: any; }) => {
           let aValue =
             sortField === "amount" ? a.amount : a[sortField as keyof Bid];
           let bValue =
@@ -213,19 +213,19 @@ export function BidsContent() {
 
         // Calculate KPI metrics from all bids
         const activeBids = allBids.filter(
-          (bid) => bid.status === "submitted" || bid.status === "under_review"
+          (bid: { status: string; }) => bid.status === "submitted" || bid.status === "under_review"
         ).length;
         const acceptedBids = allBids.filter(
-          (bid) => bid.status === "accepted"
+          (bid: { status: string; }) => bid.status === "accepted"
         ).length;
         const rejectedBids = allBids.filter(
-          (bid) => bid.status === "rejected"
+          (bid: { status: string; }) => bid.status === "rejected"
         ).length;
 
         const bidAmounts = allBids
-          .map((bid) => bid.amount)
-          .filter((amount) => amount > 0);
-        const totalValue = bidAmounts.reduce((sum, amount) => sum + amount, 0);
+          .map((bid: { amount: any; }) => bid.amount)
+          .filter((amount: number) => amount > 0);
+        const totalValue = bidAmounts.reduce((sum: any, amount: any) => sum + amount, 0);
         const averageBid =
           bidAmounts.length > 0 ? totalValue / bidAmounts.length : 0;
         const highestBid = bidAmounts.length > 0 ? Math.max(...bidAmounts) : 0;
@@ -239,7 +239,7 @@ export function BidsContent() {
             ? "decreasing"
             : "neutral";
 
-        const totalBidders = new Set(allBids.map((bid) => bid.bidder?._id))
+        const totalBidders = new Set(allBids.map((bid: { bidder: { _id: any; }; }) => bid.bidder?._id))
           .size;
         const totalBidsCount = allBids.length;
 

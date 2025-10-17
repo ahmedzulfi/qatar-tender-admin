@@ -1041,5 +1041,17 @@
   "a_password_will_be_generated_and_sent_to_the_email": "سيتم إنشاء كلمة مرور وإرسالها إلى البريد الإلكتروني",
   "add_new_category": "إضافة فئة جديدة",
   "create_a_new_category_for_organizing_tenders": "إنشاء فئة جديدة لتنظيم المناقصات",
-  "enter_admin_email": "أدخل البريد الإلكتروني للمسؤول"
+  "enter_admin_email": "أدخل البريد الإلكتروني للمسؤول",
+  "action_cannot_be_undone": "لا يمكن التراجع عن هذا الإجراء.",
+  "deleting_admin_user_warning": "هل أنت متأكد أنك تريد حذف هذا المسؤول؟ لا يمكن التراجع عن هذا الإجراء.",
+  "are_you_sure_you_want_to_delete_admin_user": "هل أنت متأكد أنك تريد حذف هذا المسؤول؟",
+  "audit_action_USER_BANNED": "تم حظر المستخدم",
+  "audit_action_USER_UNBANNED": "تم إلغاء حظر المستخدم",
+  "audit_action_TENDER_CLOSED": "تم إغلاق المناقصة",
+  "audit_action_TENDER_DELETED": "تم حذف المناقصة",
+  "audit_action_ADMIN_CREATED": "تم إنشاء المسؤول",
+  "audit_action_ADMIN_DELETED": "تم حذف المسؤول",
+  "audit_action_USER_EDITED": "تم تعديل المستخدم",
+  "audit_action_TENDER_EDITED": "تم تعديل المناقصة",
+  "audit_action_PERMISSION_CHANGED": "تم تغيير الأذونات"
 }

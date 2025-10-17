@@ -145,20 +145,12 @@ export default function DashboardPage() {
             bg: "bg-emerald-50",
           },
           {
-            title: "Active Users",
+            title: "Users",
             value: totalUsers.toLocaleString(),
             trend: "up",
             icon: Users,
             color: "text-violet-600",
             bg: "bg-violet-50",
-          },
-          {
-            title: "Pending KYCs",
-            value: pendingKYCs.toString(),
-            trend: "up",
-            icon: UserCheck,
-            color: "text-rose-600",
-            bg: "bg-rose-50",
           },
         ];
 
@@ -422,13 +414,13 @@ export default function DashboardPage() {
           <div className="mx-auto px-6 sm:px-0 lg:px-0 py-4 space-y-8">
             {/* Apple-style KPI Cards */}
             <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6"
+              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
               {statsLoading
-                ? [...Array(5)].map((_, i) => (
+                ? [...Array(4)].map((_, i) => (
                     <Card
                       key={i}
                       className="rounded-xl border border-gray-200 shadow-sm"

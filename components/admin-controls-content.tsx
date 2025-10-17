@@ -35,9 +35,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Search,
   Shield,
@@ -55,11 +59,16 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Download,
 } from "lucide-react";
 import { format } from "date-fns";
 import { SettingsContent } from "./settings-content";
 import { useTranslation } from "../lib/hooks/useTranslation";
 import { adminService } from "@/services/adminService";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Label } from "./ui/label";
+import Link from "next/link";
 
 interface AdminActivity {
   _id: string;
@@ -83,6 +92,16 @@ export function AdminControlsContent() {
   const [tenders, setTenders] = useState<any[]>([]);
   const [auditLog, setAuditLog] = useState<AdminActivity[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Pagination states
+  const [userPage, setUserPage] = useState(1);
+  const [tenderPage, setTenderPage] = useState(1);
+  const [auditPage, setAuditPage] = useState(1);
+
+  const usersPerPage = 10;
+  const tendersPerPage = 10;
+  const auditPerPage = 10;
+
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{
     type: string;
@@ -136,8 +155,6 @@ export function AdminControlsContent() {
   const handlePasswordVerification = async () => {
     setActionLoading(true);
     try {
-      // In real app, this would verify the password against the current user's password
-      // For now, we'll assume verification is successful
       await executeAction();
       setIsPasswordDialogOpen(false);
       setPassword("");
@@ -181,10 +198,19 @@ export function AdminControlsContent() {
             )
           );
           break;
-        case "Tender Removed":
-          await adminService.deleteTender(pendingAction.target._id);
+        case "Tender Closed":
+          console.log(
+            "Tender Removed RemovedRemovedRemovedRemovedRemovedRemovedRemovedRemovedRemovedRemovedRemovedRemovedRemovedRemovedRemoved"
+          );
+          await adminService.closeTender(pendingAction.target._id, {
+            reason: pendingAction.reason,
+          });
           setTenders(
-            tenders.filter((tender) => tender._id !== pendingAction.target._id)
+            tenders.map((tender) =>
+              tender._id === pendingAction.target._id
+                ? { ...tender, status: "closed" }
+                : tender
+            )
           );
           break;
         case "Bidding Closed":
@@ -198,7 +224,8 @@ export function AdminControlsContent() {
                 : tender
             )
           );
-          break;
+        default:
+          alert("dsd");
       }
 
       // Refresh audit log
@@ -210,7 +237,11 @@ export function AdminControlsContent() {
       alert(`${pendingAction.type} completed successfully.`);
     } catch (err) {
       console.error("Action execution failed:", err);
-      alert(`Failed to execute action: ${err.message || "Unknown error"}`);
+      const errorMessage =
+        err && typeof err === "object" && "message" in err
+          ? (err as { message: string }).message
+          : "Unknown error";
+      alert(`Failed to execute action: ${errorMessage}`);
     }
   };
 
@@ -220,6 +251,7 @@ export function AdminControlsContent() {
     setIsPasswordDialogOpen(true);
   };
 
+  // Filtered data based on search term
   const filteredUsers = users.filter(
     (user) =>
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -237,6 +269,61 @@ export function AdminControlsContent() {
       tender.tenderCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       tender.category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const filteredAuditLog = auditLog.filter(
+    (entry) =>
+      entry.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      entry.adminEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      entry.targetModel.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Paginated data
+  const paginatedUsers = filteredUsers.slice(
+    (userPage - 1) * usersPerPage,
+    userPage * usersPerPage
+  );
+
+  const paginatedTenders = filteredTenders.slice(
+    (tenderPage - 1) * tendersPerPage,
+    tenderPage * tendersPerPage
+  );
+
+  const paginatedAuditLog = filteredAuditLog.slice(
+    (auditPage - 1) * auditPerPage,
+    auditPage * auditPerPage
+  );
+
+  // Pagination handlers
+  const handleUserPageChange = (newPage: number) => {
+    setUserPage(newPage);
+  };
+
+  const handleTenderPageChange = (newPage: number) => {
+    setTenderPage(newPage);
+  };
+
+  const handleAuditPageChange = (newPage: number) => {
+    setAuditPage(newPage);
+  };
+const getTargetRoute = (targetModel: string, targetId: any) => {
+  // If targetId is an object, extract the _id
+  const id = typeof targetId === "object" && targetId !== null ? targetId._id : targetId;
+   console.log(targetModel, targetId , "dddddd");
+  switch (targetModel) {
+    case "User":
+      return `/admin/users/${id}`;
+    case "Tender":
+      return `/admin/tenders/${id}`;
+    case "Bid":
+      return `/admin/bids/${id}`;
+    default:
+      return null;
+  }
+};
+  // Calculate total pages
+  const userTotalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const tenderTotalPages = Math.ceil(filteredTenders.length / tendersPerPage);
+  const auditTotalPages = Math.ceil(filteredAuditLog.length / auditPerPage);
 
   if (!isSuperAdmin) {
     return (
@@ -352,7 +439,7 @@ export function AdminControlsContent() {
       className="space-y-6 p-4 sm:p-6"
     >
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-6 bg-white/80 backdrop-blur-sm rounded-xl p-1">
+        <TabsList className="grid w-full grid-cols-3 mb-6 bg-white/80 backdrop-blur-sm rounded-xl p-1">
           <TabsTrigger
             value="users"
             className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 rounded-lg py-2"
@@ -373,13 +460,6 @@ export function AdminControlsContent() {
           >
             <History className="h-4 w-4" />
             {t("audit_log")}
-          </TabsTrigger>
-          <TabsTrigger
-            value="settings"
-            className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 rounded-lg py-2"
-          >
-            <Settings className="h-4 w-4" />
-            {t("settings")}
           </TabsTrigger>
         </TabsList>
 
@@ -404,7 +484,10 @@ export function AdminControlsContent() {
                     <Input
                       placeholder={t("search_users")}
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setUserPage(1); // Reset to first page when searching
+                      }}
                       className="pl-10 bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-gray-300 focus:border-blue-500 transition-colors"
                     />
                   </div>
@@ -432,7 +515,7 @@ export function AdminControlsContent() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredUsers.length === 0 ? (
+                      {paginatedUsers.length === 0 ? (
                         <TableRow>
                           <TableCell colSpan={5} className="text-center py-12">
                             <div className="text-gray-500">
@@ -447,7 +530,7 @@ export function AdminControlsContent() {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        filteredUsers.map((user) => (
+                        paginatedUsers.map((user) => (
                           <TableRow
                             key={user._id}
                             className="border-b border-gray-100/50 hover:bg-gray-50/50 transition-colors"
@@ -635,6 +718,40 @@ export function AdminControlsContent() {
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Pagination Controls */}
+                {filteredUsers.length > usersPerPage && (
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-gray-600">
+                      {t("showing")} {(userPage - 1) * usersPerPage + 1}-
+                      {Math.min(userPage * usersPerPage, filteredUsers.length)}{" "}
+                      {t("of")} {filteredUsers.length} {t("users")}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleUserPageChange(userPage - 1)}
+                        disabled={userPage === 1}
+                        className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                      >
+                        {t("previous")}
+                      </Button>
+                      <div className="text-sm text-gray-600">
+                        {t("page")} {userPage} {t("of")} {userTotalPages}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleUserPageChange(userPage + 1)}
+                        disabled={userPage === userTotalPages}
+                        className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                      >
+                        {t("next")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
@@ -661,7 +778,10 @@ export function AdminControlsContent() {
                     <Input
                       placeholder={t("search_tenders")}
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setTenderPage(1); // Reset to first page when searching
+                      }}
                       className="pl-10 bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-gray-300 focus:border-blue-500 transition-colors"
                     />
                   </div>
@@ -689,7 +809,7 @@ export function AdminControlsContent() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredTenders.length === 0 ? (
+                      {paginatedTenders.length === 0 ? (
                         <TableRow>
                           <TableCell colSpan={5} className="text-center py-12">
                             <div className="text-gray-500">
@@ -704,7 +824,7 @@ export function AdminControlsContent() {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        filteredTenders.map((tender) => (
+                        paginatedTenders.map((tender) => (
                           <TableRow
                             key={tender._id}
                             className="border-b border-gray-100/50 hover:bg-gray-50/50 transition-colors"
@@ -756,7 +876,7 @@ export function AdminControlsContent() {
                                     <AlertDialogContent className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
                                       <AlertDialogHeader>
                                         <AlertDialogTitle className="text-xl font-semibold text-gray-900">
-                                          {t("remove_tender")}
+                                          {t("close_tender")}
                                         </AlertDialogTitle>
                                         <AlertDialogDescription className="text-gray-600">
                                           {t("remove_tender_description", {
@@ -771,14 +891,14 @@ export function AdminControlsContent() {
                                         <AlertDialogAction
                                           onClick={() =>
                                             initiateAction(
-                                              "Tender Removed",
+                                              "Tender Closed",
                                               tender,
-                                              "Tender removed by admin"
+                                              "Tender Closed by admin"
                                             )
                                           }
                                           className="bg-red-600 hover:bg-red-700 text-white"
                                         >
-                                          {t("remove_tender")}
+                                          {t("close_tender")}
                                         </AlertDialogAction>
                                       </AlertDialogFooter>
                                     </AlertDialogContent>
@@ -795,6 +915,43 @@ export function AdminControlsContent() {
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Pagination Controls */}
+                {filteredTenders.length > tendersPerPage && (
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-gray-600">
+                      {t("showing")} {(tenderPage - 1) * tendersPerPage + 1}-
+                      {Math.min(
+                        tenderPage * tendersPerPage,
+                        filteredTenders.length
+                      )}{" "}
+                      {t("of")} {filteredTenders.length} {t("tenders")}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleTenderPageChange(tenderPage - 1)}
+                        disabled={tenderPage === 1}
+                        className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                      >
+                        {t("previous")}
+                      </Button>
+                      <div className="text-sm text-gray-600">
+                        {t("page")} {tenderPage} {t("of")} {tenderTotalPages}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleTenderPageChange(tenderPage + 1)}
+                        disabled={tenderPage === tenderTotalPages}
+                        className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                      >
+                        {t("next")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
@@ -815,6 +972,21 @@ export function AdminControlsContent() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder={t("search_audit_log")}
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setAuditPage(1); // Reset to first page when searching
+                      }}
+                      className="pl-10 bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:border-gray-300 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
+                </div>
+
                 <div className="rounded-md border border-gray-100/50 overflow-hidden">
                   <Table>
                     <TableHeader>
@@ -831,12 +1003,15 @@ export function AdminControlsContent() {
                         <TableHead className="font-semibold text-gray-600">
                           {t("timestamp")}
                         </TableHead>
+                        <TableHead className="text-right font-semibold text-gray-600">
+                          {t("actions")}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {auditLog.length === 0 ? (
+                      {paginatedAuditLog.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center py-12">
+                          <TableCell colSpan={5} className="text-center py-12">
                             <div className="text-gray-500">
                               <History className="h-12 w-12 mx-auto text-gray-300 mb-4" />
                               <p className="text-lg font-medium">
@@ -849,41 +1024,99 @@ export function AdminControlsContent() {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        auditLog.map((entry) => (
-                          <TableRow
-                            key={entry._id}
-                            className="border-b border-gray-100/50 hover:bg-gray-50/50 transition-colors"
-                          >
-                            <TableCell className="font-medium text-gray-900">
-                              {t(`audit_action_${entry.action}`)}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="capitalize">
-                                {entry.targetModel}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>{entry.adminEmail}</TableCell>
-                            <TableCell className="text-gray-600">
-                              {new Date(entry.createdAt).toLocaleString()}
-                            </TableCell>
-                          </TableRow>
-                        ))
+                        paginatedAuditLog.map((entry) => {
+                          const route = getTargetRoute(
+                            entry.targetModel,
+                            entry.targetId
+                          );
+
+                          return (
+                            <TableRow
+                              key={entry._id}
+                              className="border-b border-gray-100/50 hover:bg-gray-50/50 transition-colors"
+                            >
+                              <TableCell className="font-medium text-gray-900">
+                                {t(`audit_action_${entry.action}`)}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className="capitalize">
+                                  {entry.targetModel}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{entry.adminEmail}</TableCell>
+                              <TableCell className="text-gray-600">
+                                {new Date(entry.createdAt).toLocaleString()}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {route ? (
+                                  <Link href={route} passHref>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                                    >
+                                      <Eye className="h-4 w-4 mr-2" />
+                                      {t("view")}
+                                    </Button>
+                                  </Link>
+                                ) : (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled
+                                    className="opacity-50 cursor-not-allowed"
+                                  >
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    {t("view")}
+                                  </Button>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
                       )}
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Pagination Controls */}
+                {filteredAuditLog.length > auditPerPage && (
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-gray-600">
+                      {t("showing")} {(auditPage - 1) * auditPerPage + 1}-
+                      {Math.min(
+                        auditPage * auditPerPage,
+                        filteredAuditLog.length
+                      )}{" "}
+                      {t("of")} {filteredAuditLog.length} {t("activities")}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleAuditPageChange(auditPage - 1)}
+                        disabled={auditPage === 1}
+                        className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                      >
+                        {t("previous")}
+                      </Button>
+                      <div className="text-sm text-gray-600">
+                        {t("page")} {auditPage} {t("of")} {auditTotalPages}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleAuditPageChange(auditPage + 1)}
+                        disabled={auditPage === auditTotalPages}
+                        className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                      >
+                        {t("next")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          </motion.div>
-        </TabsContent>
-
-        <TabsContent value="settings" className="space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <SettingsContent />
           </motion.div>
         </TabsContent>
       </Tabs>

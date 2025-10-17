@@ -190,21 +190,12 @@ export default function TenderDetailsPage() {
         // Try to fetch a single tender first (preferred)
         let tender: Tender | null = null;
         try {
-          if (adminService.getTenderById) {
-            const singleResp = await adminService.getTenderById(tenderId);
-            tender =
-              singleResp?.data?.tender ||
-              singleResp?.data ||
-              singleResp?.tender ||
-              null;
-          } else {
-            // fallback to getTenders filter
-            const listResp = await adminService.getTenders({
-              limit: 1,
-              _id: tenderId,
-            });
-            tender = listResp?.data?.tenders?.[0] || null;
-          }
+          const singleResp = await adminService.getTenderById(tenderId);
+          tender =
+            singleResp?.data?.tender ||
+            singleResp?.data ||
+            singleResp?.tender ||
+            null;
         } catch (e) {
           console.warn(
             "Could not fetch tender via adminService.getTenderById, trying fallback",

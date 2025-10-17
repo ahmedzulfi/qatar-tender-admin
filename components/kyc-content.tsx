@@ -94,6 +94,8 @@ interface User {
 }
 
 interface KycRequest extends User {
+  documentRejectionReason: "";
+  documents: any;
   // Additional fields specific to KYC requests if needed
 }
 
@@ -591,7 +593,9 @@ export default function KycVerificationPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {getStatusBadge(request.isDocumentVerified)}
+                        {getStatusBadge(
+                          request.isDocumentVerified || "Not Submitted"
+                        )}
                       </TableCell>
                       <TableCell className="text-gray-600">
                         {formatDate(request.createdAt)}
@@ -613,7 +617,6 @@ export default function KycVerificationPage() {
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
-                      
                             {selectedRequest && (
                               <div className="space-y-6">
                                 {/* User Information - Simplified */}

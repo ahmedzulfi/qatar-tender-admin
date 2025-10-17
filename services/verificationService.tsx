@@ -10,7 +10,7 @@ export const getPendingVerifications = async () => {
   } catch (error) {
     console.error(
       "❌ Error fetching pending verifications:",
-      error.response?.data || error.message
+      (error && typeof error === "object" && "response" in error && (error as any).response?.data) || (error && typeof error === "object" && "message" in error ? (error as any).message : String(error))
     );
     throw error;
   } finally {
@@ -19,7 +19,22 @@ export const getPendingVerifications = async () => {
 };
 
 // Verify user documents
-export const verifyUserDocuments = async (userId, status, rejectionReason) => {
+interface VerifyUserDocumentsPayload {
+  status: string;
+  rejectionReason?: string;
+}
+
+interface VerifyUserDocumentsResponse {
+  success: boolean;
+  message: string;
+  // Add more fields as returned by your API if needed
+}
+
+export const verifyUserDocuments = async (
+  userId: string,
+  status: string,
+  rejectionReason?: string
+): Promise<VerifyUserDocumentsResponse> => {
   console.log(
     `➡️ Starting verifyUserDocuments request for userId=${userId}, status=${status}, rejectionReason=${
       rejectionReason || "N/A"
@@ -27,21 +42,22 @@ export const verifyUserDocuments = async (userId, status, rejectionReason) => {
   );
 
   try {
-    const payload = { status };
+    const payload: VerifyUserDocumentsPayload = { status };
     if (rejectionReason) {
       payload.rejectionReason = rejectionReason;
     }
 
-    const response = await api.put(
+    const response = await api.put<VerifyUserDocumentsResponse>(
       `/api/verification/${userId}/verify`,
       payload
     );
     console.log("✅ verifyUserDocuments success:", response.data);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error(
       "❌ Error verifying user documents:",
-      error.response?.data || error.message
+      (error && typeof error === "object" && "response" in error && (error as any).response?.data) ||
+      (error && typeof error === "object" && "message" in error ? (error as any).message : String(error))
     );
     throw error;
   } finally {
@@ -57,7 +73,8 @@ export const getAllVerifications = async () => {
   } catch (error) {
     console.error(
       "❌ Error fetching all verifications:",
-      error.response?.data || error.message
+      (error && typeof error === "object" && "response" in error && (error as any).response?.data) ||
+      (error && typeof error === "object" && "message" in error ? (error as any).message : String(error))
     );
     throw error;
   } finally {

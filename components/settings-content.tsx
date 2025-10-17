@@ -42,6 +42,7 @@ import {
 import { useTranslation } from "../lib/hooks/useTranslation";
 import { adminService } from "@/services/adminService";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner"; // Added import for toast
 
 interface AdminUser {
   _id: string;
@@ -84,7 +85,7 @@ export function SettingsContent() {
         if (usersResponse.success) {
           // Filter for admin users (userType: "admin")
           const adminUsers = usersResponse.data.users.filter(
-            (user: any) => user.userType === "admin || superadmin"
+            (user: any) => user.userType === "admin"
           );
 
           setAdminUsers(adminUsers);
@@ -109,7 +110,7 @@ export function SettingsContent() {
 
   const handleAddUser = async () => {
     if (!formData.email) {
-      alert(t("please_enter_email_address"));
+      toast.error(t("please_enter_email_address"));
       return;
     }
 
@@ -129,17 +130,15 @@ export function SettingsContent() {
 
         setIsAddUserDialogOpen(false);
         setFormData({ email: "", role: "admin" });
-        alert(t("admin_user_created_successfully"));
+        toast.success(t("admin_user_created_successfully"));
       } else {
         throw new Error(result.error || t("failed_to_create_admin_user"));
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t("failed_to_create_admin_user")
-      );
-      alert(
-        err instanceof Error ? err.message : t("failed_to_create_admin_user")
-      );
+      const errorMessage =
+        err instanceof Error ? err.message : t("failed_to_create_admin_user");
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -147,21 +146,22 @@ export function SettingsContent() {
 
   const handleEditUser = (user: AdminUser) => {
     if (user.adminType === "super") {
-      alert(t("super_admin_users_cannot_be_edited"));
+      toast.error(t("super_admin_users_cannot_be_edited"));
       return;
     }
 
     setEditingUser(user);
     setFormData({
       email: user.email,
-      role: user.adminType === "super" ? "super" : "admin",
+      role:
+        (user.adminType as "super" | "normal") === "super" ? "super" : "admin",
     });
     setIsEditUserDialogOpen(true);
   };
 
   const handleDeleteUser = (user: AdminUser) => {
     if (user.adminType === "super") {
-      alert(t("super_admin_users_cannot_be_deleted"));
+      toast.error(t("super_admin_users_cannot_be_deleted"));
       return;
     }
 
@@ -188,17 +188,15 @@ export function SettingsContent() {
 
         setUserToDelete(null);
         setIsDeleteDialogOpen(false);
-        alert(t("admin_user_deleted_successfully"));
+        toast.success(t("admin_user_deleted_successfully"));
       } else {
         throw new Error(result.error || t("failed_to_delete_admin_user"));
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t("failed_to_delete_admin_user")
-      );
-      alert(
-        err instanceof Error ? err.message : t("failed_to_delete_admin_user")
-      );
+      const errorMessage =
+        err instanceof Error ? err.message : t("failed_to_delete_admin_user");
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -249,9 +247,9 @@ export function SettingsContent() {
         );
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t("failed_to_refresh_admin_users")
-      );
+      const errorMessage =
+        err instanceof Error ? err.message : t("failed_to_refresh_admin_users");
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -373,14 +371,6 @@ export function SettingsContent() {
           </p>
         </div>
         <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            onClick={refreshAdminUsers}
-            className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            {t("refresh")}
-          </Button>
           <Dialog
             open={isAddUserDialogOpen}
             onOpenChange={setIsAddUserDialogOpen}
@@ -432,7 +422,6 @@ export function SettingsContent() {
                       <SelectValue placeholder={t("select_role")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="super">{t("super_admin")}</SelectItem>
                       <SelectItem value="admin">{t("admin")}</SelectItem>
                     </SelectContent>
                   </Select>
@@ -564,7 +553,6 @@ export function SettingsContent() {
                   <SelectValue placeholder={t("select_role")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="super">{t("super_admin")}</SelectItem>
                   <SelectItem value="admin">{t("admin")}</SelectItem>
                 </SelectContent>
               </Select>
@@ -691,7 +679,6 @@ export function SettingsContent() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end space-x-2">
-                       
                         <Button
                           variant="ghost"
                           size="sm"

@@ -14,6 +14,7 @@ export interface AdminLoginCredentials {
 }
 
 export interface AdminUser {
+  user: any;
   _id: string;
   email: string;
   userType: "admin";
@@ -387,6 +388,54 @@ export class AdminService {
       return {
         success: false,
         error: error.response?.data?.message || "Failed to fetch bids",
+      };
+    }
+  }
+  async getUser(userId: string): Promise<{
+    success: boolean;
+    data?: any;
+    error?: string;
+  }> {
+    try {
+      console.log(`🔍 Fetching user with ID: ${userId}`);
+      const response = await api.get(`/api/admin/users/${userId}`);
+      console.log("✅ User fetched:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error("❌ Failed to fetch user:", error.response?.data || error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Failed to fetch user",
+      };
+    }
+  }
+  async getTenderById(tenderId: string): Promise<{
+    tender: any;
+    success: boolean;
+    data?: any;
+    error?: string;
+  }> {
+    try {
+      console.log(`🔍 Fetching tender with ID: ${tenderId}`);
+      const response = await api.get(`/api/admin/tenders/${tenderId}`);
+      console.log("✅ Tender fetched:", response.data);
+      return {
+        tender: response.data,
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch tender:",
+        error.response?.data || error
+      );
+      return {
+        tender: null,
+        success: false,
+        error: error.response?.data?.message || "Failed to fetch tender",
       };
     }
   }

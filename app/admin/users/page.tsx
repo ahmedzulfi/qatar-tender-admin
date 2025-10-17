@@ -104,13 +104,19 @@ export default function UsersPage() {
       case "pending":
         return (
           <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-            {t("status_pending")}
+            {t("unactive")}
           </Badge>
         );
       case "rejected":
         return (
           <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
             {t("status_rejected")}
+          </Badge>
+        );
+      case "banned":
+        return (
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            {t("status_banned")}
           </Badge>
         );
       default:
@@ -186,8 +192,13 @@ export default function UsersPage() {
         });
 
         if (response.success && response.data) {
-          setUsers(response.data.users || []);
-          setFilteredUsers(response.data.users || []);
+          // ✅ Exclude admin users
+          const nonAdminUsers = response.data.users.filter(
+            (user: { userType: string; }) => user.userType !== "admin"
+          );
+
+          setUsers(nonAdminUsers);
+          setFilteredUsers(nonAdminUsers);
           setTotalPages(response.data.pagination?.totalPages || 1);
           setTotalUsers(response.data.pagination?.totalUsers || 0);
         } else {
@@ -241,10 +252,13 @@ export default function UsersPage() {
       );
     }
 
-    // Apply user type filter
+    // Apply user type filter (still allows custom filters)
     if (userTypeFilter !== "all") {
       result = result.filter((user) => user.userType === userTypeFilter);
     }
+
+    // ✅ Ensure admin users are excluded from filtered list too
+    result = result.filter((user) => user.userType !== "admin");
 
     setFilteredUsers(result);
   }, [searchTerm, statusFilter, kycFilter, userTypeFilter, users]);
@@ -371,7 +385,6 @@ export default function UsersPage() {
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-   
       {/* Stats Cards - Apple Style */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <motion.div
@@ -480,8 +493,8 @@ export default function UsersPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("all_statuses")}</SelectItem>
-                <SelectItem value="true">{t("status_verified")}</SelectItem>
-                <SelectItem value="false">{t("status_unverified")}</SelectItem>
+                <SelectItem value="true">{t("active")}</SelectItem>
+                <SelectItem value="false">{t("unactive")}</SelectItem>
                 <SelectItem value="banned">{t("status_banned")}</SelectItem>
               </SelectContent>
             </Select>

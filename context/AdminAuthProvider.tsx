@@ -102,7 +102,7 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
         password,
         securityCode
       );
-      if (result.success && result.user) {
+      if (result.success && "user" in result && result.user) {
         setAdmin(result.user);
         router.push("/admin");
         return { success: true };

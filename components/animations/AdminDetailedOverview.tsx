@@ -1,8 +1,5 @@
-// components/AdminOverviewChart.tsx
 "use client";
-
 import { useEffect, useState } from "react";
-import { Users, FileText, Gavel, CheckCircle, AlertCircle } from "lucide-react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -13,23 +10,21 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-
+import { Users, FileText, Gavel, CheckCircle, AlertCircle } from "lucide-react";
 import { adminService } from "@/services/adminService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Types
 interface ChartDataPoint {
   date: string;
   newUsers: number;
-  activeUsers: number;
   newTenders: number;
-  activeTenders: number;
   newBids: number;
-  pendingKYCs: number;
   completedTenders: number;
   rejectedTenders: number;
+  activeTenders: number;
+  pendingKYCs: number;
 }
 
 interface OverviewStats {
@@ -43,127 +38,125 @@ interface OverviewStats {
   activeTenders: number;
 }
 
+const formatDateLabel = (date: Date): string =>
+  date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+const toISODate = (date: Date): string => date.toISOString().split("T")[0];
+
 export default function AdminOverviewChart() {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [stats, setStats] = useState<OverviewStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-
       try {
+        // Fetch main collections
         const [usersRes, tendersRes, bidsRes] = await Promise.all([
-          adminService.getUsers({ limit: 1 }),
-          adminService.getTenders({ limit: 1 }),
-          adminService.getBids({ limit: 1 }),
+          adminService.getUsers({ limit: 1000, page: 1 }),
+          adminService.getTenders({ limit: 1000, page: 1 }),
+          adminService.getBids({ limit: 1000, page: 1 }),
         ]);
 
-        const currentStats: OverviewStats = {
-          totalUsers:
-            usersRes.success && usersRes.data.pagination
-              ? usersRes.data.pagination.totalUsers
-              : 0,
-          totalTenders:
-            tendersRes.success && tendersRes.data.pagination
-              ? tendersRes.data.pagination.totalTenders
-              : 0,
-          totalBids:
-            bidsRes.success && bidsRes.data.pagination
-              ? bidsRes.data.pagination.totalBids
-              : 0,
-          activeUsers: 0,
-          pendingKYCs: 0,
-          completedTenders: 0,
-          rejectedTenders: 0,
-          activeTenders: 0,
-        };
-
-        const activeUsersRes = await adminService.getUsers({
-          limit: 1,
-          isVerified: "true",
-        });
-        if (activeUsersRes.success && activeUsersRes.data.pagination) {
-          currentStats.activeUsers = activeUsersRes.data.pagination.totalUsers;
-        }
-
-        const pendingKYCsRes = await adminService.getUsers({
-          limit: 1,
-          isDocumentVerified: "pending",
-        });
-        if (pendingKYCsRes.success && pendingKYCsRes.data.pagination) {
-          currentStats.pendingKYCs = pendingKYCsRes.data.pagination.totalUsers;
-        }
-
-        const completedTendersRes = await adminService.getTenders({
-          limit: 1,
-          status: "completed",
-        });
         if (
-          completedTendersRes.success &&
-          completedTendersRes.data.pagination
+          !usersRes.success ||
+          !tendersRes.success ||
+          !bidsRes.success ||
+          !Array.isArray(usersRes.data.users)
         ) {
-          currentStats.completedTenders =
-            completedTendersRes.data.pagination.totalTenders;
+          throw new Error("Invalid data format from API");
         }
 
-        const rejectedTendersRes = await adminService.getTenders({
-          limit: 1,
-          status: "rejected",
+        const users = usersRes.data.users;
+        const tenders = tendersRes.data.tenders || [];
+        const bids = bidsRes.data.bids || [];
+
+        // Compute totals
+        const totalUsers = users.length;
+        const totalTenders = tenders.length;
+        const totalBids = bids.length;
+
+        const activeUsers = users.filter(
+          (u: any) => u.isVerified === true
+        ).length;
+        const pendingKYCs = users.filter((u: any) => !u.isVerified).length;
+        const completedTenders = tenders.filter(
+          (t: any) => t.status === "completed"
+        ).length;
+        const rejectedTenders = tenders.filter(
+          (t: any) => t.status === "rejected"
+        ).length;
+        const activeTenders = tenders.filter(
+          (t: any) => t.status === "open" || t.status === "active"
+        ).length;
+
+        setStats({
+          totalUsers,
+          totalTenders,
+          totalBids,
+          activeUsers,
+          pendingKYCs,
+          completedTenders,
+          rejectedTenders,
+          activeTenders,
         });
-        if (rejectedTendersRes.success && rejectedTendersRes.data.pagination) {
-          currentStats.rejectedTenders =
-            rejectedTendersRes.data.pagination.totalTenders;
-        }
 
-        const activeTendersRes = await adminService.getTenders({
-          limit: 1,
-          status: "open",
-        });
-        if (activeTendersRes.success && activeTendersRes.data.pagination) {
-          currentStats.activeTenders =
-            activeTendersRes.data.pagination.totalTenders;
-        }
-
-        setStats(currentStats);
-
-        const generatedData: ChartDataPoint[] = [];
+        // === Chart Data (Last 7 Days) ===
         const today = new Date();
+        const dateMap: Record<string, ChartDataPoint> = {};
 
         for (let i = 6; i >= 0; i--) {
           const date = new Date(today);
-          date.setDate(date.getDate() - i);
-          const dateString = date.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-          });
-
-          generatedData.push({
-            date: dateString,
-            newUsers: Math.floor(Math.random() * 5) + 1,
-            activeUsers: Math.floor((currentStats.activeUsers * (7 - i)) / 7),
-            newTenders: Math.floor(Math.random() * 3) + 1,
-            activeTenders: Math.floor(
-              (currentStats.activeTenders * (7 - i)) / 7
-            ),
-            newBids: Math.floor(Math.random() * 8) + 2,
-            pendingKYCs: Math.floor((currentStats.pendingKYCs * (7 - i)) / 7),
-            completedTenders: Math.floor(
-              (currentStats.completedTenders * (7 - i)) / 7
-            ),
-            rejectedTenders: Math.floor(
-              (currentStats.rejectedTenders * (7 - i)) / 7
-            ),
-          });
+          date.setDate(today.getDate() - i);
+          const iso = toISODate(date);
+          dateMap[iso] = {
+            date: formatDateLabel(date),
+            newUsers: 0,
+            newTenders: 0,
+            newBids: 0,
+            completedTenders: 0,
+            rejectedTenders: 0,
+            activeTenders: 0,
+            pendingKYCs: 0,
+          };
         }
 
-        setChartData(generatedData);
-      } catch (err) {
-        console.error("Error fetching admin overview data:", err);
-        setError("Failed to load admin overview data");
+        // Group users by creation date
+        users.forEach((user: any) => {
+          const iso = toISODate(new Date(user.createdAt));
+          if (dateMap[iso]) {
+            dateMap[iso].newUsers++;
+            if (!user.isVerified) dateMap[iso].pendingKYCs++;
+          }
+        });
+
+        // Group tenders
+        tenders.forEach((tender: any) => {
+          const iso = toISODate(new Date(tender.createdAt));
+          if (dateMap[iso]) {
+            dateMap[iso].newTenders++;
+            if (tender.status === "completed") dateMap[iso].completedTenders++;
+            if (tender.status === "rejected") dateMap[iso].rejectedTenders++;
+            if (tender.status === "open" || tender.status === "active")
+              dateMap[iso].activeTenders++;
+          }
+        });
+
+        // Group bids
+        bids.forEach((bid: any) => {
+          const iso = toISODate(new Date(bid.createdAt));
+          if (dateMap[iso]) {
+            dateMap[iso].newBids++;
+          }
+        });
+
+        setChartData(Object.values(dateMap));
+      } catch (err: any) {
+        console.error("Error fetching admin overview:", err);
+        setError("Failed to load dashboard data");
       } finally {
         setLoading(false);
       }
@@ -251,34 +244,39 @@ export default function AdminOverviewChart() {
                   <span className="text-xs text-gray-600">Total Users</span>
                 </div>
                 <div className="font-semibold text-blue-700 text-lg">
-                  {stats?.totalUsers.toLocaleString() || 0}
+                  {stats?.totalUsers.toLocaleString()}
                 </div>
               </div>
+
               <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <CheckCircle className="w-4 h-4 text-green-600" />
                   <span className="text-xs text-gray-600">Active Users</span>
                 </div>
                 <div className="font-semibold text-green-700 text-lg">
-                  {stats?.activeUsers.toLocaleString() || 0}
+                  {stats?.activeUsers.toLocaleString()}
                 </div>
               </div>
+
               <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertCircle className="w-4 h-4 text-amber-600" />
-                  <span className="text-xs text-gray-600">Pending KYCs</span>
+                  <span className="text-xs text-gray-600">
+                    User Pending KYCs
+                  </span>
                 </div>
                 <div className="font-semibold text-amber-700 text-lg">
-                  {stats?.pendingKYCs.toLocaleString() || 0}
+                  {stats?.pendingKYCs.toLocaleString()}
                 </div>
               </div>
+
               <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <Gavel className="w-4 h-4 text-orange-600" />
                   <span className="text-xs text-gray-600">Total Bids</span>
                 </div>
                 <div className="font-semibold text-orange-700 text-lg">
-                  {stats?.totalBids.toLocaleString() || 0}
+                  {stats?.totalBids.toLocaleString()}
                 </div>
               </div>
             </div>
@@ -298,13 +296,6 @@ export default function AdminOverviewChart() {
                   dataKey="newUsers"
                   name="New Users"
                   stroke="#3b82f6"
-                  strokeWidth={2}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="activeUsers"
-                  name="Active Users"
-                  stroke="#10b981"
                   strokeWidth={2}
                 />
                 <Line
@@ -337,7 +328,7 @@ export default function AdminOverviewChart() {
                 <Line
                   type="monotone"
                   dataKey="activeTenders"
-                  name="Active Tenders"
+                  name="Active"
                   stroke="#6366f1"
                   strokeWidth={2}
                 />
