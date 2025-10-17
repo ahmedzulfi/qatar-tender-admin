@@ -111,6 +111,7 @@ export default function layout({ children }: { children: React.ReactNode }) {
     { name: t("notifications"), href: "/admin/notification", icon: Bell },
     { name: t("analytics"), href: "/admin/analytics", icon: BarChart3 },
     { name: t("categories"), href: "/admin/categories", icon: Tags },
+    { name: t("search"), href: "/admin/search", icon: Search },
     { name: t("settings"), href: "/admin/settings", icon: Settings },
     { name: t("admin_controls"), href: "/admin/admin-controls", icon: Shield },
   ];

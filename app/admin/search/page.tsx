@@ -309,7 +309,7 @@ export default function UniversalSearchPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-[#0f0f0f] dark:to-[#1a1a1a] px-4 py-6">
-      <div className="max-w-4xl mx-auto">
+      <div className=" mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
