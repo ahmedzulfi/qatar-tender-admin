@@ -1,5 +1,7 @@
-import { AdminControlsContent } from "@/components/admin-controls-content"
+"use client";
+
+import { AdminControlsContent } from "@/components/admin-controls-content";
 
 export default function AdminControlsPage() {
-  return <AdminControlsContent />
+  return <AdminControlsContent />;
 }
