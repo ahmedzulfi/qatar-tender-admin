@@ -1053,5 +1053,18 @@
   "audit_action_ADMIN_DELETED": "تم حذف المسؤول",
   "audit_action_USER_EDITED": "تم تعديل المستخدم",
   "audit_action_TENDER_EDITED": "تم تعديل المناقصة",
-  "audit_action_PERMISSION_CHANGED": "تم تغيير الأذونات"
+  "audit_action_PERMISSION_CHANGED": "تم تغيير الأذونات",
+  "verified": "موثّق",
+  "banned": "محظور",
+  "closed": "مغلق",
+  "awarded": "ممنوح",
+  "accepted": "مقبول",
+  "universal_search": "البحث الشامل",
+  "search_across_all_modules": "ابحث في جميع الأقسام...",
+  "search_results": "نتائج البحث",
+  "searching": "جارٍ البحث...",
+  "bid_on": "عطاء على",
+  "no_results_found": "لم يتم العثور على نتائج",
+  "start_searching": "ابدأ البحث",
+  "search_users_tenders_and_more": "ابحث عن المستخدمين والمناقصات والمزيد"
 }

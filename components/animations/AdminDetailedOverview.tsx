@@ -48,7 +48,7 @@ export default function AdminOverviewChart() {
   const [stats, setStats] = useState<OverviewStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [time, settime] = useState(6);
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -108,7 +108,7 @@ export default function AdminOverviewChart() {
         const today = new Date();
         const dateMap: Record<string, ChartDataPoint> = {};
 
-        for (let i = 6; i >= 0; i--) {
+        for (let i = time; i >= 0; i--) {
           const date = new Date(today);
           date.setDate(today.getDate() - i);
           const iso = toISODate(date);
@@ -163,7 +163,7 @@ export default function AdminOverviewChart() {
     };
 
     fetchData();
-  }, []);
+  }, [time]);
 
   if (loading) {
     return (
@@ -198,12 +198,23 @@ export default function AdminOverviewChart() {
           <CardTitle className="text-xl font-semibold text-gray-800">
             Platform Overview
           </CardTitle>
-          <Badge
-            variant="outline"
-            className="rounded-full px-3 py-1 text-xs font-medium bg-gray-100 text-gray-600 border border-gray-300"
-          >
-            Last 7 Days
-          </Badge>
+          <div className="div flex gap-4">
+            {" "}
+            <Badge
+              variant={time !== 6 ? "secondary" : "default"}
+              className="cursor-pointer"
+              onClick={() => settime(6)}
+            >
+              Last 7 Days
+            </Badge>
+            <Badge
+              variant={time !== 13 ? "secondary" : "default"}
+              className="cursor-pointer"
+              onClick={() => settime(13)}
+            >
+              Last 14 Days
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent>

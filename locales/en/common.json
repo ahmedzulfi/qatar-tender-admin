@@ -1052,5 +1052,18 @@
   "audit_action_ADMIN_DELETED": "Admin Deleted",
   "audit_action_USER_EDITED": "User Edited",
   "audit_action_TENDER_EDITED": "Tender Edited",
-  "audit_action_PERMISSION_CHANGED": "Permissions Changed"
+  "audit_action_PERMISSION_CHANGED": "Permissions Changed",
+  "verified": "Verified",
+  "banned": "Banned",
+  "closed": "Closed",
+  "awarded": "Awarded",
+  "accepted": "Accepted",
+  "universal_search": "Universal Search",
+  "search_across_all_modules": "Search across all modules...",
+  "search_results": "Search Results",
+  "searching": "Searching...",
+  "bid_on": "Bid on",
+  "no_results_found": "No results found",
+  "start_searching": "Start Searching",
+  "search_users_tenders_and_more": "Search users, tenders, and more"
 }
