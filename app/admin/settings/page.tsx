@@ -30,8 +30,9 @@ export default function SettingsPage() {
   const router = useRouter();
 
   useEffect(() => {
+    console.log("my secret code", user);
     if (user?.adminType !== "super") {
-      router.replace("/admin"); // redirect to homepage or another route
+      router.replace("/admin");
     }
   }, [user, router]);
 
