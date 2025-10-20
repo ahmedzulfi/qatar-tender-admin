@@ -3,7 +3,7 @@ import { SettingsContent } from "@/components/settings-content";
 
 export default function SettingsPage() {
   return (
-    <ProtectedRoute allowedUserTypes={["admin"]} allowedAdminTypes={["super"]}>
+    <ProtectedRoute allowedUserTypes={["admin"]}>
       <SettingsContent />
     </ProtectedRoute>
   );
