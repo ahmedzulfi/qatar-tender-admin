@@ -1,0 +1,19 @@
+finalize hosting platofrm paid plan for working emails
+fix mobile optimization
+finalize bidding flow if tender is changed
+put links in renet acitivty for all dashboarsd
+fix ui on draft tender
+add cetagorys 100
+estimate budget optional , and qadd a label to encourage budget
+Location must be at least 5 characters removal
+share metrics of anaytics
+only show tendrer details wehn the bid is awarded
+23 projects completed
+editing bid 
+add images in tender
+check if pdf can be shared and cotnact can be detected
+increase ttehc hracter limt on bids to 10000
+would a video be detecable
+prmpt user to verify if protect() is false for verification status
+when user placed a bid and is not verefied and it shows that yo uned to veriefy and same fro tener and put them in signyup
+before posting tnder udnivual and business users are not required to vreiyf
