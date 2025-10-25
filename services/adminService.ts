@@ -56,6 +56,79 @@ export interface TenderListParams {
 export interface CloseTenderParams {
   reason: string;
 }
+export interface AnalyticsStats {
+  totalTenders: number; // add this inside stats
+  totalUsers: number;
+  activeTenders: number;
+  completedTenders: number;
+  pendingBids: number;
+  successfulBids: number;
+  failedBids: number;
+  totalRevenue: number;
+  platformFees: number;
+  newUsersToday: number;
+  tendersPostedToday: number;
+  bidsSubmittedToday: number;
+}
+
+export interface DailyAnalytics {
+  date: string;
+  usersCreated: number;
+  tendersPosted: number;
+  bidsPlaced: number;
+  paymentsProcessed: number;
+  revenue: number;
+}
+
+export interface CategoryDistribution {
+  name: string;
+  count: number;
+  percentage: number;
+}
+
+export interface BidSuccessRate {
+  totalBids: number;
+  acceptedBids: number;
+  rejectedBids: number;
+  successRate: number;
+}
+
+export interface RevenueData {
+  month: string;
+  revenue: number;
+  profit: number;
+}
+
+export interface TenderStatusBreakdown {
+  status: string;
+  count: number;
+  percentage: number;
+}
+
+export interface UserGrowthData {
+  month: string;
+  newUsers: number;
+  retainedUsers: number;
+}
+
+export interface BidAnalysis {
+  avgBidValue: number;
+  minBid: number;
+  maxBid: number;
+  mostActiveCategory: string;
+  bidConversionRate: number;
+}
+
+export interface PlatformAnalytics {
+  stats: AnalyticsStats;
+  daily: DailyAnalytics[];
+  categories: CategoryDistribution[];
+  bidSuccess: BidSuccessRate;
+  revenue: RevenueData[];
+  tenderStatus: TenderStatusBreakdown[];
+  userGrowth: UserGrowthData[];
+  bidAnalysis: BidAnalysis;
+}
 
 export class AdminService {
   async login(credentials: AdminLoginCredentials) {
@@ -485,6 +558,315 @@ export class AdminService {
   //     };
   //   }
   // }
+
+  async getPayments(params: Record<string, any> = {}) {
+    try {
+      console.log("📂 Fetching payments with params:", params);
+      const response = await api.get("/api/admin/payments", { params });
+      console.log("✅ Payments fetched:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch payments:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error: error.response?.data?.message || "Failed to fetch payments",
+      };
+    }
+  }
+
+  async getPaymentDetails(paymentId: string) {
+    try {
+      console.log(`🔍 Fetching payment details for ${paymentId}`);
+      const response = await api.get(`/api/admin/payments/${paymentId}`);
+      console.log("✅ Payment details:", response.data);
+      return {
+        success: true,
+        data: response.data.payment,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch payment details:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || "Failed to fetch payment details",
+      };
+    }
+  }
+  async getPlatformAnalytics(): Promise<{
+    success: boolean;
+    data?: PlatformAnalytics;
+    error?: string;
+  }> {
+    try {
+      console.log("📊 Fetching platform analytics...");
+      const response = await api.get("/api/admin/analytics/platform");
+
+      console.log("✅ Analytics data fetched:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch analytics:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || "Failed to fetch analytics data",
+      };
+    }
+  }
+
+  /**
+   * Get overall statistics for dashboard
+   */
+  async getDashboardStats(): Promise<{
+    success: boolean;
+    data?: AnalyticsStats;
+    error?: string;
+  }> {
+    try {
+      console.log("📈 Fetching dashboard statistics...");
+      const response = await api.get("/api/admin/analytics/stats");
+
+      console.log("✅ Dashboard stats fetched:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch dashboard stats:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          "Failed to fetch dashboard statistics",
+      };
+    }
+  }
+
+  /**
+   * Get user growth data by month
+   */
+  async getUserGrowth(): Promise<{
+    success: boolean;
+    data?: UserGrowthData[];
+    error?: string;
+  }> {
+    try {
+      console.log("👥 Fetching user growth data...");
+      const response = await api.get("/api/admin/analytics/user-growth");
+
+      console.log("✅ User growth data:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch user growth:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || "Failed to fetch user growth data",
+      };
+    }
+  }
+
+  /**
+   * Get tender posting and bidding trends
+   */
+  async getTenderTrends(): Promise<{
+    success: boolean;
+    data?: DailyAnalytics[];
+    error?: string;
+  }> {
+    try {
+      console.log("📈 Fetching tender trends...");
+      const response = await api.get("/api/admin/analytics/tender-trends");
+
+      console.log("✅ Tender trends fetched:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch tender trends:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error: error.response?.data?.message || "Failed to fetch tender trends",
+      };
+    }
+  }
+
+  /**
+   * Get category distribution data
+   */
+  async getCategoryDistribution(): Promise<{
+    success: boolean;
+    data?: CategoryDistribution[];
+    error?: string;
+  }> {
+    try {
+      console.log("📋 Fetching category distribution...");
+      const response = await api.get("/api/admin/analytics/categories");
+
+      console.log("✅ Category distribution:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch category distribution:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          "Failed to fetch category distribution",
+      };
+    }
+  }
+
+  /**
+   * Get bid success rate data
+   */
+  async getBidSuccessRate(): Promise<{
+    success: boolean;
+    data?: BidSuccessRate;
+    error?: string;
+  }> {
+    try {
+      console.log("🎯 Fetching bid success rate...");
+      const response = await api.get("/api/admin/analytics/bid-success");
+
+      console.log("✅ Bid success rate:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch bid success rate:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || "Failed to fetch bid success rate",
+      };
+    }
+  }
+
+  /**
+   * Get revenue over time
+   */
+  async getRevenueData(): Promise<{
+    success: boolean;
+    data?: RevenueData[];
+    error?: string;
+  }> {
+    try {
+      console.log("💰 Fetching revenue data...");
+      const response = await api.get("/api/admin/analytics/revenue");
+
+      console.log("✅ Revenue data:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch revenue data:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error: error.response?.data?.message || "Failed to fetch revenue data",
+      };
+    }
+  }
+
+  /**
+   * Get tender status breakdown
+   */
+  async getTenderStatusBreakdown(): Promise<{
+    success: boolean;
+    data?: TenderStatusBreakdown[];
+    error?: string;
+  }> {
+    try {
+      console.log("📊 Fetching tender status breakdown...");
+      const response = await api.get("/api/admin/analytics/tender-status");
+
+      console.log("✅ Tender status breakdown:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch tender status breakdown:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          "Failed to fetch tender status breakdown",
+      };
+    }
+  }
+
+  /**
+   * Get bid analysis data
+   */
+  async getBidAnalysis(): Promise<{
+    success: boolean;
+    data?: BidAnalysis;
+    error?: string;
+  }> {
+    try {
+      console.log("🔍 Fetching bid analysis...");
+      const response = await api.get("/api/admin/analytics/bid-analysis");
+
+      console.log("✅ Bid analysis:", response.data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to fetch bid analysis:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        error: error.response?.data?.message || "Failed to fetch bid analysis",
+      };
+    }
+  }
 }
 
 export const adminService = new AdminService();

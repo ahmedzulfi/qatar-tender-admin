@@ -92,7 +92,7 @@ export default function UniversalSearchPage() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>({});
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("tenders");
 
   // Debounced search
   useEffect(() => {

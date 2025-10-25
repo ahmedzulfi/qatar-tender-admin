@@ -1,5 +1,5 @@
-import { AnalyticsContent } from "@/components/analytics-content"
+import AnalyticsContent from "@/components/analytics-content";
 
 export default function AnalyticsPage() {
-  return <AnalyticsContent />
+  return <AnalyticsContent />;
 }

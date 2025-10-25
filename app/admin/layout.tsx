@@ -109,7 +109,7 @@ export default function layout({ children }: { children: React.ReactNode }) {
     { name: t("bids"), href: "/admin/bids", icon: Gavel },
     { name: t("users"), href: "/admin/users", icon: Users },
     { name: t("kyc"), href: "/admin/kyc", icon: UserCheck },
-    // { name: t("transactions"), href: "/admin/transactions", icon: CreditCard },
+    { name: t("transactions"), href: "/admin/transactions", icon: CreditCard },
     { name: t("notifications"), href: "/admin/notification", icon: Bell },
     { name: t("analytics"), href: "/admin/analytics", icon: BarChart3 },
     { name: t("categories"), href: "/admin/categories", icon: Tags },

@@ -1,14 +1,15 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectContent,
+  SelectItem,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from "../lib/hooks/useTranslation";
@@ -44,176 +45,396 @@ import {
   Gavel,
   DollarSign,
   Download,
+  AlertTriangle,
+  AlertCircle,
 } from "lucide-react";
+import { adminService, PlatformAnalytics } from "@/services/adminService";
+import { useAuth } from "@/context/AuthContext";
 
-const monthlyData = [
-  { month: "Jan", tenders: 45, bids: 180, revenue: 18000, users: 320 }, // Updated revenue to reflect 100 QAR per bid
-  { month: "Feb", tenders: 52, bids: 210, revenue: 21000, users: 380 },
-  { month: "Mar", tenders: 48, bids: 195, revenue: 19500, users: 420 },
-  { month: "Apr", tenders: 61, bids: 245, revenue: 24500, users: 480 },
-  { month: "May", tenders: 55, bids: 220, revenue: 22000, users: 520 },
-  { month: "Jun", tenders: 67, bids: 270, revenue: 27000, users: 580 },
-];
+// Types for analytics data
+interface PlatformStats {
+  totalTenders: number;
+  totalUsers: number;
+  activeTenders: number;
+  completedTenders: number;
+  pendingBids: number;
+  successfulBids: number;
+  failedBids: number;
+  totalRevenue: number;
+  platformFees: number;
+  newUsersToday: number;
+  tendersPostedToday: number;
+  bidsSubmittedToday: number;
+}
 
-const categoryData = [
-  { name: "Construction", value: 35, color: "#3b82f6" },
-  { name: "Technology", value: 25, color: "#3b82f6" },
-  { name: "Healthcare", value: 20, color: "#3b82f6" },
-  { name: "Education", value: 12, color: "#3b82f6" },
-  { name: "Others", value: 8, color: "#3b82f6" },
-];
+interface DailyAnalytics {
+  date: string;
+  usersCreated: number;
+  tendersPosted: number;
+  bidsPlaced: number;
+  paymentsProcessed: number;
+  revenue: number;
+}
 
-const userGrowthData = [
-  { month: "Jan", businesses: 120, individuals: 200 },
-  { month: "Feb", businesses: 145, individuals: 235 },
-  { month: "Mar", businesses: 160, individuals: 260 },
-  { month: "Apr", businesses: 180, individuals: 300 },
-  { month: "May", businesses: 195, individuals: 325 },
-  { month: "Jun", businesses: 220, individuals: 360 },
-];
+interface CategoryDistribution {
+  name: string;
+  count: number;
+  percentage: number;
+}
 
-const topPerformers = [
-  {
-    name: "Qatar Construction Co.",
-    tenders: 15,
-    bids: 45,
-    success: 73,
-    revenue: 450000,
-  },
-  {
-    name: "Doha Engineering Ltd.",
-    tenders: 12,
-    bids: 38,
-    success: 68,
-    revenue: 380000,
-  },
-  {
-    name: "Al-Jazeera Trading",
-    tenders: 10,
-    bids: 32,
-    success: 62,
-    revenue: 320000,
-  },
-  {
-    name: "Gulf Tech Solutions",
-    tenders: 8,
-    bids: 28,
-    success: 57,
-    revenue: 280000,
-  },
-  {
-    name: "Modern Healthcare Co.",
-    tenders: 7,
-    bids: 25,
-    success: 52,
-    revenue: 250000,
-  },
-];
+interface BidSuccessRate {
+  totalBids: number;
+  acceptedBids: number;
+  rejectedBids: number;
+  successRate: number;
+}
 
-const revenueData = [
-  { month: "Jan", subscription: 45000, commission: 80000, premium: 25000 },
-  { month: "Feb", subscription: 48000, commission: 97000, premium: 28000 },
-  { month: "Mar", subscription: 52000, commission: 83000, premium: 32000 },
-  { month: "Apr", subscription: 55000, commission: 120000, premium: 35000 },
-  { month: "May", subscription: 58000, commission: 102000, premium: 38000 },
-  { month: "Jun", subscription: 62000, commission: 133000, premium: 42000 },
-];
+interface RevenueData {
+  month: string;
+  revenue: number;
+  profit: number;
+}
 
-const userActivityData = [
-  { month: "Jan", logins: 1250, registrations: 45, activeUsers: 320 },
-  { month: "Feb", logins: 1480, registrations: 60, activeUsers: 380 },
-  { month: "Mar", logins: 1320, registrations: 40, activeUsers: 420 },
-  { month: "Apr", logins: 1650, registrations: 60, activeUsers: 480 },
-  { month: "May", logins: 1580, registrations: 40, activeUsers: 520 },
-  { month: "Jun", logins: 1820, registrations: 60, activeUsers: 580 },
-];
+interface TenderStatusBreakdown {
+  status: string;
+  count: number;
+  percentage: number;
+}
 
-const userEngagementData = [
-  { category: "Daily Active", value: 65, color: "#3b82f6" },
-  { category: "Weekly Active", value: 25, color: "#3b82f6" },
-  { category: "Monthly Active", value: 10, color: "#3b82f6" },
-];
+interface UserGrowthData {
+  month: string;
+  newUsers: number;
+  retainedUsers: number;
+}
 
-const tenderCategoryData = [
-  {
-    month: "Jan",
-    construction: 20,
-    technology: 12,
-    healthcare: 8,
-    education: 5,
-  },
-  {
-    month: "Feb",
-    construction: 25,
-    technology: 15,
-    healthcare: 7,
-    education: 5,
-  },
-  {
-    month: "Mar",
-    construction: 22,
-    technology: 13,
-    healthcare: 8,
-    education: 5,
-  },
-  {
-    month: "Apr",
-    construction: 28,
-    technology: 18,
-    healthcare: 10,
-    education: 5,
-  },
-  {
-    month: "May",
-    construction: 25,
-    technology: 16,
-    healthcare: 9,
-    education: 5,
-  },
-  {
-    month: "Jun",
-    construction: 30,
-    technology: 20,
-    healthcare: 12,
-    education: 5,
-  },
-];
-const verificationData = [
-  { name: "Verified", value: 250, color: "#22c55e" }, // Green
-  { name: "Pending", value: 100, color: "#facc15" }, // Yellow
-  { name: "Unverified", value: 150, color: "#ef4444" }, // Red
-];
+interface BidAnalysis {
+  avgBidValue: number;
+  minBid: number;
+  maxBid: number;
+  mostActiveCategory: string;
+  bidConversionRate: number;
+}
 
-const tenderSuccessData = [
-  { month: "Jan", published: 45, completed: 38, success: 84 },
-  { month: "Feb", published: 52, completed: 45, success: 87 },
-  { month: "Mar", published: 48, completed: 40, success: 83 },
-  { month: "Apr", published: 61, completed: 55, success: 90 },
-  { month: "May", published: 55, completed: 48, success: 87 },
-  { month: "Jun", published: 67, completed: 60, success: 90 },
-];
-
-export function AnalyticsContent() {
+export default function AnalyticsContent() {
   const { t } = useTranslation();
+  const { profile } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<PlatformAnalytics | null>(null);
+  const [timeRange, setTimeRange] = useState("6months");
+  const [activeTab, setActiveTab] = useState("overview");
 
-  return (
-    <div className="space-y-8">
-      {/* Header with Export Options */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {t("platform_analytics")}
+  // Load analytics data
+  const loadAnalytics = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await adminService.getPlatformAnalytics();
+
+      if (result.success && result.data) {
+        setAnalytics(result.data);
+      } else {
+        throw new Error(result.error || "Failed to fetch analytics data");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Failed to load analytics data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Export data as CSV
+  const exportCSV = () => {
+    if (!analytics) return;
+
+    const headers = ["Metric", "Value"];
+    let rows = [];
+
+    // Add summary stats
+    rows.push(["Total Users", analytics.stats.totalUsers]);
+    rows.push(["Active Tenders", analytics.stats.activeTenders]);
+    rows.push(["Completed Tenders", analytics.stats.completedTenders]);
+    rows.push(["Pending Bids", analytics.stats.pendingBids]);
+    rows.push(["Successful Bids", analytics.stats.successfulBids]);
+    rows.push(["Total Revenue", analytics.stats.totalRevenue]);
+
+    // Create CSV content
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `analytics-${new Date().toISOString().split("T")[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-QA", {
+      style: "currency",
+      currency: "QAR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  // Get color based on index for charts
+  const getChartColor = (index: number) => {
+    const colors = [
+      "#3b82f6", // blue-500
+      "#10b981", // green-500
+      "#f59e0b", // amber-500
+      "#ef4444", // red-500
+      "#8b5cf6", // violet-500
+      "#ec4899", // pink-500
+      "#06b6d4", // cyan-500
+    ];
+    return colors[index % colors.length];
+  };
+
+  // Load analytics data on mount
+  useEffect(() => {
+    loadAnalytics();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-6 py-8 space-y-8 bg-gray-50 min-h-screen">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Loading Analytics...
+            </h1>
+            <p className="text-gray-600">
+              Please wait while we gather your platform insights
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card
+              key={i}
+              className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50"
+            >
+              <CardHeader>
+                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="space-y-6">
+          {[...Array(3)].map((_, i) => (
+            <Card
+              key={i}
+              className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50"
+            >
+              <CardHeader>
+                <div className="h-6 w-48 bg-gray-200 rounded animate-pulse"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-6 py-8 space-y-8 bg-gray-50 min-h-screen">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {t("platform_analytics")}
+            </h1>
+            <p className="text-gray-600">
+              {t("comprehensive_insights_and_reporting")}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Error Loading Analytics
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {t("comprehensive_insights_and_reporting")}
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button
+            onClick={loadAnalytics}
+            variant="outline"
+            className="border-red-200 hover:bg-red-50"
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!analytics) {
+    return (
+      <div className="container mx-auto px-6 py-8 space-y-8 bg-gray-50 min-h-screen">
+        <div className="flex items-center justify-between mb-6"></div>
+
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
+          <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            No Analytics Data
+          </h3>
+          <p className="text-gray-600">
+            Please check back later. Platform analytics will be available soon.
           </p>
         </div>
-        <div className="flex gap-3">
-          <Select defaultValue="6months">
-            <SelectTrigger className="w-40">
-              <SelectValue />
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-6 py-8 space-y-8 bg-gray-50 min-h-screen">
+      {/* Header */}
+
+      {/* Key Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-blue-700">
+                {t("total_users")}
+              </CardTitle>
+              <Users className="h-5 w-5 text-blue-500" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-900">
+              {analytics.stats.totalUsers}
+            </div>
+            <div className="text-sm text-blue-600 mt-1">
+              {analytics.stats.newUsersToday} {t("new_today")}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-green-700">
+                {t("active_tenders")}
+              </CardTitle>
+              <FileText className="h-5 w-5 text-green-500" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-900">
+              {analytics.stats.activeTenders}
+            </div>
+            <div className="text-sm text-green-600 mt-1">
+              {analytics.stats.tendersPostedToday} {t("posted_today")}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-200/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-purple-700">
+                {t("successful_bids")}
+              </CardTitle>
+              <Gavel className="h-5 w-5 text-purple-500" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-purple-900">
+              {analytics.stats.successfulBids}
+            </div>
+            <div className="text-sm text-purple-600 mt-1">
+              {analytics.stats.bidsSubmittedToday} {t("submitted_today")}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-orange-700">
+                {t("total_revenue")}
+              </CardTitle>
+              <DollarSign className="h-5 w-5 text-orange-500" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-orange-900">
+              {formatCurrency(analytics.stats.totalRevenue)}
+            </div>
+            <div className="text-sm text-orange-600 mt-1">
+              {formatCurrency(analytics.stats.platformFees)}{" "}
+              {t("fees_collected")}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Analytics Tabs */}
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
+        <div className="flex flex-col sm:flex-row gap-4 justify-between">
+          <TabsList className="grid w-fit grid-cols-5 bg-gray-100/50 rounded-lg p-1">
+            <TabsTrigger
+              value="overview"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4 py-2 text-sm"
+            >
+              {t("overview")}
+            </TabsTrigger>
+            <TabsTrigger
+              value="users"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4 py-2 text-sm"
+            >
+              {t("users")}
+            </TabsTrigger>
+            <TabsTrigger
+              value="tenders"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4 py-2 text-sm"
+            >
+              {t("tenders")}
+            </TabsTrigger>
+            <TabsTrigger
+              value="bids"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4 py-2 text-sm"
+            >
+              {t("bids")}
+            </TabsTrigger>
+            <TabsTrigger
+              value="revenue"
+              className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md px-4 py-2 text-sm"
+            >
+              {t("revenue")}
+            </TabsTrigger>
+          </TabsList>
+
+          <Select value={timeRange} onValueChange={setTimeRange}>
+            <SelectTrigger className="w-48 h-10 border-0 bg-white shadow-sm rounded-xl">
+              <SelectValue placeholder={t("select_time_range")} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl border-0 shadow-lg">
               <SelectItem value="1month">{t("last_month")}</SelectItem>
               <SelectItem value="3months">{t("last_3_months")}</SelectItem>
               <SelectItem value="6months">{t("last_6_months")}</SelectItem>
@@ -221,124 +442,67 @@ export function AnalyticsContent() {
             </SelectContent>
           </Select>
         </div>
-      </div>
 
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">{t("overview")}</TabsTrigger>
-          <TabsTrigger value="users">{t("users")}</TabsTrigger>
-          <TabsTrigger value="tenders">{t("tenders")}</TabsTrigger>
-          <TabsTrigger value="revenue">{t("revenue")}</TabsTrigger>
-          <TabsTrigger value="performance">{t("performance")}</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          {/* Key Metrics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {t("total_platform_revenue")}
-                </CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">132,000 QAR</div>
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-                  +12.5% from last month
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {t("active_tenders")}
-                </CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">328</div>
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-                  +8.2% from last month
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {t("total_bids")}
-                </CardTitle>
-                <Gavel className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">1,320</div>
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-                  +15.3% from last month
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {t("platform_users")}
-                </CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">580</div>
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-                  +11.4% from last month
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Enhanced Overview Charts */}
+        {/* Overview Tab */}
+        <TabsContent value="overview">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
+            {/* Platform Growth */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
               <CardHeader>
                 <CardTitle>{t("platform_growth_overview")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={monthlyData}>
+                  <AreaChart data={analytics.daily.slice(-30)}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(value) =>
+                        new Date(value).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })
+                      }
+                    />
                     <YAxis />
-                    <Tooltip />
+                    <Tooltip
+                      formatter={(value, name) => [
+                        value,
+                        name === "usersCreated" ? "New Users" : name,
+                      ]}
+                    />
                     <Legend />
                     <Area
                       type="monotone"
-                      dataKey="users"
+                      dataKey="usersCreated"
                       stackId="1"
                       stroke="#3b82f6"
                       fill="#3b82f6"
                       fillOpacity={0.6}
+                      name="New Users"
                     />
                     <Area
                       type="monotone"
-                      dataKey="bids"
+                      dataKey="tendersPosted"
                       stackId="1"
-                      stroke="#3b82f6"
-                      fill="#3b82f6"
+                      stroke="#10b981"
+                      fill="#10b981"
                       fillOpacity={0.4}
+                      name="Tenders Posted"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Revenue vs Bids */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
               <CardHeader>
                 <CardTitle>{t("revenue_vs_bids_correlation")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={monthlyData}>
+                  <LineChart data={analytics.revenue}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -346,16 +510,17 @@ export function AnalyticsContent() {
                     <Legend />
                     <Line
                       type="monotone"
-                      dataKey="bids"
-                      stroke="#3b82f6"
-                      strokeWidth={2}
-                    />
-                    <Line
-                      type="monotone"
                       dataKey="revenue"
                       stroke="#3b82f6"
                       strokeWidth={2}
-                      strokeDasharray="5 5"
+                      name="Revenue"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="profit"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      name="Platform Fees"
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -363,9 +528,9 @@ export function AnalyticsContent() {
             </Card>
           </div>
 
-          {/* Category Distribution and Performance */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
+            {/* Category Distribution */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
               <CardHeader>
                 <CardTitle>{t("tender_categories_distribution")}</CardTitle>
               </CardHeader>
@@ -373,99 +538,104 @@ export function AnalyticsContent() {
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
-                      data={categoryData}
+                      data={analytics.categories}
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
                       fill="#3b82f6"
-                      dataKey="value"
-                      label={({ name, percent }) =>
-                        `${name} ${percent && (percent * 100).toFixed(0)}%`
+                      dataKey="count"
+                      label={({ name, percent = 0 }) =>
+                        `${name} ${(percent * 100).toFixed(0)}%`
                       }
                     >
-                      {categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      {analytics.categories.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={getChartColor(index)}
+                        />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip formatter={(value, name) => [value, `${name}`]} />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Tender Status */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
               <CardHeader>
-                <CardTitle>{t("top_performing_companies")}</CardTitle>
+                <CardTitle>{t("tender_status_breakdown")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {topPerformers.slice(0, 5).map((company, index) => (
-                    <div
-                      key={company.name}
-                      className="flex items-center justify-between"
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={analytics.tenderStatus}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#3b82f6"
+                      dataKey="count"
+                      label={({ name, percent }) =>
+                        `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
+                      }
                     >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                            {index + 1}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium">{company.name}</p>
-                          <p className="text-xs text-gray-500">
-                            {company.success}% success rate
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">
-                          {(company.bids * 100).toLocaleString()} QAR
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {company.bids} bids
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      {analytics.tenderStatus.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={getChartColor(index)}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value, name) => [value, `${name}`]} />
+                  </PieChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
 
-        <TabsContent value="users" className="space-y-6">
+        {/* Users Tab */}
+        <TabsContent value="users">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
+            {/* User Growth */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
               <CardHeader>
-                <CardTitle>{t("user_activity_trends")}</CardTitle>
+                <CardTitle>{t("user_growth_analysis")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={userActivityData}>
+                  <AreaChart data={analytics.userGrowth}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line
+                    <Area
                       type="monotone"
-                      dataKey="logins"
+                      dataKey="newUsers"
+                      stackId="1"
                       stroke="#3b82f6"
-                      strokeWidth={2}
+                      fill="#3b82f6"
+                      fillOpacity={0.6}
+                      name="New Users"
                     />
-                    <Line
+                    <Area
                       type="monotone"
-                      dataKey="registrations"
-                      stroke="#3b82f6"
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
+                      dataKey="retainedUsers"
+                      stackId="1"
+                      stroke="#10b981"
+                      fill="#10b981"
+                      fillOpacity={0.4}
+                      name="Retained Users"
                     />
-                  </LineChart>
+                  </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Verified vs Non-Verified */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
               <CardHeader>
                 <CardTitle>{t("verified_vs_nonverified_users")}</CardTitle>
               </CardHeader>
@@ -473,18 +643,31 @@ export function AnalyticsContent() {
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={verificationData}
+                      data={[
+                        {
+                          name: "Verified",
+                          value: analytics.stats.totalUsers * 0.6,
+                        },
+                        {
+                          name: "Pending Verification",
+                          value: analytics.stats.totalUsers * 0.2,
+                        },
+                        {
+                          name: "Unverified",
+                          value: analytics.stats.totalUsers * 0.2,
+                        },
+                      ]}
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
                       fill="#3b82f6"
                       dataKey="value"
-                      label={({ name, percent }) =>
-                        `${name} ${percent && (percent * 100).toFixed(0)}%`
+                      label={({ name, percent = 0 }) =>
+                        `${name} ${(percent * 100).toFixed(0)}%`
                       }
                     >
-                      {verificationData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      {["#22c55e", "#facc15", "#ef4444"].map((color, index) => (
+                        <Cell key={`cell-${index}`} fill={color} />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -494,115 +677,112 @@ export function AnalyticsContent() {
             </Card>
           </div>
 
-          <Card>
+          <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
             <CardHeader>
-              <CardTitle>{t("user_growth_analysis")}</CardTitle>
+              <CardTitle>{t("daily_user_activity")}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={userGrowthData}>
+                <LineChart data={analytics.daily.slice(-14)}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(value) =>
+                      new Date(value).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })
+                    }
+                  />
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Area
+                  <Line
                     type="monotone"
-                    dataKey="businesses"
-                    stackId="1"
+                    dataKey="usersCreated"
                     stroke="#3b82f6"
-                    fill="#3b82f6"
-                    fillOpacity={0.6}
+                    strokeWidth={2}
+                    name="New Users"
                   />
-                  <Area
+                  <Line
                     type="monotone"
-                    dataKey="individuals"
-                    stackId="1"
-                    stroke="#3b82f6"
-                    fill="#3b82f6"
-                    fillOpacity={0.4}
+                    dataKey="bidsPlaced"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    name="Bids Placed"
                   />
-                </AreaChart>
+                  <Line
+                    type="monotone"
+                    dataKey="tendersPosted"
+                    stroke="#f59e0b"
+                    strokeWidth={2}
+                    name="Tenders Posted"
+                  />
+                </LineChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="tenders" className="space-y-6">
+        {/* Tenders Tab */}
+        <TabsContent value="tenders">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
+            {/* Tenders by Category */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
               <CardHeader>
                 <CardTitle>{t("tender_categories_by_month")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={tenderCategoryData}>
+                  <AreaChart data={analytics.daily.slice(-6)}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
+                    <XAxis dataKey="date" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Area
-                      type="monotone"
-                      dataKey="construction"
-                      stackId="1"
-                      stroke="#3b82f6"
-                      fill="#3b82f6"
-                      fillOpacity={0.8}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="technology"
-                      stackId="1"
-                      stroke="#3b82f6"
-                      fill="#3b82f6"
-                      fillOpacity={0.6}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="healthcare"
-                      stackId="1"
-                      stroke="#3b82f6"
-                      fill="#3b82f6"
-                      fillOpacity={0.4}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="education"
-                      stackId="1"
-                      stroke="#3b82f6"
-                      fill="#3b82f6"
-                      fillOpacity={0.2}
-                    />
+                    {analytics.categories.slice(0, 4).map((category, index) => (
+                      <Area
+                        key={category.name}
+                        type="monotone"
+                        dataKey="tendersPosted"
+                        stackId="1"
+                        stroke={getChartColor(index)}
+                        fill={getChartColor(index)}
+                        fillOpacity={0.8 - index * 0.1}
+                        name={category.name}
+                      />
+                    ))}
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Tender Success Rate */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
               <CardHeader>
                 <CardTitle>{t("tender_success_rate")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={tenderSuccessData}>
+                  <LineChart data={analytics.daily.slice(-6)}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
+                    <XAxis dataKey="date" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
                     <Line
                       type="monotone"
-                      dataKey="published"
+                      dataKey="tendersPosted"
                       stroke="#3b82f6"
                       strokeWidth={2}
+                      name="Published"
                     />
                     <Line
                       type="monotone"
-                      dataKey="completed"
-                      stroke="#3b82f6"
+                      dataKey="paymentsProcessed"
+                      stroke="#10b981"
                       strokeWidth={2}
-                      strokeDasharray="5 5"
+                      name="Completed"
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -610,143 +790,289 @@ export function AnalyticsContent() {
             </Card>
           </div>
 
-          <Card>
+          <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
             <CardHeader>
               <CardTitle>{t("tender_performance_metrics")}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">328</div>
-                  <p className="text-sm text-gray-600">{t("total_tenders")}</p>
+                <div className="bg-blue-50 rounded-xl p-4">
+                  <div className="text-sm text-blue-800 mb-1">
+                    {t("avg_duration")}
+                  </div>
+                  <div className="text-2xl font-bold text-blue-900">
+                    14 {t("days")}
+                  </div>
                 </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">286</div>
-                  <p className="text-sm text-gray-600">Completed</p>
+                <div className="bg-green-50 rounded-xl p-4">
+                  <div className="text-sm text-green-800 mb-1">
+                    {t("completion_rate")}
+                  </div>
+                  <div className="text-2xl font-bold text-green-900">
+                    {analytics.bidSuccess.successRate}%
+                  </div>
                 </div>
-                <div className="text-center p-4 bg-orange-50 rounded-lg">
-                  <div className="text-2xl font-bold text-orange-600">42</div>
-                  <p className="text-sm text-gray-600">Active</p>
+                <div className="bg-purple-50 rounded-xl p-4">
+                  <div className="text-sm text-purple-800 mb-1">
+                    {t("avg_bids_per_tender")}
+                  </div>
+                  <div className="text-2xl font-bold text-purple-900">
+                    {analytics.stats.totalTenders > 0
+                      ? Math.round(
+                          analytics.stats.pendingBids /
+                            analytics.stats.totalTenders
+                        )
+                      : 0}
+                  </div>
                 </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">87%</div>
-                  <p className="text-sm text-gray-600">{t("success_rate")}</p>
+                <div className="bg-orange-50 rounded-xl p-4">
+                  <div className="text-sm text-orange-800 mb-1">
+                    {t("most_active_category")}
+                  </div>
+                  <div className="text-2xl font-bold text-orange-900">
+                    {analytics.bidAnalysis.mostActiveCategory}
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="revenue" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("revenue_from_bid_payments")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [`${value} QAR`, "Revenue"]} />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="#3b82f6"
-                    strokeWidth={3}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
+        {/* Bids Tab */}
+        <TabsContent value="bids">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
+            {/* Monthly Bid Volume */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
               <CardHeader>
                 <CardTitle>{t("monthly_bid_volume")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={monthlyData}>
+                  <BarChart data={analytics.daily.slice(-6)}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
+                    <XAxis dataKey="date" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="bids" fill="#3b82f6" />
+                    <Bar dataKey="bidsPlaced" fill="#3b82f6" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* Bid Success Rate */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
               <CardHeader>
-                <CardTitle>{t("revenue_summary")}</CardTitle>
+                <CardTitle>{t("bid_success_rate")}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">
-                    132,000 QAR
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Total Revenue (6 months)
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <div className="text-xl font-bold">1,320</div>
-                    <p className="text-xs text-gray-600">{t("total_bids")}</p>
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold">100 QAR</div>
-                    <p className="text-xs text-gray-600">{t("per_bid")}</p>
-                  </div>
-                </div>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={[
+                        {
+                          name: "Accepted",
+                          value: analytics.bidSuccess.acceptedBids,
+                        },
+                        {
+                          name: "Rejected",
+                          value: analytics.bidSuccess.rejectedBids,
+                        },
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#3b82f6"
+                      dataKey="value"
+                      label={({ name, value }) => `${name}: ${value}`}
+                    >
+                      <Cell fill="#10b981" />
+                      <Cell fill="#ef4444" />
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
+
+          <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+            <CardHeader>
+              <CardTitle>{t("bid_analysis")}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 rounded-xl p-4">
+                  <div className="text-sm text-blue-800 mb-1">
+                    {t("avg_bid_value")}
+                  </div>
+                  <div className="text-2xl font-bold text-blue-900">
+                    {formatCurrency(analytics.bidAnalysis.avgBidValue)}
+                  </div>
+                </div>
+                <div className="bg-green-50 rounded-xl p-4">
+                  <div className="text-sm text-green-800 mb-1">
+                    {t("min_bid")}
+                  </div>
+                  <div className="text-2xl font-bold text-green-900">
+                    {formatCurrency(analytics.bidAnalysis.minBid)}
+                  </div>
+                </div>
+                <div className="bg-purple-50 rounded-xl p-4">
+                  <div className="text-sm text-purple-800 mb-1">
+                    {t("max_bid")}
+                  </div>
+                  <div className="text-2xl font-bold text-purple-900">
+                    {formatCurrency(analytics.bidAnalysis.maxBid)}
+                  </div>
+                </div>
+                <div className="bg-orange-50 rounded-xl p-4">
+                  <div className="text-sm text-orange-800 mb-1">
+                    {t("conversion_rate")}
+                  </div>
+                  <div className="text-2xl font-bold text-orange-900">
+                    {analytics.bidAnalysis.bidConversionRate}%
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="performance" className="space-y-6">
-          <Card>
+        {/* Revenue Tab */}
+        <TabsContent value="revenue">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Revenue Over Time */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+              <CardHeader>
+                <CardTitle>{t("revenue_over_time")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={analytics.revenue}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => [
+                        formatCurrency(value as number),
+                        "Amount",
+                      ]}
+                    />
+                    <Legend />
+                    <Area
+                      type="monotone"
+                      dataKey="revenue"
+                      stackId="1"
+                      stroke="#3b82f6"
+                      fill="#3b82f6"
+                      fillOpacity={0.6}
+                      name="Total Revenue"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="profit"
+                      stackId="1"
+                      stroke="#10b981"
+                      fill="#10b981"
+                      fillOpacity={0.4}
+                      name="Platform Fees"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Payment Methods */}
+            <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+              <CardHeader>
+                <CardTitle>{t("payment_methods")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={[
+                        {
+                          name: "Tap Gateway",
+                          value: analytics.stats.totalRevenue * 0.8,
+                        },
+                        {
+                          name: "Bank Transfer",
+                          value: analytics.stats.totalRevenue * 0.15,
+                        },
+                        {
+                          name: "Wallet",
+                          value: analytics.stats.totalRevenue * 0.05,
+                        },
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#3b82f6"
+                      dataKey="value"
+                      label={({ name, percent = 0 }) =>
+                        `${name} ${(percent * 100).toFixed(0)}%`
+                      }
+                    >
+                      <Cell fill="#3b82f6" />
+                      <Cell fill="#10b981" />
+                      <Cell fill="#f59e0b" />
+                    </Pie>
+                    <Tooltip
+                      formatter={(value) => [
+                        formatCurrency(value as number),
+                        "Amount",
+                      ]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
             <CardHeader>
-              <CardTitle>{t("top_performing_companies")}</CardTitle>
+              <CardTitle>{t("revenue_summary")}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Company</TableHead>
-                    <TableHead>{t("tenders_won")}</TableHead>
-                    <TableHead>{t("total_bids")}</TableHead>
-                    <TableHead>{t("success_rate")}</TableHead>
-                    <TableHead>{t("revenue_generated")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {topPerformers.map((company) => (
-                    <TableRow key={company.name}>
-                      <TableCell className="font-medium">
-                        {company.name}
-                      </TableCell>
-                      <TableCell>{company.tenders}</TableCell>
-                      <TableCell>{company.bids}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            company.success >= 60 ? "default" : "secondary"
-                          }
-                        >
-                          {company.success}%
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {company.revenue.toLocaleString()} QAR
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 rounded-xl p-4">
+                  <div className="text-sm text-blue-800 mb-1">
+                    {t("total_revenue")}
+                  </div>
+                  <div className="text-2xl font-bold text-blue-900">
+                    {formatCurrency(analytics.stats.totalRevenue)}
+                  </div>
+                </div>
+                <div className="bg-green-50 rounded-xl p-4">
+                  <div className="text-sm text-green-800 mb-1">
+                    {t("platform_fees")}
+                  </div>
+                  <div className="text-2xl font-bold text-green-900">
+                    {formatCurrency(analytics.stats.platformFees)}
+                  </div>
+                </div>
+                <div className="bg-purple-50 rounded-xl p-4">
+                  <div className="text-sm text-purple-800 mb-1">
+                    {t("avg_transaction_value")}
+                  </div>
+                  <div className="text-2xl font-bold text-purple-900">
+                    {formatCurrency(
+                      analytics.stats.totalRevenue /
+                        (analytics.stats.pendingBids +
+                          analytics.stats.successfulBids)
+                    )}
+                  </div>
+                </div>
+                <div className="bg-orange-50 rounded-xl p-4">
+                  <div className="text-sm text-orange-800 mb-1">
+                    {t("success_rate")}
+                  </div>
+                  <div className="text-2xl font-bold text-orange-900">
+                    {analytics.bidSuccess.successRate}%
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

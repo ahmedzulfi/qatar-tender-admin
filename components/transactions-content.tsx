@@ -1,522 +1,447 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import React, { useEffect, useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import {
-  Search,
+  Search as SearchIcon,
+  CreditCard,
+  Wallet,
+  Calendar,
+  ExternalLink,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal,
-  CalendarIcon,
-  ArrowUpDown,
+  X,
 } from "lucide-react";
-import { format } from "date-fns";
+import { adminService } from "@/services/adminService";
 
-import { useTranslation } from "../lib/hooks/useTranslation";
-// Mock transaction data
-const transactionsData = [
-  {
-    id: "TXN-001",
-    user: "Ahmed Al-Rashid",
-    userEmail: "ahmed@example.com",
-    amount: 100,
-    status: "success",
-    date: "2024-01-15",
-    method: "Bank Transfer",
-    tender: "Construction Project - Phase 1",
-  },
-  {
-    id: "TXN-002",
-    user: "Qatar Construction Co.",
-    userEmail: "info@qatarconstruction.com",
-    amount: 100,
-    status: "pending",
-    date: "2024-01-14",
-    method: "Credit Card",
-    tender: "IT Infrastructure Upgrade",
-  },
-  {
-    id: "TXN-003",
-    user: "Doha Engineering Ltd.",
-    userEmail: "contact@dohaeng.com",
-    amount: 100,
-    status: "failed",
-    date: "2024-01-13",
-    method: "Bank Transfer",
-    tender: "Healthcare Equipment",
-  },
-  {
-    id: "TXN-004",
-    user: "Al-Wakra Industries",
-    userEmail: "admin@alwakra.com",
-    amount: 100,
-    status: "success",
-    date: "2024-01-12",
-    method: "Wire Transfer",
-    tender: "Transportation System",
-  },
-  {
-    id: "TXN-005",
-    user: "Gulf Tech Solutions",
-    userEmail: "info@gulftech.com",
-    amount: 100,
-    status: "pending",
-    date: "2024-01-11",
-    method: "Credit Card",
-    tender: "Software Development",
-  },
-  {
-    id: "TXN-006",
-    user: "Lusail Development",
-    userEmail: "projects@lusail.com",
-    amount: 100,
-    status: "success",
-    date: "2024-01-10",
-    method: "Bank Transfer",
-    tender: "Urban Planning Project",
-  },
-  {
-    id: "TXN-007",
-    user: "Qatar Medical Supplies",
-    userEmail: "orders@qmedical.com",
-    amount: 100,
-    status: "failed",
-    date: "2024-01-09",
-    method: "Credit Card",
-    tender: "Medical Equipment Tender",
-  },
-  {
-    id: "TXN-008",
-    user: "Hamad Port Services",
-    userEmail: "logistics@hamadport.com",
-    amount: 100,
-    status: "success",
-    date: "2024-01-08",
-    method: "Wire Transfer",
-    tender: "Port Infrastructure",
-  },
-];
+// Apple-style Transactions page
+// - Tailwind CSS required
+// - Uses adminService.getPayments(params) to fetch data
+// - Drop this file into a page (e.g. /pages/admin/transactions.tsx or app/admin/transactions/page.tsx)
 
-type SortField = "id" | "user" | "amount" | "status" | "date";
-type SortDirection = "asc" | "desc";
+export default function TransactionsPage() {
+  const [payments, setPayments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export function TransactionsContent() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFrom, setDateFrom] = useState<Date>();
-  const [dateTo, setDateTo] = useState<Date>();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortField, setSortField] = useState<SortField>("date");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-  const itemsPerPage = 10;
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<string | "">("");
+  const [method, setMethod] = useState<string | "">("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(12);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Filter and sort transactions
-  const filteredTransactions = transactionsData
-    .filter((transaction) => {
-      const matchesSearch =
-        transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        transaction.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        transaction.userEmail
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        transaction.tender.toLowerCase().includes(searchTerm.toLowerCase());
+  const [selectedPayment, setSelectedPayment] = useState<any | null>(null);
 
-      const matchesStatus =
-        statusFilter === "all" || transaction.status === statusFilter;
-
-      const transactionDate = new Date(transaction.date);
-      const matchesDateRange =
-        (!dateFrom || transactionDate >= dateFrom) &&
-        (!dateTo || transactionDate <= dateTo);
-
-      return matchesSearch && matchesStatus && matchesDateRange;
-    })
-    .sort((a, b) => {
-      let aValue: any = a[sortField];
-      let bValue: any = b[sortField];
-
-      if (sortField === "amount") {
-        aValue = Number(aValue);
-        bValue = Number(bValue);
-      } else if (sortField === "date") {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
-      } else {
-        aValue = String(aValue).toLowerCase();
-        bValue = String(bValue).toLowerCase();
-      }
-
-      if (sortDirection === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-      }
-    });
-
-  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(
-    startIndex,
-    startIndex + itemsPerPage
+  const params = useMemo(
+    () => ({
+      page,
+      limit,
+      search: search || undefined,
+      status: status || undefined,
+      paymentMethod: method || undefined,
+    }),
+    [page, limit, search, status, method]
   );
-  const { t } = useTranslation();
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortDirection("asc");
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await adminService.getPayments(params);
+        if (cancelled) return;
+        if (res.success) {
+          setPayments(res.data.payments || []);
+          setTotalPages(res.data.pagination?.totalPages || 1);
+        } else {
+          setError(res.error || "Failed to load payments");
+        }
+      } catch (err: any) {
+        if (cancelled) return;
+        console.error(err);
+        setError(err?.message || "Failed to load payments");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-  };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [params]);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "success":
-        return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            Success
-          </Badge>
-        );
-      case "pending":
-        return (
-          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-            Pending
-          </Badge>
-        );
-      case "failed":
-        return (
-          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-            Failed
-          </Badge>
-        );
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+  function formatCurrency(n: number) {
+    try {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(n);
+    } catch {
+      return `$${n.toFixed(2)}`;
     }
-  };
+  }
 
-  // Removed exportToCSV function
+  function formatDate(d: string | Date) {
+    const date = new Date(d);
+    return date.toLocaleString();
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("total_bids")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{transactionsData.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("total_revenue")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              $
-              {transactionsData
-                .reduce((sum, t) => sum + t.amount, 0)
-                .toLocaleString()}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("successful")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {transactionsData.filter((t) => t.status === "success").length}
-            </div>
-          </CardContent>
-        </Card>
+    <div className="min-h-screen p-8 bg-[linear-gradient(180deg,#f5f7fb,white)]">
+      <div className="max- mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-6"
+        >
+          <div>
+            <h1 className="text-3xl font-semibold text-slate-900">
+              Transactions
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Review and manage all payments. Clean, concise Apple-like UI.
+            </p>
+          </div>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {t("pending")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
-              {transactionsData.filter((t) => t.status === "pending").length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters and Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("payments_from_bids")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder={t("search_transactions_users_or_tenders")}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-white/70 backdrop-blur rounded-full px-3 py-1 shadow-sm">
+              <SearchIcon className="w-4 h-4 text-slate-600" />
+              <input
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Search transaction id, user or tender"
+                className="w-72 bg-transparent outline-none text-sm text-slate-700"
               />
             </div>
 
-            {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder={t("filter_by_status")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("all_status")}</SelectItem>
-                <SelectItem value="success">{t("success")}</SelectItem>
-                <SelectItem value="pending">{t("pending")}</SelectItem>
-                <SelectItem value="failed">{t("failed")}</SelectItem>
-              </SelectContent>
-            </Select>
+            <select
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm"
+            >
+              <option value="">All status</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+              <option value="refunded">Refunded</option>
+            </select>
 
-            {/* Date Range */}
-            <div className="flex gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "justify-start text-left font-normal",
-                      !dateFrom && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFrom ? format(dateFrom, "PPP") : t("from_date")}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={dateFrom}
-                    onSelect={setDateFrom}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+            <select
+              value={method}
+              onChange={(e) => {
+                setMethod(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm"
+            >
+              <option value="">All methods</option>
+              <option value="credit_card">Credit Card</option>
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="wallet">Wallet</option>
+              <option value="tap_gateway">Tap Gateway</option>
+            </select>
+          </div>
+        </motion.div>
 
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "justify-start text-left font-normal",
-                      !dateTo && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateTo ? format(dateTo, "PPP") : t("to_date")}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={dateTo}
-                    onSelect={setDateTo}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+        {/* Cards summary */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="p-4 rounded-2xl bg-white shadow-[0_6px_20px_rgba(12,15,25,0.06)]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-slate-500">Total payments</p>
+                <p className="text-xl font-semibold text-slate-900">
+                  {payments.length}
+                </p>
+              </div>
+              <CreditCard className="w-7 h-7 text-slate-700/90" />
             </div>
-
-            {/* Export Button Removed */}
           </div>
 
-          {/* Transactions Table */}
-          <div className="border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort("id")}
-                      className="h-auto p-0 font-semibold"
+          <div className="p-4 rounded-2xl bg-white shadow-[0_6px_20px_rgba(12,15,25,0.06)]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-slate-500">Completed</p>
+                <p className="text-xl font-semibold text-slate-900">
+                  {payments.filter((p) => p.status === "completed").length}
+                </p>
+              </div>
+              <Wallet className="w-7 h-7 text-slate-700/90" />
+            </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-white shadow-[0_6px_20px_rgba(12,15,25,0.06)]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-slate-500">Volume</p>
+                <p className="text-xl font-semibold text-slate-900">
+                  {formatCurrency(
+                    payments.reduce((s, p) => s + (Number(p.amount) || 0), 0)
+                  )}
+                </p>
+              </div>
+              <Calendar className="w-7 h-7 text-slate-700/90" />
+            </div>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="bg-transparent">
+          <div className="rounded-2xl overflow-hidden border border-slate-100 bg-white">
+            <table className="min-w-full table-auto">
+              <thead className="bg-white">
+                <tr>
+                  <th className="text-left px-6 py-3 text-sm text-slate-500">
+                    Transaction
+                  </th>
+                  <th className="text-left px-6 py-3 text-sm text-slate-500">
+                    User
+                  </th>
+                  <th className="text-left px-6 py-3 text-sm text-slate-500">
+                    Tender
+                  </th>
+                  <th className="text-right px-6 py-3 text-sm text-slate-500">
+                    Amount
+                  </th>
+                  <th className="text-left px-6 py-3 text-sm text-slate-500">
+                    Method
+                  </th>
+                  <th className="text-left px-6 py-3 text-sm text-slate-500">
+                    Status
+                  </th>
+                  <th className="text-left px-6 py-3 text-sm text-slate-500">
+                    Date
+                  </th>
+                  <th className="px-6 py-3" />
+                </tr>
+              </thead>
+              <tbody>
+                {loading && (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="px-6 py-8 text-center text-sm text-slate-500"
                     >
-                      {t("transaction_id")}
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort("user")}
-                      className="h-auto p-0 font-semibold"
+                      Loading…
+                    </td>
+                  </tr>
+                )}
+
+                {!loading && payments.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="px-6 py-8 text-center text-sm text-slate-500"
                     >
-                      {t("user")}
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort("amount")}
-                      className="h-auto p-0 font-semibold"
-                    >
-                      {t("amount")}
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort("status")}
-                      className="h-auto p-0 font-semibold"
-                    >
-                      {t("status")}
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort("date")}
-                      className="h-auto p-0 font-semibold"
-                    >
-                      {t("date")}
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </TableHead>
-                  <TableHead>{t("actions")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedTransactions.map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell className="font-medium">
-                      {transaction.id}
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{transaction.user}</div>
-                        <div className="text-sm text-gray-500">
-                          {transaction.userEmail}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      ${transaction.amount.toLocaleString()}
-                    </TableCell>
-                    <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                    <TableCell>
-                      {format(new Date(transaction.date), "MMM dd, yyyy")}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            {t("view_details")}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            {t("download_receipt")}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                      No transactions found
+                    </td>
+                  </tr>
+                )}
+
+                {payments.map((p) => (
+                  <motion.tr
+                    key={p._id}
+                    whileHover={{ scale: 1.001 }}
+                    className="border-t last:border-b hover:bg-slate-50 cursor-pointer"
+                    onClick={() => setSelectedPayment(p)}
+                  >
+                    <td className="px-6 py-4 text-sm text-slate-700 font-medium">
+                      {p.transactionId}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600">
+                      {p.user?.email || "—"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600">
+                      {p.tender?.title || "—"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-right text-slate-800">
+                      {formatCurrency(Number(p.amount) || 0)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600 capitalize">
+                      {p.paymentMethod?.replace("_", " ")}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                          p.status === "completed"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : p.status === "pending"
+                            ? "bg-amber-100 text-amber-800"
+                            : "bg-rose-100 text-rose-800"
+                        }`}
+                      >
+                        {p.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-500">
+                      {formatDate(p.createdAt)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-right">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedPayment(p);
+                        }}
+                        className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm bg-white border border-slate-100 shadow-sm"
+                      >
+                        View
+                        <ExternalLink className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </motion.tr>
                 ))}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-gray-500">
-              Showing {startIndex + 1} to{" "}
-              {Math.min(startIndex + itemsPerPage, filteredTransactions.length)}{" "}
-              of
-              {filteredTransactions.length} transactions
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-sm text-slate-600">
+              Showing page {page} of {totalPages}
             </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 bg-white border border-slate-100 shadow-sm disabled:opacity-50"
               >
-                <ChevronLeft className="h-4 w-4" />
-                Previous
-              </Button>
-              <div className="flex items-center space-x-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                      className="w-8 h-8 p-0"
-                    >
-                      {page}
-                    </Button>
-                  )
-                )}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 bg-white border border-slate-100 shadow-sm disabled:opacity-50"
               >
-                Next
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Drawer / Modal for payment details */}
+      {selectedPayment && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setSelectedPayment(null)}
+          />
+
+          <motion.div
+            initial={{ y: 60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 60, opacity: 0 }}
+            className="relative w-full sm:max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden"
+          >
+            <div className="p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    Transaction
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    {selectedPayment.transactionId}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedPayment(null)}
+                  className="rounded-full p-2 bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-lg bg-slate-50">
+                  <p className="text-xs text-slate-500">Amount</p>
+                  <p className="text-xl font-semibold">
+                    {formatCurrency(Number(selectedPayment.amount) || 0)}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-lg bg-slate-50">
+                  <p className="text-xs text-slate-500">Status</p>
+                  <p className="font-medium capitalize">
+                    {selectedPayment.status}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-lg bg-slate-50">
+                  <p className="text-xs text-slate-500">Method</p>
+                  <p className="font-medium capitalize">
+                    {selectedPayment.paymentMethod}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-lg bg-slate-50">
+                  <p className="text-xs text-slate-500">Date</p>
+                  <p className="font-medium">
+                    {formatDate(selectedPayment.createdAt)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <h4 className="text-sm font-semibold text-slate-800">User</h4>
+                <div className="mt-2 p-3 rounded-lg bg-white border border-slate-100">
+                  <p className="text-sm text-slate-700">
+                    {selectedPayment.user?.email || "—"}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {selectedPayment.user?._id}
+                  </p>
+                </div>
+              </div>
+
+              {selectedPayment.tender && (
+                <div className="mt-4">
+                  <h4 className="text-sm font-semibold text-slate-800">
+                    Tender
+                  </h4>
+                  <div className="mt-2 p-3 rounded-lg bg-white border border-slate-100">
+                    <p className="text-sm text-slate-700">
+                      {selectedPayment.tender?.title}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Posted by:{" "}
+                      {selectedPayment.tender?.postedBy?.email || "—"}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {selectedPayment.paymentDetails && (
+                <div className="mt-4">
+                  <h4 className="text-sm font-semibold text-slate-800">
+                    Payment details
+                  </h4>
+                  <pre className="mt-2 p-3 rounded-lg bg-slate-50 text-xs text-slate-700 overflow-auto max-h-40">
+                    {JSON.stringify(selectedPayment.paymentDetails, null, 2)}
+                  </pre>
+                </div>
+              )}
+
+              <div className="mt-6 flex items-center justify-end gap-3">
+                <a
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-slate-100 shadow-sm text-sm"
+                  href={`/#/payments/${selectedPayment._id}`}
+                >
+                  Open in new
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
