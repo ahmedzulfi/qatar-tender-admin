@@ -129,8 +129,393 @@ export interface PlatformAnalytics {
   userGrowth: UserGrowthData[];
   bidAnalysis: BidAnalysis;
 }
+export interface TenderOverTime {
+  _id: string;
+  total: number;
+  active: number;
+  closed: number;
+  awarded: number;
+  completed: number;
+}
+
+export interface BidsOverTime {
+  _id: string;
+  totalBids: number;
+  averageBidsPerTender: number;
+}
+
+export interface TenderSizeMetrics {
+  tenderMetrics: {
+    _id: string;
+    totalTenderSize: number;
+    averageTenderSize: number;
+    tenderCount: number;
+  }[];
+  bidMetrics: {
+    _id: string;
+    averageBidSize: number;
+    totalBidAmount: number;
+    bidCount: number;
+  }[];
+}
+
+export interface AwardMetrics {
+  _id: string;
+  totalTenders: number;
+  awardedTenders: number;
+  awardPercentage: number;
+}
+
+export interface TimeToFirstBid {
+  _id: string;
+  averageTimeToFirstBid: number;
+  tenderCount: number;
+}
+
+export interface UserMetrics {
+  _id: string;
+  individualUsers: number;
+  businessUsers: number;
+  totalNewUsers: number;
+  totalActiveUsers: number;
+  activeUserPercentage: number;
+}
+
+export interface RevenueOverTime {
+  _id: string;
+  totalRevenue: number;
+  transactionCount: number;
+  averageTransaction: number;
+}
+
+export interface CategoryDistribution {
+  _id: string;
+  tenderCount: number;
+  averageTenderSize: number;
+  totalTenderValue: number;
+}
+
+export interface BidderDistribution {
+  _id: string;
+  totalBids: number;
+  averageBiddersPerTender: number;
+  averageBidsPerTender: number;
+}
+
+export interface UserTypeDistribution {
+  _id: string;
+  individualTenders: number;
+  businessTenders: number;
+  individualValue: number;
+  businessValue: number;
+}
+
+export interface AverageBidPerCategory {
+  _id: string;
+  averageBid: number;
+  minBid: number;
+  maxBid: number;
+  bidCount: number;
+}
+
+export interface RatingMetrics {
+  overall: {
+    averageRating: number;
+    totalReviews: number;
+    ratingDistribution?: number[];
+  };
+  businessCategoryRatings: {
+    _id: {
+      business: string;
+      category: string;
+    };
+    averageRating: number;
+    reviewCount: number;
+    businessId: string;
+  }[];
+}
+
+export interface AdminAnalyticsResponse {
+  success: boolean;
+  data: {
+    tendersOverTime: TenderOverTime[];
+    bidsOverTime: BidsOverTime[];
+    tenderSizeMetrics: TenderSizeMetrics;
+    awardMetrics: AwardMetrics[];
+    timeToFirstBid: TimeToFirstBid[];
+    userMetrics: UserMetrics[];
+    revenueOverTime: RevenueOverTime[];
+    categoryDistribution: CategoryDistribution[];
+    bidderDistribution: BidderDistribution[];
+    userTypeDistribution: UserTypeDistribution[];
+    averageBidPerCategory: AverageBidPerCategory[];
+    ratingMetrics: RatingMetrics;
+  };
+}
+
+export interface AnalyticsFilters {
+  startDate?: string;
+  endDate?: string;
+  interval?: "day" | "week" | "month" | "year";
+  category?: string;
+}
+
+export class AnalyticsService {
+  async getAdminAnalytics(
+    filters: AnalyticsFilters = {}
+  ): Promise<AdminAnalyticsResponse> {
+    try {
+      const params = new URLSearchParams();
+
+      if (filters.startDate) params.append("startDate", filters.startDate);
+      if (filters.endDate) params.append("endDate", filters.endDate);
+      if (filters.interval) params.append("interval", filters.interval);
+      if (filters.category) params.append("category", filters.category);
+
+      const queryString = params.toString();
+      const url = `/api/admin/analytics/admin${
+        queryString ? `?${queryString}` : ""
+      }`;
+
+      const response = await api.get(url);
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "❌ Analytics fetch error:",
+        error.response?.data || error.message
+      );
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch analytics data"
+      );
+    }
+  }
+
+  async getTenderAnalytics(filters: AnalyticsFilters = {}) {
+    try {
+      const params = new URLSearchParams();
+
+      if (filters.startDate) params.append("startDate", filters.startDate);
+      if (filters.endDate) params.append("endDate", filters.endDate);
+      if (filters.interval) params.append("interval", filters.interval);
+
+      const queryString = params.toString();
+      const url = `/api/admin/analytics/tenders${
+        queryString ? `?${queryString}` : ""
+      }`;
+
+      const response = await api.get(url);
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "❌ Tender analytics error:",
+        error.response?.data || error.message
+      );
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch tender analytics"
+      );
+    }
+  }
+
+  async getBidAnalytics(filters: AnalyticsFilters = {}) {
+    try {
+      const params = new URLSearchParams();
+
+      if (filters.startDate) params.append("startDate", filters.startDate);
+      if (filters.endDate) params.append("endDate", filters.endDate);
+      if (filters.interval) params.append("interval", filters.interval);
+
+      const queryString = params.toString();
+      const url = `/api/admin/analytics/bids${
+        queryString ? `?${queryString}` : ""
+      }`;
+
+      const response = await api.get(url);
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "❌ Bid analytics error:",
+        error.response?.data || error.message
+      );
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch bid analytics"
+      );
+    }
+  }
+
+  async getUserAnalytics(filters: AnalyticsFilters = {}) {
+    try {
+      const params = new URLSearchParams();
+
+      if (filters.startDate) params.append("startDate", filters.startDate);
+      if (filters.endDate) params.append("endDate", filters.endDate);
+      if (filters.interval) params.append("interval", filters.interval);
+
+      const queryString = params.toString();
+      const url = `/api/admin/analytics/users${
+        queryString ? `?${queryString}` : ""
+      }`;
+
+      const response = await api.get(url);
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "❌ User analytics error:",
+        error.response?.data || error.message
+      );
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch user analytics"
+      );
+    }
+  }
+
+  // Helper methods for specific analytics data
+  async getCategoryPerformance(filters: AnalyticsFilters = {}) {
+    try {
+      const analytics = await this.getAdminAnalytics(filters);
+      return analytics.data.categoryDistribution;
+    } catch (error) {
+      console.error("❌ Category performance fetch error:", error);
+      throw error;
+    }
+  }
+
+  async getRevenueTrends(filters: AnalyticsFilters = {}) {
+    try {
+      const analytics = await this.getAdminAnalytics(filters);
+      return analytics.data.revenueOverTime;
+    } catch (error) {
+      console.error("❌ Revenue trends fetch error:", error);
+      throw error;
+    }
+  }
+
+  async getUserGrowthMetrics(filters: AnalyticsFilters = {}) {
+    try {
+      const analytics = await this.getAdminAnalytics(filters);
+      return analytics.data.userMetrics;
+    } catch (error) {
+      console.error("❌ User growth metrics fetch error:", error);
+      throw error;
+    }
+  }
+
+  async getBidPerformance(filters: AnalyticsFilters = {}) {
+    try {
+      const analytics = await this.getAdminAnalytics(filters);
+      return {
+        bidsOverTime: analytics.data.bidsOverTime,
+        averageBidPerCategory: analytics.data.averageBidPerCategory,
+        bidderDistribution: analytics.data.bidderDistribution,
+      };
+    } catch (error) {
+      console.error("❌ Bid performance fetch error:", error);
+      throw error;
+    }
+  }
+
+  async getTenderPerformance(filters: AnalyticsFilters = {}) {
+    try {
+      const analytics = await this.getAdminAnalytics(filters);
+      return {
+        tendersOverTime: analytics.data.tendersOverTime,
+        awardMetrics: analytics.data.awardMetrics,
+        tenderSizeMetrics: analytics.data.tenderSizeMetrics,
+      };
+    } catch (error) {
+      console.error("❌ Tender performance fetch error:", error);
+      throw error;
+    }
+  }
+
+  // Method to get summary statistics for dashboard cards
+  async getDashboardSummary(filters: AnalyticsFilters = {}) {
+    try {
+      const analytics = await this.getAdminAnalytics(filters);
+
+      const {
+        tendersOverTime,
+        bidsOverTime,
+        userMetrics,
+        revenueOverTime,
+        awardMetrics,
+      } = analytics.data;
+
+      // Calculate summary statistics
+      const totalTenders = tendersOverTime.reduce(
+        (sum, item) => sum + item.total,
+        0
+      );
+      const totalBids = bidsOverTime.reduce(
+        (sum, item) => sum + item.totalBids,
+        0
+      );
+      const totalUsers = userMetrics.reduce(
+        (sum, item) => sum + item.totalNewUsers,
+        0
+      );
+      const totalRevenue = revenueOverTime.reduce(
+        (sum, item) => sum + item.totalRevenue,
+        0
+      );
+
+      const currentPeriod = tendersOverTime[tendersOverTime.length - 1];
+      const activeTenders = currentPeriod?.active || 0;
+      const awardedTenders = awardMetrics.reduce(
+        (sum, item) => sum + item.awardedTenders,
+        0
+      );
+
+      return {
+        totalTenders,
+        totalBids,
+        totalUsers,
+        totalRevenue,
+        activeTenders,
+        awardedTenders,
+        awardRate:
+          awardedTenders > 0 ? (awardedTenders / totalTenders) * 100 : 0,
+      };
+    } catch (error) {
+      console.error("❌ Dashboard summary fetch error:", error);
+      throw error;
+    }
+  }
+}
+
+export const analyticsService = new AnalyticsService();
 
 export class AdminService {
+  private analyticsService = new AnalyticsService();
+
+  // Analytics methods
+  async getAnalytics(filters: AnalyticsFilters = {}) {
+    return this.analyticsService.getAdminAnalytics(filters);
+  }
+
+  async getTenderAnalytics(filters: AnalyticsFilters = {}) {
+    return this.analyticsService.getTenderAnalytics(filters);
+  }
+
+  async getBidAnalytics(filters: AnalyticsFilters = {}) {
+    return this.analyticsService.getBidAnalytics(filters);
+  }
+
+  async getUserAnalytics(filters: AnalyticsFilters = {}) {
+    return this.analyticsService.getUserAnalytics(filters);
+  }
+
+  async getDashboardSummary(filters: AnalyticsFilters = {}) {
+    return this.analyticsService.getDashboardSummary(filters);
+  }
+
+  async getCategoryPerformance(filters: AnalyticsFilters = {}) {
+    return this.analyticsService.getCategoryPerformance(filters);
+  }
+
+  async getRevenueTrends(filters: AnalyticsFilters = {}) {
+    return this.analyticsService.getRevenueTrends(filters);
+  }
+
   async login(credentials: AdminLoginCredentials) {
     try {
       console.log("🔑 Logging in with credentials:", credentials);
