@@ -750,6 +750,1018 @@ export default function DashboardPage() {
             </motion.div>
           </div>
         </motion.div>
+        {/*
+        
+          <div className="inline-flex flex-col justify-start items-start overflow-hidden">
+          <div className="self-stretch bg-Color-Scheme-1-Background flex flex-col justify-start items-center overflow-hidden">
+            <div className="self-stretch h-16 px-16 flex flex-col justify-center items-center overflow-hidden">
+              <div className="self-stretch inline-flex justify-between items-center overflow-hidden">
+                <div className="flex justify-start items-start">
+                  <div
+                    data-alternate="False"
+                    className="w-20 h-9 relative overflow-hidden"
+                  >
+                    <div className="w-16 h-9 left-[6.67px] top-0 absolute overflow-hidden">
+                      <div className="w-5 h-4 left-[50.82px] top-[10.87px] absolute bg-Color-Neutral-Darkest" />
+                      <div className="w-5 h-6 left-[34.33px] top-[11.32px] absolute bg-Color-Neutral-Darkest" />
+                      <div className="w-5 h-4 left-[18.55px] top-[10.87px] absolute bg-Color-Neutral-Darkest" />
+                      <div className="w-5 h-4 left-0 top-[10.24px] absolute bg-Color-Neutral-Darkest" />
+                      <div className="w-4 h-2.5 left-[1.15px] top-0 absolute bg-Color-Neutral-Darkest" />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-center items-center gap-6">
+                  <div
+                    data-alternate="False"
+                    data-icon-position="No icon"
+                    data-small="True"
+                    data-style="Primary"
+                    className="px-2.5 py-1 bg-Color-Matisse outline outline-1 outline-Color-Matisse flex justify-center items-center gap-2"
+                  >
+                    <div className="justify-start text-Color-White text-base font-medium font-['Inter'] leading-6">
+                      Search
+                    </div>
+                  </div>
+                  <div className="p-3 flex justify-start items-start">
+                    <div className="w-6 h-6 relative overflow-hidden">
+                      <div className="w-4 h-3 left-[4px] top-[6px] absolute bg-Color-Scheme-1-Text" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="self-stretch px-16 py-28 bg-Color-Scheme-1-Background flex flex-col justify-start items-center gap-20 overflow-hidden">
+            <div className="w-full max-w-[1280px] flex flex-col justify-start items-center gap-20">
+              <div className="w-full max-w-[768px] flex flex-col justify-start items-center gap-8">
+                <div className="self-stretch flex flex-col justify-start items-center gap-6">
+                  <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-7xl font-medium font-['Outfit'] leading-[86.40px]">
+                    Digitize Qatar's tendering landscape
+                  </div>
+                  <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-lg font-normal font-['Inter'] leading-7">
+                    Streamline your procurement with a secure digital platform
+                    that connects businesses and contractors seamlessly. Manage
+                    tenders, receive verified bids, and track projects with
+                    precision.
+                  </div>
+                </div>
+                <div className="inline-flex justify-start items-start gap-4">
+                  <div
+                    data-alternate="False"
+                    data-icon-position="No icon"
+                    data-small="False"
+                    data-style="Primary"
+                    className="px-3 py-1.5 bg-Color-Matisse outline outline-1 outline-Color-Matisse flex justify-center items-center gap-2"
+                  >
+                    <div className="justify-start text-Color-White text-base font-medium font-['Inter'] leading-6">
+                      Post a tender
+                    </div>
+                  </div>
+                  <div
+                    data-alternate="False"
+                    data-icon-position="No icon"
+                    data-small="False"
+                    data-style="Secondary"
+                    className="px-3 py-1.5 bg-Opacity-Neutral-Darkest-5/5 outline outline-1 outline-Opacity-Transparent/0 flex justify-center items-center gap-2"
+                  >
+                    <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                      Explore tenders
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <img
+                className="self-stretch h-[720px]"
+                src="https://placehold.co/1280x720"
+              />
+            </div>
+          </div>
+          <div className="self-stretch px-16 py-28 bg-Color-Scheme-1-Background flex flex-col justify-start items-center gap-20 overflow-hidden">
+            <div className="w-full max-w-[1280px] flex flex-col justify-start items-center gap-20">
+              <div className="w-full max-w-[768px] flex flex-col justify-start items-center gap-8">
+                <div className="self-stretch flex flex-col justify-start items-center gap-6">
+                  <div className="self-stretch flex flex-col justify-start items-center gap-4">
+                    <div className="inline-flex justify-start items-center">
+                      <div className="text-center justify-start text-Color-Scheme-1-Text text-base font-semibold font-['Inter'] leading-6">
+                        GoTenderly
+                      </div>
+                    </div>
+                    <div className="self-stretch flex flex-col justify-start items-center gap-6">
+                      <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-5xl font-medium font-['Outfit'] leading-[62.40px]">
+                        Trusted by Qatar's leading businesses
+                      </div>
+                      <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-lg font-normal font-['Inter'] leading-7">
+                        We simplify complex tender processes with cutting-edge
+                        technology and robust security measures.
+                      </div>
+                    </div>
+                  </div>
+                  <div className="self-stretch py-2 inline-flex justify-center items-start gap-8 flex-wrap content-start">
+                    <div
+                      data-alternate="False"
+                      data-logo="2"
+                      className="w-36 h-14 relative overflow-hidden"
+                    >
+                      <div className="w-32 h-6 left-[2.50px] top-[16.75px] absolute bg-Color-Scheme-1-Text" />
+                    </div>
+                    <div
+                      data-alternate="False"
+                      data-logo="1"
+                      className="w-36 h-14 relative overflow-hidden"
+                    >
+                      <div className="w-32 h-9 left-[4px] top-[10.50px] absolute bg-Color-Scheme-1-Text" />
+                    </div>
+                    <div
+                      data-alternate="False"
+                      data-logo="2"
+                      className="w-36 h-14 relative overflow-hidden"
+                    >
+                      <div className="w-32 h-6 left-[2.50px] top-[16.75px] absolute bg-Color-Scheme-1-Text" />
+                    </div>
+                    <div
+                      data-alternate="False"
+                      data-logo="1"
+                      className="w-36 h-14 relative overflow-hidden"
+                    >
+                      <div className="w-32 h-9 left-[4px] top-[10.50px] absolute bg-Color-Scheme-1-Text" />
+                    </div>
+                  </div>
+                </div>
+                <div className="inline-flex justify-start items-center gap-6">
+                  <div
+                    data-alternate="False"
+                    data-icon-position="No icon"
+                    data-small="False"
+                    data-style="Secondary"
+                    className="px-3 py-1.5 bg-Opacity-Neutral-Darkest-5/5 outline outline-1 outline-Opacity-Transparent/0 flex justify-center items-center gap-2 overflow-hidden"
+                  >
+                    <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                      Learn more
+                    </div>
+                  </div>
+                  <div
+                    data-alternate="False"
+                    data-icon-position="Trailing"
+                    data-small="False"
+                    data-style="Link"
+                    className="flex justify-center items-center gap-2 overflow-hidden"
+                  >
+                    <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                      Get started
+                    </div>
+                    <div className="w-6 h-6 relative overflow-hidden">
+                      <div className="w-1.5 h-3 left-[8.51px] top-[6.17px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="self-stretch px-16 py-28 bg-Color-Scheme-1-Background flex flex-col justify-start items-center gap-20 overflow-hidden">
+            <div className="w-full max-w-[1280px] flex flex-col justify-start items-center gap-20">
+              <div className="w-full max-w-[768px] flex flex-col justify-start items-center gap-4">
+                <div className="inline-flex justify-start items-center">
+                  <div className="text-center justify-start text-Color-Scheme-1-Text text-base font-semibold font-['Inter'] leading-6">
+                    Process
+                  </div>
+                </div>
+                <div className="self-stretch flex flex-col justify-start items-center gap-6">
+                  <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-5xl font-medium font-['Outfit'] leading-[62.40px]">
+                    How tender management works
+                  </div>
+                  <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-lg font-normal font-['Inter'] leading-7">
+                    Our streamlined system connects you directly with vetted
+                    professionals. Each tender becomes a strategic opportunity
+                    for business growth.
+                  </div>
+                </div>
+              </div>
+              <div className="self-stretch bg-Color-Scheme-1-Foreground outline outline-1 outline-Color-Scheme-1-Border/20 inline-flex justify-start items-start overflow-hidden">
+                <div className="flex-1 self-stretch max-w-[480px] border-r border-Color-Scheme-1-Border/20 inline-flex flex-col justify-start items-start">
+                  <div className="self-stretch flex-1 px-8 py-6 border-b border-Color-Scheme-1-Border/20 flex flex-col justify-center items-start gap-4">
+                    <div className="self-stretch justify-start text-Color-Scheme-1-Text text-3xl font-medium font-['Outfit'] leading-10">
+                      Post your tender
+                    </div>
+                  </div>
+                  <div className="self-stretch flex-1 px-8 py-6 border-b border-Color-Scheme-1-Border/20 flex flex-col justify-center items-start gap-4">
+                    <div className="self-stretch justify-start text-Color-Scheme-1-Text text-3xl font-medium font-['Outfit'] leading-10">
+                      Receive verified proposals
+                    </div>
+                  </div>
+                  <div className="self-stretch flex-1 px-8 py-6 border-b border-Color-Scheme-1-Border/20 flex flex-col justify-center items-start gap-4">
+                    <div className="self-stretch justify-start text-Color-Scheme-1-Text text-3xl font-medium font-['Outfit'] leading-10">
+                      Complete tender process with confidence
+                    </div>
+                  </div>
+                  <div className="self-stretch flex-1 px-8 py-6 border-b border-Color-Scheme-1-Border/20 flex flex-col justify-center items-start gap-4">
+                    <div className="self-stretch justify-start text-Color-Scheme-1-Text text-3xl font-medium font-['Outfit'] leading-10">
+                      Tender launch
+                    </div>
+                  </div>
+                  <div className="self-stretch flex-1 px-8 py-6 border-Color-Scheme-1-Border/20 flex flex-col justify-center items-start gap-4">
+                    <div className="self-stretch justify-start text-Color-Scheme-1-Text text-3xl font-medium font-['Outfit'] leading-10">
+                      Bid evaluation
+                    </div>
+                  </div>
+                </div>
+                <div className="w-[800px] h-96 inline-flex flex-col justify-start items-start">
+                  <div className="w-[800px] p-16 flex flex-col justify-center items-start gap-8">
+                    <div className="self-stretch flex flex-col justify-start items-start gap-6">
+                      <div className="w-12 h-12 relative overflow-hidden">
+                        <div className="w-9 h-10 left-[6px] top-[4px] absolute bg-Color-Scheme-1-Text" />
+                      </div>
+                      <div className="self-stretch flex flex-col justify-start items-start gap-6">
+                        <div className="self-stretch justify-start text-Color-Scheme-1-Text text-5xl font-medium font-['Outfit'] leading-[52.80px]">
+                          Post your tender
+                        </div>
+                        <div className="self-stretch justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                          Launch your tender with precision
+                        </div>
+                      </div>
+                    </div>
+                    <div className="self-stretch inline-flex justify-start items-center gap-6">
+                      <div
+                        data-alternate="False"
+                        data-icon-position="No icon"
+                        data-small="False"
+                        data-style="Secondary"
+                        className="px-3 py-1.5 bg-Opacity-Neutral-Darkest-5/5 outline outline-1 outline-Opacity-Transparent/0 flex justify-center items-center gap-2 overflow-hidden"
+                      >
+                        <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                          Start
+                        </div>
+                      </div>
+                      <div
+                        data-alternate="False"
+                        data-icon-position="Trailing"
+                        data-small="False"
+                        data-style="Link"
+                        className="flex justify-center items-center gap-2 overflow-hidden"
+                      >
+                        <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                          Explore
+                        </div>
+                        <div className="w-6 h-6 relative overflow-hidden">
+                          <div className="w-1.5 h-3 left-[8.51px] top-[6.17px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="self-stretch px-16 py-28 bg-Color-Scheme-1-Background flex flex-col justify-start items-center gap-20 overflow-hidden">
+            <div className="w-full max-w-[1280px] flex flex-col justify-start items-start gap-20">
+              <div className="self-stretch inline-flex justify-start items-start gap-20">
+                <div className="flex-1 inline-flex flex-col justify-start items-start gap-8">
+                  <div className="self-stretch flex flex-col justify-start items-start gap-4">
+                    <div className="inline-flex justify-start items-center">
+                      <div className="justify-start text-Color-Scheme-1-Text text-base font-semibold font-['Inter'] leading-6">
+                        Features
+                      </div>
+                    </div>
+                    <div className="self-stretch justify-start text-Color-Scheme-1-Text text-5xl font-medium font-['Outfit'] leading-[62.40px]">
+                      Tender search and discovery
+                    </div>
+                  </div>
+                  <div className="inline-flex justify-start items-center gap-6">
+                    <div
+                      data-alternate="False"
+                      data-icon-position="No icon"
+                      data-small="False"
+                      data-style="Secondary"
+                      className="px-3 py-1.5 bg-Opacity-Neutral-Darkest-5/5 outline outline-1 outline-Opacity-Transparent/0 flex justify-center items-center gap-2 overflow-hidden"
+                    >
+                      <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                        Search
+                      </div>
+                    </div>
+                    <div
+                      data-alternate="False"
+                      data-icon-position="Trailing"
+                      data-small="False"
+                      data-style="Link"
+                      className="flex justify-center items-center gap-2 overflow-hidden"
+                    >
+                      <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                        Explore
+                      </div>
+                      <div className="w-6 h-6 relative overflow-hidden">
+                        <div className="w-1.5 h-3 left-[8.51px] top-[6.17px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-1 inline-flex flex-col justify-start items-start gap-4">
+                  <div className="self-stretch inline-flex justify-start items-start gap-10">
+                    <div className="inline-flex flex-col justify-start items-center gap-4">
+                      <div className="w-12 h-12 relative overflow-hidden">
+                        <div className="w-9 h-10 left-[6px] top-[4px] absolute bg-Color-Scheme-1-Text" />
+                      </div>
+                      <div className="w-24 h-0 origin-top-left rotate-90 bg-Color-Scheme-1-Border/20 outline outline-2 outline-offset-[-1px] outline-Color-Scheme-1-Border/20"></div>
+                    </div>
+                    <div className="flex-1 inline-flex flex-col justify-start items-start gap-4">
+                      <div className="self-stretch justify-start text-Color-Scheme-1-Text text-xl font-medium font-['Outfit'] leading-8">
+                        Tender search and discovery
+                      </div>
+                      <div className="self-stretch justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                        Find relevant opportunities across multiple industries
+                        and sectors
+                      </div>
+                    </div>
+                  </div>
+                  <div className="self-stretch inline-flex justify-start items-start gap-10">
+                    <div className="inline-flex flex-col justify-start items-center gap-4">
+                      <div className="w-12 h-12 relative overflow-hidden">
+                        <div className="w-9 h-10 left-[6px] top-[4px] absolute bg-Color-Scheme-1-Text" />
+                      </div>
+                      <div className="w-24 h-0 origin-top-left rotate-90 bg-Color-Scheme-1-Border/20 outline outline-2 outline-offset-[-1px] outline-Color-Scheme-1-Border/20"></div>
+                    </div>
+                    <div className="flex-1 inline-flex flex-col justify-start items-start gap-4">
+                      <div className="self-stretch justify-start text-Color-Scheme-1-Text text-xl font-medium font-['Outfit'] leading-8">
+                        Bid management system
+                      </div>
+                      <div className="self-stretch justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                        Tender discovery made simple with intelligent search
+                        algorithms
+                      </div>
+                    </div>
+                  </div>
+                  <div className="self-stretch inline-flex justify-start items-start gap-10">
+                    <div className="inline-flex flex-col justify-start items-center gap-4">
+                      <div className="w-12 h-12 relative overflow-hidden">
+                        <div className="w-9 h-10 left-[6px] top-[4px] absolute bg-Color-Scheme-1-Text" />
+                      </div>
+                      <div className="w-24 h-0 origin-top-left rotate-90 bg-Color-Scheme-1-Border/20 outline outline-2 outline-offset-[-1px] outline-Color-Scheme-1-Border/20"></div>
+                    </div>
+                    <div className="flex-1 inline-flex flex-col justify-start items-start gap-4">
+                      <div className="self-stretch justify-start text-Color-Scheme-1-Text text-xl font-medium font-['Outfit'] leading-8">
+                        KYC verification process
+                      </div>
+                      <div className="self-stretch justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                        Comprehensive bid tracking and management in one
+                        centralized platform
+                      </div>
+                    </div>
+                  </div>
+                  <div className="self-stretch inline-flex justify-start items-start gap-10">
+                    <div className="inline-flex flex-col justify-start items-center gap-4">
+                      <div className="w-12 h-12 relative overflow-hidden">
+                        <div className="w-9 h-10 left-[6px] top-[4px] absolute bg-Color-Scheme-1-Text" />
+                      </div>
+                    </div>
+                    <div className="flex-1 inline-flex flex-col justify-start items-start gap-4">
+                      <div className="self-stretch justify-start text-Color-Scheme-1-Text text-xl font-medium font-['Outfit'] leading-8">
+                        Real-time communication platform
+                      </div>
+                      <div className="self-stretch justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                        Robust verification process ensuring contractor
+                        credibility and trust
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="self-stretch px-16 py-28 bg-Color-Scheme-1-Background flex flex-col justify-start items-center gap-20 overflow-hidden">
+            <div className="w-full max-w-[1280px] flex flex-col justify-start items-center gap-20">
+              <div className="w-full max-w-[768px] flex flex-col justify-start items-center gap-4">
+                <div className="inline-flex justify-start items-center">
+                  <div className="text-center justify-start text-Color-Scheme-1-Text text-base font-semibold font-['Inter'] leading-6">
+                    Benefits
+                  </div>
+                </div>
+                <div className="self-stretch flex flex-col justify-start items-center gap-6">
+                  <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-5xl font-medium font-['Outfit'] leading-[62.40px]">
+                    Simplified sourcing strategy
+                  </div>
+                  <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-lg font-normal font-['Inter'] leading-7">
+                    Empowering businesses and contractors with smart solutions
+                  </div>
+                </div>
+              </div>
+              <div className="self-stretch inline-flex justify-start items-center gap-12">
+                <div className="flex-1 inline-flex flex-col justify-start items-center gap-16">
+                  <div className="self-stretch flex flex-col justify-start items-center gap-6">
+                    <div className="w-12 h-12 relative">
+                      <div className="w-10 h-11 left-[3.70px] top-[2.32px] absolute bg-Color-Scheme-1-Text" />
+                    </div>
+                    <div className="self-stretch flex flex-col justify-start items-center gap-4">
+                      <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-3xl font-medium font-['Outfit'] leading-10">
+                        Transforming tender experiences
+                      </div>
+                      <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                        Unlock strategic procurement with intelligent digital
+                        solutions
+                      </div>
+                    </div>
+                  </div>
+                  <div className="self-stretch flex flex-col justify-start items-center gap-6">
+                    <div className="w-12 h-12 relative">
+                      <div className="w-9 h-9 left-[5.70px] top-[5.69px] absolute bg-Color-Scheme-1-Text" />
+                    </div>
+                    <div className="self-stretch flex flex-col justify-start items-center gap-4">
+                      <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-3xl font-medium font-['Outfit'] leading-10">
+                        Transparent bidding opportunities
+                      </div>
+                      <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                        Empower your business through transparent, efficient
+                        tender management
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <img
+                  className="w-[540px] h-[540px]"
+                  src="https://placehold.co/540x540"
+                />
+                <div className="flex-1 inline-flex flex-col justify-start items-center gap-16">
+                  <div className="self-stretch flex flex-col justify-start items-center gap-6">
+                    <div className="w-12 h-12 relative">
+                      <div className="w-9 h-9 left-[5.76px] top-[4.95px] absolute bg-Color-Scheme-1-Text" />
+                    </div>
+                    <div className="self-stretch flex flex-col justify-start items-center gap-4">
+                      <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-3xl font-medium font-['Outfit'] leading-10">
+                        Redefine business opportunities
+                      </div>
+                      <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                        Navigate complex procurement landscapes with precision
+                        and confidence
+                      </div>
+                    </div>
+                  </div>
+                  <div className="self-stretch flex flex-col justify-start items-center gap-6">
+                    <div className="w-12 h-12 relative">
+                      <div className="w-8 h-[3.42px] left-[7.70px] top-[5.69px] absolute bg-Color-Scheme-1-Text" />
+                    </div>
+                    <div className="self-stretch flex flex-col justify-start items-center gap-4">
+                      <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-3xl font-medium font-['Outfit'] leading-10">
+                        Accelerate project success
+                      </div>
+                      <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                        Transform tender processes into strategic growth
+                        opportunities for businesses and contractors
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="inline-flex justify-start items-center gap-6">
+                <div
+                  data-alternate="False"
+                  data-icon-position="No icon"
+                  data-small="False"
+                  data-style="Secondary"
+                  className="px-3 py-1.5 bg-Opacity-Neutral-Darkest-5/5 outline outline-1 outline-Opacity-Transparent/0 flex justify-center items-center gap-2 overflow-hidden"
+                >
+                  <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                    Explore
+                  </div>
+                </div>
+                <div
+                  data-alternate="False"
+                  data-icon-position="Trailing"
+                  data-small="False"
+                  data-style="Link"
+                  className="flex justify-center items-center gap-2 overflow-hidden"
+                >
+                  <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                    Connect
+                  </div>
+                  <div className="w-6 h-6 relative overflow-hidden">
+                    <div className="w-1.5 h-3 left-[8.51px] top-[6.17px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="self-stretch px-16 py-28 bg-Color-Scheme-1-Background flex flex-col justify-start items-center gap-20 overflow-hidden">
+            <div className="w-full max-w-[1280px] flex flex-col justify-start items-start gap-20">
+              <div className="self-stretch flex flex-col justify-start items-center">
+                <div className="w-full max-w-[768px] flex flex-col justify-start items-center gap-6">
+                  <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-5xl font-medium font-['Outfit'] leading-[62.40px]">
+                    Platform preview
+                  </div>
+                  <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-lg font-normal font-['Inter'] leading-7">
+                    Experience GoTenderly's intuitive interface
+                  </div>
+                </div>
+              </div>
+              <div className="self-stretch flex flex-col justify-start items-start gap-12">
+                <div className="inline-flex justify-start items-start gap-8">
+                  <img
+                    className="w-[1120px] h-[720px]"
+                    src="https://placehold.co/1120x720"
+                  />
+                  <img
+                    className="w-[1120px] h-[720px]"
+                    src="https://placehold.co/1120x720"
+                  />
+                  <img
+                    className="w-[1120px] h-[720px]"
+                    src="https://placehold.co/1120x720"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="self-stretch px-16 py-28 bg-Color-Scheme-1-Background flex flex-col justify-start items-center gap-20 overflow-hidden">
+            <div className="w-full max-w-[1280px] flex flex-col justify-start items-start gap-20">
+              <div className="self-stretch inline-flex justify-start items-center gap-20">
+                <img
+                  className="flex-1 h-[640px]"
+                  src="https://placehold.co/600x640"
+                />
+                <div className="flex-1 inline-flex flex-col justify-start items-start gap-8 overflow-hidden">
+                  <div className="inline-flex justify-start items-start gap-1 overflow-hidden">
+                    <div className="w-5 h-5 bg-Color-Scheme-1-Text" />
+                    <div className="w-5 h-5 bg-Color-Scheme-1-Text" />
+                    <div className="w-5 h-5 bg-Color-Scheme-1-Text" />
+                    <div className="w-5 h-5 bg-Color-Scheme-1-Text" />
+                    <div className="w-5 h-5 bg-Color-Scheme-1-Text" />
+                  </div>
+                  <div className="self-stretch justify-start text-Color-Scheme-1-Text text-3xl font-medium font-['Outfit'] leading-10">
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Suspendisse varius enim in eros elementum tristique. Duis
+                    cursus, mi quis viverra ornare, eros dolor interdum nulla,
+                    ut commodo diam libero vitae erat."
+                  </div>
+                  <div className="inline-flex justify-start items-center gap-5">
+                    <div className="inline-flex flex-col justify-start items-start">
+                      <div className="justify-start text-Color-Scheme-1-Text text-base font-semibold font-['Inter'] leading-6">
+                        Ahmed Hassan
+                      </div>
+                      <div className="justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                        CEO, Al Noor Construction
+                      </div>
+                    </div>
+                    <div className="w-16 h-0 origin-top-left rotate-90 outline outline-1 outline-offset-[-0.50px] outline-Color-Scheme-1-Border/20"></div>
+                    <div
+                      data-alternate="False"
+                      data-logo="2"
+                      className="w-28 h-12 relative overflow-hidden"
+                    >
+                      <div className="w-28 h-5 left-[2.14px] top-[14.36px] absolute bg-Color-Scheme-1-Text" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="self-stretch px-16 py-28 bg-Color-Scheme-1-Background flex flex-col justify-start items-center gap-20 overflow-hidden">
+            <div className="w-full max-w-[1280px] flex flex-col justify-start items-start gap-20">
+              <div className="self-stretch inline-flex justify-start items-start gap-20">
+                <div className="flex-1 max-w-[768px] inline-flex flex-col justify-start items-start gap-4">
+                  <div className="inline-flex justify-start items-center">
+                    <div className="text-center justify-start text-Color-Scheme-1-Text text-base font-semibold font-['Inter'] leading-6">
+                      Pricing
+                    </div>
+                  </div>
+                  <div className="self-stretch flex flex-col justify-start items-start gap-6">
+                    <div className="self-stretch justify-start text-Color-Scheme-1-Text text-5xl font-medium font-['Outfit'] leading-[62.40px]">
+                      Simple tender access
+                    </div>
+                    <div className="self-stretch justify-start text-Color-Scheme-1-Text text-lg font-normal font-['Inter'] leading-7">
+                      Transparent pricing model designed for Qatar's digital
+                      tender marketplace with flexible entry options.
+                    </div>
+                  </div>
+                  <div className="self-stretch pt-8 flex flex-col justify-start items-start gap-2">
+                    <div className="justify-start text-Color-Scheme-1-Text text-xl font-medium font-['Outfit'] leading-8">
+                      Trusted by Qatar's leading procurement professionals
+                    </div>
+                    <div className="self-stretch py-2 inline-flex justify-start items-start gap-8 flex-wrap content-start">
+                      <div
+                        data-alternate="False"
+                        data-logo="1"
+                        className="w-24 h-10 relative overflow-hidden"
+                      >
+                        <div className="w-24 h-6 left-[2.86px] top-[7.50px] absolute bg-Color-Scheme-1-Text" />
+                      </div>
+                      <div
+                        data-alternate="False"
+                        data-logo="2"
+                        className="w-24 h-10 relative overflow-hidden"
+                      >
+                        <div className="w-24 h-4 left-[1.79px] top-[11.96px] absolute bg-Color-Scheme-1-Text" />
+                      </div>
+                      <div
+                        data-alternate="False"
+                        data-logo="1"
+                        className="w-24 h-10 relative overflow-hidden"
+                      >
+                        <div className="w-24 h-6 left-[2.86px] top-[7.50px] absolute bg-Color-Scheme-1-Text" />
+                      </div>
+                      <div
+                        data-alternate="False"
+                        data-logo="2"
+                        className="w-24 h-10 relative overflow-hidden"
+                      >
+                        <div className="w-24 h-4 left-[1.79px] top-[11.96px] absolute bg-Color-Scheme-1-Text" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-1 p-8 bg-Color-Scheme-1-Foreground outline outline-1 outline-offset-[-1px] outline-Color-Scheme-1-Border/20 inline-flex flex-col justify-start items-start gap-8">
+                  <div className="self-stretch inline-flex justify-between items-start">
+                    <div className="flex-1 inline-flex flex-col justify-start items-start gap-2">
+                      <div className="self-stretch justify-start text-Color-Scheme-1-Text text-3xl font-medium font-['Outfit'] leading-10">
+                        Tender entry
+                      </div>
+                      <div className="self-stretch justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                        Flexible digital tender access
+                      </div>
+                    </div>
+                    <div className="justify-start text-Color-Scheme-1-Text text-7xl font-medium font-['Outfit'] leading-[86.40px]">
+                      100
+                    </div>
+                  </div>
+                  <div className="self-stretch h-0 outline outline-1 outline-offset-[-0.50px] outline-Color-Scheme-1-Border/20"></div>
+                  <div className="self-stretch flex flex-col justify-start items-start gap-4">
+                    <div className="self-stretch justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                      Includes
+                    </div>
+                    <div className="self-stretch py-2 flex flex-col justify-start items-start gap-4">
+                      <div className="self-stretch flex flex-col justify-start items-start gap-4">
+                        <div className="self-stretch inline-flex justify-start items-start gap-6">
+                          <div className="flex-1 flex justify-start items-start gap-4">
+                            <div className="w-6 h-6 relative overflow-hidden">
+                              <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                            </div>
+                            <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                              Secure bid submission access
+                            </div>
+                          </div>
+                          <div className="flex-1 flex justify-start items-start gap-4">
+                            <div className="w-6 h-6 relative overflow-hidden">
+                              <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                            </div>
+                            <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                              Verified professional contractor profiles
+                            </div>
+                          </div>
+                        </div>
+                        <div className="self-stretch inline-flex justify-start items-start gap-6">
+                          <div className="flex-1 flex justify-start items-start gap-4">
+                            <div className="w-6 h-6 relative overflow-hidden">
+                              <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                            </div>
+                            <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                              Encrypted payment transaction gateway
+                            </div>
+                          </div>
+                          <div className="flex-1 flex justify-start items-start gap-4">
+                            <div className="w-6 h-6 relative overflow-hidden">
+                              <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                            </div>
+                            <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                              Real-time bid tracking system
+                            </div>
+                          </div>
+                        </div>
+                        <div className="self-stretch inline-flex justify-start items-start gap-6">
+                          <div className="flex-1 flex justify-start items-start gap-4">
+                            <div className="w-6 h-6 relative overflow-hidden">
+                              <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                            </div>
+                            <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                              Instant communication channels
+                            </div>
+                          </div>
+                          <div className="flex-1 flex justify-start items-start gap-4">
+                            <div className="w-6 h-6 relative overflow-hidden">
+                              <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                            </div>
+                            <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                              Comprehensive tender performance analytics
+                            </div>
+                          </div>
+                        </div>
+                        <div className="self-stretch inline-flex justify-start items-start gap-6">
+                          <div className="flex-1 flex justify-start items-start gap-4">
+                            <div className="w-6 h-6 relative overflow-hidden">
+                              <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                            </div>
+                            <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                              Direct professional support access
+                            </div>
+                          </div>
+                          <div className="flex-1 flex justify-start items-start gap-4">
+                            <div className="w-6 h-6 relative overflow-hidden">
+                              <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                            </div>
+                            <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                              Monthly tender opportunity insights
+                            </div>
+                          </div>
+                        </div>
+                        <div className="self-stretch inline-flex justify-start items-start gap-6">
+                          <div className="flex-1 flex justify-start items-start gap-4">
+                            <div className="w-6 h-6 relative overflow-hidden">
+                              <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                            </div>
+                            <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                              Strategic bid placement tools
+                            </div>
+                          </div>
+                          <div className="flex-1 flex justify-start items-start gap-4">
+                            <div className="w-6 h-6 relative overflow-hidden">
+                              <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                            </div>
+                            <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                              Clear and transparent fee structure
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="self-stretch inline-flex justify-start items-start gap-6">
+                        <div className="flex-1 flex justify-start items-start gap-4">
+                          <div className="w-6 h-6 relative overflow-hidden">
+                            <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                          </div>
+                          <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                            Feature text goes here
+                          </div>
+                        </div>
+                        <div className="flex-1 flex justify-start items-start gap-4">
+                          <div className="w-6 h-6 relative overflow-hidden">
+                            <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                          </div>
+                          <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                            Feature text goes here
+                          </div>
+                        </div>
+                      </div>
+                      <div className="self-stretch inline-flex justify-start items-start gap-6">
+                        <div className="flex-1 flex justify-start items-start gap-4">
+                          <div className="w-6 h-6 relative overflow-hidden">
+                            <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                          </div>
+                          <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                            Feature text goes here
+                          </div>
+                        </div>
+                        <div className="flex-1 flex justify-start items-start gap-4">
+                          <div className="w-6 h-6 relative overflow-hidden">
+                            <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                          </div>
+                          <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                            Feature text goes here
+                          </div>
+                        </div>
+                      </div>
+                      <div className="self-stretch inline-flex justify-start items-start gap-6">
+                        <div className="flex-1 flex justify-start items-start gap-4">
+                          <div className="w-6 h-6 relative overflow-hidden">
+                            <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                          </div>
+                          <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                            Feature text goes here
+                          </div>
+                        </div>
+                        <div className="flex-1 flex justify-start items-start gap-4">
+                          <div className="w-6 h-6 relative overflow-hidden">
+                            <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                          </div>
+                          <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                            Feature text goes here
+                          </div>
+                        </div>
+                      </div>
+                      <div className="self-stretch inline-flex justify-start items-start gap-6">
+                        <div className="flex-1 flex justify-start items-start gap-4">
+                          <div className="w-6 h-6 relative overflow-hidden">
+                            <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                          </div>
+                          <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                            Feature text goes here
+                          </div>
+                        </div>
+                        <div className="flex-1 flex justify-start items-start gap-4">
+                          <div className="w-6 h-6 relative overflow-hidden">
+                            <div className="w-4 h-3 left-[4.06px] top-[6.30px] absolute bg-Color-Scheme-1-Text border border-Color-Scheme-1-Text" />
+                          </div>
+                          <div className="flex-1 justify-start text-Color-Scheme-1-Text text-base font-normal font-['Inter'] leading-6">
+                            Feature text goes here
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="self-stretch h-0 outline outline-1 outline-offset-[-0.50px] outline-Color-Scheme-1-Border/20"></div>
+                  <div className="self-stretch flex flex-col justify-start items-start gap-4">
+                    <div
+                      data-alternate="False"
+                      data-icon-position="No icon"
+                      data-small="False"
+                      data-style="Primary"
+                      className="self-stretch px-3 py-1.5 bg-Color-Matisse outline outline-1 outline-Color-Matisse inline-flex justify-center items-center gap-2"
+                    >
+                      <div className="justify-start text-Color-White text-base font-medium font-['Inter'] leading-6">
+                        Start bidding
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="self-stretch px-16 py-28 bg-Color-Scheme-1-Background flex flex-col justify-start items-center gap-20 overflow-hidden">
+            <div className="w-full max-w-[1280px] flex flex-col justify-start items-start gap-20">
+              <div className="self-stretch inline-flex justify-start items-start gap-16">
+                <div className="flex-1 inline-flex flex-col justify-start items-center gap-8">
+                  <div className="w-12 h-12 relative">
+                    <div className="w-10 h-6 left-[3.70px] top-[11.80px] absolute bg-Color-Scheme-1-Text" />
+                  </div>
+                  <div className="self-stretch flex flex-col justify-start items-start gap-6">
+                    <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-5xl font-medium font-['Outfit'] leading-[62.40px]">
+                      Your tender revolution starts
+                    </div>
+                    <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-lg font-normal font-['Inter'] leading-7">
+                      Simplify complex procurement with a platform that turns
+                      challenges into strategic opportunities for Qatar's
+                      businesses.
+                    </div>
+                  </div>
+                  <div className="inline-flex justify-start items-start gap-4">
+                    <div
+                      data-alternate="False"
+                      data-icon-position="No icon"
+                      data-small="False"
+                      data-style="Primary"
+                      className="px-3 py-1.5 bg-Color-Matisse outline outline-1 outline-Color-Matisse flex justify-center items-center gap-2"
+                    >
+                      <div className="justify-start text-Color-White text-base font-medium font-['Inter'] leading-6">
+                        Activate
+                      </div>
+                    </div>
+                    <div
+                      data-alternate="False"
+                      data-icon-position="No icon"
+                      data-small="False"
+                      data-style="Secondary"
+                      className="px-3 py-1.5 bg-Opacity-Neutral-Darkest-5/5 outline outline-1 outline-Opacity-Transparent/0 flex justify-center items-center gap-2"
+                    >
+                      <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                        Discover
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-1 inline-flex flex-col justify-start items-center gap-8">
+                  <div className="w-12 h-12 relative">
+                    <div className="w-10 h-11 left-[3.70px] top-[2.32px] absolute bg-Color-Scheme-1-Text" />
+                  </div>
+                  <div className="self-stretch flex flex-col justify-start items-start gap-6">
+                    <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-5xl font-medium font-['Outfit'] leading-[62.40px]">
+                      Empower your vision
+                    </div>
+                    <div className="self-stretch text-center justify-start text-Color-Scheme-1-Text text-lg font-normal font-['Inter'] leading-7">
+                      Break through traditional barriers and create seamless
+                      connections between businesses and contractors.
+                    </div>
+                  </div>
+                  <div className="inline-flex justify-start items-start gap-4">
+                    <div
+                      data-alternate="False"
+                      data-icon-position="No icon"
+                      data-small="False"
+                      data-style="Primary"
+                      className="px-3 py-1.5 bg-Color-Matisse outline outline-1 outline-Color-Matisse flex justify-center items-center gap-2"
+                    >
+                      <div className="justify-start text-Color-White text-base font-medium font-['Inter'] leading-6">
+                        Transform
+                      </div>
+                    </div>
+                    <div
+                      data-alternate="False"
+                      data-icon-position="No icon"
+                      data-small="False"
+                      data-style="Secondary"
+                      className="px-3 py-1.5 bg-Opacity-Neutral-Darkest-5/5 outline outline-1 outline-Opacity-Transparent/0 flex justify-center items-center gap-2"
+                    >
+                      <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                        Explore
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="self-stretch px-16 py-20 bg-Color-Scheme-1-Background flex flex-col justify-start items-center gap-12 overflow-hidden">
+            <div className="w-full max-w-[1280px] flex flex-col justify-start items-start gap-20">
+              <div className="self-stretch flex flex-col justify-start items-start gap-12">
+                <div className="self-stretch inline-flex justify-between items-start">
+                  <div className="flex-1 max-w-[560px] inline-flex flex-col justify-start items-start gap-6">
+                    <div
+                      data-alternate="False"
+                      className="w-20 h-9 relative overflow-hidden"
+                    >
+                      <div className="w-16 h-9 left-[6.67px] top-0 absolute overflow-hidden">
+                        <div className="w-5 h-4 left-[50.82px] top-[10.88px] absolute bg-Color-Neutral-Darkest" />
+                        <div className="w-5 h-6 left-[34.33px] top-[11.32px] absolute bg-Color-Neutral-Darkest" />
+                        <div className="w-5 h-4 left-[18.55px] top-[10.88px] absolute bg-Color-Neutral-Darkest" />
+                        <div className="w-5 h-4 left-0 top-[10.24px] absolute bg-Color-Neutral-Darkest" />
+                        <div className="w-4 h-2.5 left-[1.15px] top-0 absolute bg-Color-Neutral-Darkest" />
+                      </div>
+                    </div>
+                    <div className="inline-flex justify-center items-start gap-8">
+                      <div className="justify-start text-Color-Scheme-1-Text text-sm font-semibold font-['Inter'] leading-5">
+                        Link One
+                      </div>
+                      <div className="justify-start text-Color-Scheme-1-Text text-sm font-semibold font-['Inter'] leading-5">
+                        Link Two
+                      </div>
+                      <div className="justify-start text-Color-Scheme-1-Text text-sm font-semibold font-['Inter'] leading-5">
+                        Link Three
+                      </div>
+                      <div className="justify-start text-Color-Scheme-1-Text text-sm font-semibold font-['Inter'] leading-5">
+                        Link Four
+                      </div>
+                      <div className="justify-start text-Color-Scheme-1-Text text-sm font-semibold font-['Inter'] leading-5">
+                        Link Five
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-96 inline-flex flex-col justify-start items-start gap-4">
+                    <div className="self-stretch justify-start text-Color-Scheme-1-Text text-base font-semibold font-['Inter'] leading-6">
+                      Subscribe
+                    </div>
+                    <div className="self-stretch flex flex-col justify-start items-start gap-3">
+                      <div className="self-stretch h-12 inline-flex justify-start items-start gap-4">
+                        <div
+                          data-alternate="False"
+                          data-type="Default"
+                          className="flex-1 p-3 outline outline-1 outline-Color-Neutral-Darkest flex justify-start items-center gap-2"
+                        >
+                          <div className="flex-1 justify-start text-black/60 text-base font-normal font-['Inter'] leading-6">
+                            Enter your email
+                          </div>
+                        </div>
+                        <div
+                          data-alternate="False"
+                          data-icon-position="No icon"
+                          data-small="False"
+                          data-style="Secondary"
+                          className="px-3 py-1.5 bg-Opacity-Neutral-Darkest-5/5 outline outline-1 outline-Opacity-Transparent/0 flex justify-center items-center gap-2"
+                        >
+                          <div className="justify-start text-Color-Neutral-Darkest text-base font-medium font-['Inter'] leading-6">
+                            Subscribe
+                          </div>
+                        </div>
+                      </div>
+                      <div className="self-stretch h-4 inline-flex justify-start items-start gap-1">
+                        <div className="justify-start text-Color-Scheme-1-Text text-xs font-normal font-['Inter'] leading-4">
+                          By subscribing you agree to with our
+                        </div>
+                        <div className="justify-start">
+                          <span class="text-Color-Scheme-1-Text text-xs font-normal font-['Roboto'] underline leading-4">
+                            P
+                          </span>
+                          <span class="text-Color-Scheme-1-Text text-xs font-normal font-['Inter'] underline leading-4">
+                            rivacy Polic
+                          </span>
+                          <span class="text-Color-Scheme-1-Text text-xs font-normal font-['Roboto'] underline leading-4">
+                            y
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="self-stretch flex flex-col justify-start items-start gap-12">
+                  <img
+                    className="self-stretch h-44"
+                    src="https://placehold.co/1280x174"
+                  />
+                  <div className="self-stretch flex flex-col justify-start items-start gap-8">
+                    <div className="self-stretch h-0 outline outline-1 outline-offset-[-0.50px] outline-Color-Scheme-1-Border/20"></div>
+                    <div className="self-stretch h-5 inline-flex justify-between items-start">
+                      <div className="flex justify-start items-start gap-6">
+                        <div className="justify-start text-Color-Scheme-1-Text text-sm font-normal font-['Inter'] underline leading-5">
+                          Privacy Policy
+                        </div>
+                        <div className="justify-start text-Color-Scheme-1-Text text-sm font-normal font-['Inter'] underline leading-5">
+                          Terms of Service
+                        </div>
+                        <div className="justify-start text-Color-Scheme-1-Text text-sm font-normal font-['Inter'] underline leading-5">
+                          Cookies Settings
+                        </div>
+                      </div>
+                      <div className="justify-start text-Color-Scheme-1-Text text-sm font-normal font-['Inter'] leading-5">
+                        © 2024 Relume. All rights reserved.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        */}
       </TooltipProvider>
     </PageTransitionWrapper>
   );
