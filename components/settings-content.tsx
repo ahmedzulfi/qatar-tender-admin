@@ -87,7 +87,7 @@ export function SettingsContent() {
           const adminUsers = usersResponse.data.users.filter(
             (user: any) => user.userType === "admin"
           );
-
+          console.log("Fetched admin users:", adminUsers);
           setAdminUsers(adminUsers);
         } else {
           throw new Error(usersResponse.error || "Failed to fetch admin users");
