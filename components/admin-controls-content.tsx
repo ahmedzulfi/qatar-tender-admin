@@ -305,21 +305,24 @@ export function AdminControlsContent() {
   const handleAuditPageChange = (newPage: number) => {
     setAuditPage(newPage);
   };
-const getTargetRoute = (targetModel: string, targetId: any) => {
-  // If targetId is an object, extract the _id
-  const id = typeof targetId === "object" && targetId !== null ? targetId._id : targetId;
-   console.log(targetModel, targetId , "dddddd");
-  switch (targetModel) {
-    case "User":
-      return `/admin/users/${id}`;
-    case "Tender":
-      return `/admin/tenders/${id}`;
-    case "Bid":
-      return `/admin/bids/${id}`;
-    default:
-      return null;
-  }
-};
+  const getTargetRoute = (targetModel: string, targetId: any) => {
+    // If targetId is an object, extract the _id
+    const id =
+      typeof targetId === "object" && targetId !== null
+        ? targetId._id
+        : targetId;
+    console.log(targetModel, targetId, "dddddd");
+    switch (targetModel) {
+      case "User":
+        return `/admin/users/${id}`;
+      case "Tender":
+        return `/admin/tenders/${id}`;
+      case "Bid":
+        return `/admin/bids/${id}`;
+      default:
+        return null;
+    }
+  };
   // Calculate total pages
   const userTotalPages = Math.ceil(filteredUsers.length / usersPerPage);
   const tenderTotalPages = Math.ceil(filteredTenders.length / tendersPerPage);
@@ -866,43 +869,85 @@ const getTargetRoute = (targetModel: string, targetId: any) => {
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-2">
                                 {tender.status === "active" && (
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
+                                  <Dialog>
+                                    <DialogTrigger asChild>
                                       <Button variant="destructive" size="sm">
                                         <Trash2 className="h-4 w-4 mr-2" />
                                         {t("remove")}
                                       </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent className="bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle className="text-xl font-semibold text-gray-900">
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-md bg-white/90 backdrop-blur-xl rounded-2xl border border-gray-100/50">
+                                      <DialogHeader>
+                                        <DialogTitle className="text-xl font-semibold text-gray-900">
                                           {t("close_tender")}
-                                        </AlertDialogTitle>
-                                        <AlertDialogDescription className="text-gray-600">
+                                        </DialogTitle>
+                                        <DialogDescription className="text-gray-600">
                                           {t("remove_tender_description", {
                                             title: tender.title,
                                           })}
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors">
-                                          {t("cancel")}
-                                        </AlertDialogCancel>
-                                        <AlertDialogAction
-                                          onClick={() =>
-                                            initiateAction(
-                                              "Tender Closed",
-                                              tender,
-                                              "Tender Closed by admin"
-                                            )
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <form
+                                        onSubmit={(e) => {
+                                          e.preventDefault();
+                                          const formData = new FormData(
+                                            e.currentTarget
+                                          );
+                                          const reason = formData.get(
+                                            "reason"
+                                          ) as string;
+                                          if (!reason.trim()) {
+                                            alert(t("reason_required"));
+                                            return;
                                           }
-                                          className="bg-red-600 hover:bg-red-700 text-white"
-                                        >
-                                          {t("close_tender")}
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
+                                          initiateAction(
+                                            "Tender Closed",
+                                            tender,
+                                            reason
+                                          );
+                                        }}
+                                      >
+                                        <div className="space-y-4 py-4">
+                                          <div className="space-y-2">
+                                            <Label
+                                              htmlFor="tender-close-reason"
+                                              className="text-sm font-medium text-gray-700"
+                                            >
+                                              {t("closure_reason")}
+                                            </Label>
+                                            <Textarea
+                                              id="tender-close-reason"
+                                              name="reason"
+                                              placeholder={t(
+                                                "provide_reason_for_closing_tender"
+                                              )}
+                                              required
+                                              rows={3}
+                                              className="bg-white/80 backdrop-blur-sm border border-gray-200/50"
+                                            />
+                                          </div>
+                                        </div>
+                                        <DialogFooter className="pt-4 border-t border-gray-100/50">
+                                          <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => {
+                                              // Close dialog
+                                            }}
+                                            className="bg-white/80 backdrop-blur-sm border border-gray-200/50 hover:bg-gray-50/80 transition-colors"
+                                          >
+                                            {t("cancel")}
+                                          </Button>
+                                          <Button
+                                            type="submit"
+                                            className="bg-red-600 hover:bg-red-700 text-white"
+                                          >
+                                            {t("close_tender")}
+                                          </Button>
+                                        </DialogFooter>
+                                      </form>
+                                    </DialogContent>
+                                  </Dialog>
                                 )}
                                 <Button variant="outline" size="sm">
                                   <Eye className="h-4 w-4" />
