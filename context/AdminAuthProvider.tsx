@@ -65,6 +65,15 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
       setAdmin(null);
     }
   };
+  useEffect(() => {
+    if (admin && admin.userType !== "admin") {
+      console.warn(
+        "Non-admin user detected in admin context. Forcing logout..."
+      );
+      logout();
+      router.push("/login");
+    }
+  }, [admin, router]);
 
   const checkAuth = async () => {
     try {
