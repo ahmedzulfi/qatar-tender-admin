@@ -206,6 +206,17 @@ export const AdminAuthProvider: React.FC<{ children: ReactNode }> = ({
       if (!admin) socketService.disconnect();
     };
   }, [admin, initializeSocketConnection]);
+  useEffect(() => {
+    if (!isLoading && !admin) {
+      // Only redirect if we're on a protected route
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname.startsWith("/admin")
+      ) {
+        router.push("/login");
+      }
+    }
+  }, [isLoading, admin, router]);
 
   // Added: Re-check auth on window focus
   useEffect(() => {

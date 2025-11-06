@@ -7,12 +7,16 @@ import {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: { "Content-Type": "application/json" },
+  headers: {
+    "Content-Type": "application/json",
+  },
   withCredentials: true,
 });
 
+// Request interceptor (add token if exists)
 api.interceptors.request.use((config) => {
   const token = getTokenFromCookie();
   if (token && config.headers) {
@@ -21,45 +25,35 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response interceptor (handle refresh token)
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
     if (!originalRequest) return Promise.reject(error);
 
+    if (originalRequest.url?.includes("/refresh-token")) {
+      clearTokens();
+      return Promise.reject(error); // Let provider handle redirect
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
       try {
         const response = await axios.post(
           `${API_BASE_URL}/api/users/refresh-token`,
           {},
           { withCredentials: true }
         );
-
         if (response.data.accessToken) {
           setTokenCookie(response.data.accessToken);
           originalRequest.headers = originalRequest.headers || {};
           originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
           return api(originalRequest);
         }
-      } catch (refreshError) {
-        clearTokens();
-
-        // Redirect to login after clearing tokens
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-
-        return Promise.reject(refreshError);
-      }
-    }
-
-    // If refresh token is expired or another 401 happens, also redirect
-    if (error.response?.status === 401) {
-      clearTokens();
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
+      } catch (_err) {
+        clearTokens(); // Refresh failed
+        return Promise.reject(_err); // Let provider handle login redirect
       }
     }
 
