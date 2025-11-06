@@ -394,7 +394,6 @@ const NotificationDemo = () => {
                 </svg>
                 <span>Back</span>
               </button>
-
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent tracking-tight">
                   Notifications
@@ -405,7 +404,27 @@ const NotificationDemo = () => {
                     {unreadCount !== 1 ? "s" : ""}
                   </p>
                 )}
-              </div>
+              </div>{" "}
+              {unreadCount > 0 && (
+                <>
+                  <button
+                    onClick={async () => {
+                      try {
+                        if (markAllAsRead) await markAllAsRead();
+                      } catch (err) {
+                        console.error("markAllAsRead failed:", err);
+                      }
+                    }}
+                    className="text-sm sm:text-base text-blue-600 hover:text-blue-700 font-semibold px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-blue-50/50 transition-colors"
+                  >
+                    {"Mark All as Read"}
+                  </button>
+
+                  <div className="bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs font-bold rounded-full h-6 w-6 sm:h-7 sm:w-7 flex items-center justify-center shadow-lg shadow-red-200/40">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="flex items-center space-x-4">

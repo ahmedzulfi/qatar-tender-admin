@@ -208,7 +208,7 @@ export function AdminControlsContent() {
           setTenders(
             tenders.map((tender) =>
               tender._id === pendingAction.target._id
-                ? { ...tender, status: "closed" }
+                ? { ...tender, status: "rejected" }
                 : tender
             )
           );
@@ -855,6 +855,8 @@ export function AdminControlsContent() {
                                 className={
                                   tender.status === "closed"
                                     ? "bg-gray-100 text-gray-800"
+                                    : tender.status === "rejected"
+                                    ? "bg-red-100 text-red-800"
                                     : ""
                                 }
                               >
