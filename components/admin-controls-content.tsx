@@ -138,6 +138,7 @@ export function AdminControlsContent() {
         if (auditResponse.success) {
           setAuditLog(auditResponse.data.activities);
         }
+        console.log(auditResponse);
       } catch (err) {
         setError("Failed to load admin data");
         console.error("Error loading admin data:", err);
@@ -263,19 +264,36 @@ export function AdminControlsContent() {
         .includes(searchTerm.toLowerCase())
   );
 
-  const filteredTenders = tenders.filter(
-    (tender) =>
-      tender.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tender.tenderCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tender.category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTenders = tenders.filter((tender) => {
+    const searchLower = searchTerm.toLowerCase();
 
-  const filteredAuditLog = auditLog.filter(
-    (entry) =>
-      entry.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      entry.adminEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      entry.targetModel.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    const title = tender.title?.toLowerCase() || "";
+    const tenderCode = tender.tenderCode?.toLowerCase() || "";
+    const categoryName =
+      tender.category && tender.category.name
+        ? tender.category.name.toLowerCase()
+        : "";
+
+    return (
+      title.includes(searchLower) ||
+      tenderCode.includes(searchLower) ||
+      categoryName.includes(searchLower)
+    );
+  });
+
+  const filteredAuditLog = auditLog.filter((entry) => {
+    const searchLower = searchTerm.toLowerCase();
+
+    const action = entry.action?.toLowerCase() || "";
+    const adminEmail = entry.adminEmail?.toLowerCase() || "";
+    const targetModel = entry.targetModel?.toLowerCase() || "";
+
+    return (
+      action.includes(searchLower) ||
+      adminEmail.includes(searchLower) ||
+      targetModel.includes(searchLower)
+    );
+  });
 
   // Paginated data
   const paginatedUsers = filteredUsers.slice(
@@ -1090,7 +1108,7 @@ export function AdminControlsContent() {
                                   {entry.targetModel}
                                 </Badge>
                               </TableCell>
-                              <TableCell>{entry.adminEmail}</TableCell>
+                              <TableCell>{entry.adminId.email}</TableCell>
                               <TableCell className="text-gray-600">
                                 {new Date(entry.createdAt).toLocaleString()}
                               </TableCell>

@@ -429,15 +429,7 @@ export default function TransactionsPage() {
                 </div>
               )}
 
-              <div className="mt-6 flex items-center justify-end gap-3">
-                <a
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-slate-100 shadow-sm text-sm"
-                  href={`/#/payments/${selectedPayment._id}`}
-                >
-                  Open in new
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </div>
+          
             </div>
           </motion.div>
         </div>
