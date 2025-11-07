@@ -500,9 +500,9 @@ export default function TenderDetailsPage() {
                 </p>
                 {tender.postedBy &&
                   typeof tender.postedBy !== "string" &&
-                  tender.postedBy.contactPhone && (
+                  tender.contactPhone && (
                     <p className="text-sm text-gray-500 mt-1">
-                      📞 {tender.postedBy.contactPhone}
+                      📞 {tender.contactPhone}
                     </p>
                   )}
               </div>
