@@ -45,7 +45,7 @@ interface Tender {
   location?: string;
   estimatedBudget?: number;
   budget?: string | number;
-  postedBy?: UserRef | string;
+  postedBy?: any;
   image?: string; // Single image/PDF field instead of documents array
   awardedTo?: UserRef | string | null;
   contactEmail?: string;
@@ -490,7 +490,7 @@ export default function TenderDetailsPage() {
             <div className="flex items-center space-x-3">
               <Building className="h-5 w-5 text-gray-400" />
               <div>
-                <p className="text-sm text-gray-600">owner</p>
+                <p className="text-sm text-gray-600">Owner</p>
                 <p className="font-medium">
                   {tender.postedBy && typeof tender.postedBy !== "string"
                     ? tender.postedBy.companyName ||
@@ -498,6 +498,13 @@ export default function TenderDetailsPage() {
                       tender.postedBy.name
                     : tender.postedBy || "N/A"}
                 </p>
+                {tender.postedBy &&
+                  typeof tender.postedBy !== "string" &&
+                  tender.postedBy.contactPhone && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      📞 {tender.postedBy.contactPhone}
+                    </p>
+                  )}
               </div>
             </div>
 
