@@ -1,61 +1,67 @@
-"use client"
+"use client";
 
 import {
   InitialConfigType,
   LexicalComposer,
-} from "@lexical/react/LexicalComposer"
-import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin"
-import { EditorState, SerializedEditorState } from "lexical"
+} from "@lexical/react/LexicalComposer";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { EditorState, SerializedEditorState } from "lexical";
 
-import { editorTheme } from "@/components/editor/themes/editor-theme"
-import { TooltipProvider } from "@/components/ui/tooltip"
+import { editorTheme } from "@/components/editor/themes/editor-theme";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { nodes } from "./nodes";
+import { Plugins } from "./plugins";
 
-import { nodes } from "./nodes"
-import { Plugins } from "./plugins"
+type EditorProps = {
+  editorSerializedState?: SerializedEditorState | null;
+  onChange?: (editorState: EditorState) => void;
+  onSerializedChange?: (serializedState: SerializedEditorState) => void;
+};
 
-const editorConfig: InitialConfigType = {
+const baseConfig: InitialConfigType = {
   namespace: "Editor",
   theme: editorTheme,
   nodes,
-  onError: (error: Error) => {
-    console.error(error)
+  onError: (error: error) => {
+    console.error("[Lexical]", error);
   },
-}
+};
 
 export function Editor({
-  editorState,
   editorSerializedState,
   onChange,
   onSerializedChange,
-}: {
-  editorState?: EditorState
-  editorSerializedState?: SerializedEditorState
-  onChange?: (editorState: EditorState) => void
-  onSerializedChange?: (editorSerializedState: SerializedEditorState) => void
-}) {
+}: EditorProps) {
+  const initialConfig = editorSerializedState
+    ? {
+        ...baseConfig,
+        // This is the correct way to hydrate from JSON
+        editorState: (editor) => {
+          try {
+            const parsed = editor.parseEditorState(editorSerializedState);
+            editor.setEditorState(parsed);
+          } catch (e) {
+            console.error("Failed to parse saved editor state", e);
+          }
+        },
+      }
+    : baseConfig;
+
   return (
     <div className="bg-background overflow-hidden rounded-lg border shadow">
-      <LexicalComposer
-        initialConfig={{
-          ...editorConfig,
-          ...(editorState ? { editorState } : {}),
-          ...(editorSerializedState
-            ? { editorState: JSON.stringify(editorSerializedState) }
-            : {}),
-        }}
-      >
+      <LexicalComposer initialConfig={initialConfig}>
         <TooltipProvider>
           <Plugins />
 
           <OnChangePlugin
             ignoreSelectionChange={true}
             onChange={(editorState) => {
-              onChange?.(editorState)
-              onSerializedChange?.(editorState.toJSON())
+              onChange?.(editorState);
+              onSerializedChange?.(editorState.toJSON());
             }}
           />
         </TooltipProvider>
       </LexicalComposer>
     </div>
-  )
+  );
 }
