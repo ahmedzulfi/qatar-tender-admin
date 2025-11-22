@@ -18,6 +18,7 @@ import {
   Search,
   LogOut,
   Bell,
+  File,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,6 +110,7 @@ export default function layout({ children }: { children: React.ReactNode }) {
     { name: t("bids"), href: "/admin/bids", icon: Gavel },
     { name: t("users"), href: "/admin/users", icon: Users },
     { name: t("kyc"), href: "/admin/kyc", icon: UserCheck },
+    { name: t("blog"), href: "/admin/blog", icon: File },
     { name: t("transactions"), href: "/admin/transactions", icon: CreditCard },
     { name: t("notifications"), href: "/admin/notification", icon: Bell },
     { name: t("analytics"), href: "/admin/analytics", icon: BarChart3 },

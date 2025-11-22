@@ -5,7 +5,6 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   compiler: {
-    removeConsole: { exclude: [] },
   },
 };
 
